@@ -1,0 +1,6 @@
+{
+  "name": "النموذجية في الإنكليزية - السادس الإعدادي",
+  "description": "منصة تعليمية تفاعلية شاملة لمنهج اللغة الإنكليزية للصف السادس الإعدادي 2027 للأستاذ مصطفى تركي مع مساعد ذكي واختبارات وزارية",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
