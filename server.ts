@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const PORT = Number(process.env.PORT || 3001);
+const PORT = 3000;
 const app = express();
 
 app.use(express.json());
@@ -15,7 +15,7 @@ app.get("/api/health", (_req, res) => {
   res.json({
     status: "ok",
     app: "النموذجية في اللغة الإنكليزية - السادس الإعدادي 2027",
-    author: "الأستاذ مصطفى تركي",
+    author: "الأستاذ عمار غالب",
   });
 });
 

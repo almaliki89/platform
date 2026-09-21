@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 import { 
   CheckCircle2, ArrowRight, ArrowLeft, Lightbulb, AlertTriangle, 
-  HelpCircle, BookOpen, Sparkles, Check, X, RotateCcw, Volume2, Share2
+  HelpCircle, BookOpen, Sparkles, Check, X, RotateCcw, Volume2, 
+  Layers, Compass, Cpu, PenTool, Award, Share2
 } from 'lucide-react';
 import { Unit, Lesson, Exercise } from '../types';
+import { GrammarLab } from './lesson-modes/GrammarLab';
+import { ReadingDossier } from './lesson-modes/ReadingDossier';
+import { VocabularyArena } from './lesson-modes/VocabularyArena';
+import { SpellingForge } from './lesson-modes/SpellingForge';
+import { AcademicExplorationEngine } from './AcademicExplorationEngine';
+import { speakEnglish } from '../utils/speech';
 
 interface LessonViewerProps {
   unit: Unit;
@@ -28,6 +35,13 @@ export const LessonViewer: React.FC<LessonViewerProps> = ({
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [revealedExplanations, setRevealedExplanations] = useState<Record<string, boolean>>({});
   const [showQuickHints, setShowQuickHints] = useState(false);
+  const [activeSectionView, setActiveSectionView] = useState<'all' | 'interactive' | 'academic' | 'exercises'>('all');
+  const [speakingText, setSpeakingText] = useState<string | null>(null);
+
+  const handleSpeak = (text: string) => {
+    setSpeakingText(text);
+    speakEnglish(text, () => setSpeakingText(null));
+  };
 
   const handleSelectOption = (exercise: Exercise, option: string) => {
     if (selectedAnswers[exercise.id]) return; // already answered
@@ -54,6 +68,62 @@ export const LessonViewer: React.FC<LessonViewerProps> = ({
   const currentIndex = unit.lessons.findIndex(l => l.id === lesson.id);
   const prevLesson = currentIndex > 0 ? unit.lessons[currentIndex - 1] : null;
   const nextLesson = currentIndex < unit.lessons.length - 1 ? unit.lessons[currentIndex + 1] : null;
+
+  // Category Configuration
+  const getCategoryConfig = () => {
+    switch (lesson.category) {
+      case 'grammar':
+        return {
+          title: 'قواعد وزارية وخوارزميات الحل',
+          badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+          accentColor: 'indigo',
+          icon: <Cpu className="w-4 h-4 text-indigo-600" />,
+          modeName: 'معمل القواعد والتحويلات',
+        };
+      case 'reading':
+        return {
+          title: 'قطع الكتاب الاستيعابية وقصص الأدب',
+          badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
+          accentColor: 'amber',
+          icon: <BookOpen className="w-4 h-4 text-amber-600" />,
+          modeName: 'ملف القصة والبطاقات القلابة',
+        };
+      case 'vocabulary':
+        return {
+          title: 'مفردات ومتلازمات وإسقاطات',
+          badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          accentColor: 'emerald',
+          icon: <Compass className="w-4 h-4 text-emerald-600" />,
+          modeName: 'ساحة التوصيل والمتلازمات',
+        };
+      case 'spelling':
+      default:
+        return {
+          title: 'إملاء وسوابق ولواحق وشواذ',
+          badgeClass: 'bg-rose-50 text-rose-700 border-rose-200',
+          accentColor: 'rose',
+          icon: <PenTool className="w-4 h-4 text-rose-600" />,
+          modeName: 'مختبر الإملاء الدقيق',
+        };
+    }
+  };
+
+  const catConfig = getCategoryConfig();
+
+  // Render the tailored interactive mode for this specific lesson
+  const renderTopicInteractiveMode = () => {
+    if (lesson.category === 'grammar') {
+      return <GrammarLab lesson={lesson} />;
+    }
+    if (lesson.category === 'reading') {
+      return <ReadingDossier lesson={lesson} />;
+    }
+    if (lesson.category === 'vocabulary') {
+      return <VocabularyArena lesson={lesson} />;
+    }
+    // spelling
+    return <SpellingForge lesson={lesson} />;
+  };
 
   return (
     <div className="space-y-6 pb-20 max-w-4xl mx-auto">
@@ -128,147 +198,179 @@ export const LessonViewer: React.FC<LessonViewerProps> = ({
         </div>
       )}
 
-      {/* Lesson Header Title */}
-      <div className="p-6 sm:p-8 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-3">
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600">
-          <BookOpen className="w-4 h-4" />
-          <span>القسم: {lesson.category === 'grammar' ? 'قواعد وزارية' : lesson.category === 'reading' ? 'قطع الكتاب الاستيعابية' : lesson.category === 'vocabulary' ? 'مفردات وإسقاطات' : 'إملاء'}</span>
+      {/* Lesson Header Title & Subject-Adapted Hero */}
+      <div className="p-6 sm:p-8 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4 relative overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border font-bold ${catConfig.badgeClass}`}>
+              {catConfig.icon}
+              <span>{catConfig.title}</span>
+            </span>
+            <span className="text-slate-400">• الوحدة {unit.id} • درس {lesson.lessonNumber}</span>
+          </div>
+
+          {/* Quick Audio Read for Lesson Title */}
+          <button
+            onClick={() => handleSpeak(lesson.titleEn)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border text-xs font-bold transition-all ${
+              speakingText === lesson.titleEn 
+                ? 'bg-indigo-600 text-white border-indigo-600 animate-pulse' 
+                : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+            }`}
+            title="استمع لنطق عنوان الدرس بالإنجليزية"
+          >
+            <Volume2 className="w-3.5 h-3.5" />
+            <span>نطق العنوان</span>
+          </button>
         </div>
 
-        <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 leading-snug">
-          {lesson.titleAr}
-        </h1>
+        <div>
+          <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 leading-snug">
+            {lesson.titleAr}
+          </h1>
 
-        <p className="text-xs sm:text-sm text-slate-500 font-mono dir-ltr text-right">
-          {lesson.titleEn}
-        </p>
+          <p dir="ltr" className="text-xs sm:text-sm text-slate-500 font-mono text-left mt-1 tracking-wide">
+            {lesson.titleEn}
+          </p>
+        </div>
 
         <p className="text-sm text-slate-600 leading-relaxed pt-2 border-t border-slate-100">
           {lesson.summary}
         </p>
+
+        {/* View Mode Switcher Pills */}
+        <div className="pt-2 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold text-slate-400 ml-1">طريقة العرض:</span>
+          
+          <button
+            onClick={() => setActiveSectionView('all')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              activeSectionView === 'all'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            عرض شامل متكامل
+          </button>
+
+          <button
+            onClick={() => setActiveSectionView('interactive')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeSectionView === 'interactive'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{catConfig.modeName}</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSectionView('academic')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeSectionView === 'academic'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>شرح الملزمة والملاحظات</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSectionView('exercises')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeSectionView === 'exercises'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+            }`}
+          >
+            <Award className="w-3.5 h-3.5" />
+            <span>التمارين ({lesson.exercises.length})</span>
+          </button>
+        </div>
       </div>
 
-      {/* The Golden Mathematical Rule (if grammar) */}
-      {lesson.grammarRuleFormula && (
-        <div 
-          id="golden-rule-card"
-          className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-slate-900 to-indigo-950 text-white shadow-md border border-indigo-800/40 space-y-3"
-        >
-          <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
-            <Lightbulb className="w-4 h-4 fill-amber-400" />
-            <span>القاعدة الرياضية الذهبية (Formula)</span>
-          </div>
-
-          <pre className="font-mono text-sm sm:text-base bg-black/40 p-4 rounded-2xl border border-white/10 text-emerald-300 overflow-x-auto whitespace-pre-wrap leading-relaxed">
-            {lesson.grammarRuleFormula}
-          </pre>
+      {/* TOPIC-TAILORED INTERACTIVE ENGINE (Shown in 'all' or 'interactive' views) */}
+      {(activeSectionView === 'all' || activeSectionView === 'interactive') && (
+        <div id="topic-tailored-interactive-section" className="space-y-4">
+          {renderTopicInteractiveMode()}
         </div>
       )}
 
-      {/* Detailed Lesson Content */}
-      <div className="p-6 sm:p-8 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4">
-        <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-          <span>شرح وتفصيل المحتوى الأكاديمي</span>
-        </h2>
+      {/* ACADEMIC TEXTBOOK CONTENT & TEACHER NOTES (Shown in 'all' or 'academic' views) */}
+      {(activeSectionView === 'all' || activeSectionView === 'academic') && (
+        <div className="space-y-6">
+          <AcademicExplorationEngine lesson={lesson} />
 
-        <div className="space-y-3">
-          {lesson.detailedContent.map((point, idx) => (
-            <div key={idx} className="flex items-start gap-3 text-sm text-slate-700 leading-relaxed">
-              <div className="w-5 h-5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
-                {idx + 1}
+          {/* Bilingual Interactive Examples with Audio Pronunciation */}
+          {lesson.examples && lesson.examples.length > 0 && (
+            <div className="p-6 sm:p-8 bg-white rounded-3xl border border-slate-200/90 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className={`text-base sm:text-lg ${
+                  lesson.category === 'grammar' ? 'heading-grammar' :
+                  lesson.category === 'reading' ? 'heading-reading' :
+                  lesson.category === 'vocabulary' ? 'heading-vocab' : 'heading-spelling'
+                }`}>
+                  <Sparkles className="w-5 h-5" />
+                  <span>أمثلة وتطبيقات وزارية نموذجية</span>
+                </h2>
+                <span className="text-xs text-slate-400 font-medium">اضغط على السماعة لسماع النطق</span>
               </div>
-              <p>{point}</p>
+
+              <div className="space-y-3">
+                {lesson.examples.map((ex, idx) => (
+                  <div key={idx} className="p-4 sm:p-4.5 rounded-2xl bg-slate-50/80 border border-slate-200 hover:border-indigo-300 transition-colors space-y-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <p dir="ltr" className="font-sans text-sm sm:text-base font-bold text-indigo-950 text-left en-sentence">
+                        {ex.en}
+                      </p>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        {ex.note && (
+                          <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-indigo-100/80 text-indigo-800 whitespace-nowrap border border-indigo-200/60">
+                            {ex.note}
+                          </span>
+                        )}
+                        <button
+                          onClick={() => handleSpeak(ex.en)}
+                          className={`p-1.5 rounded-xl border transition-all ${
+                            speakingText === ex.en 
+                              ? 'bg-indigo-600 text-white border-indigo-600 animate-pulse' 
+                              : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100 shadow-2xs'
+                          }`}
+                          title="استمع للنطق الإنجليزي"
+                        >
+                          <Volume2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-slate-600 text-right leading-relaxed font-medium">
+                      {ex.ar}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
+          )}
 
-      {/* Teacher's Golden Notes Callout (الأستاذ مصطفى تركي) */}
-      {lesson.teacherNotes && lesson.teacherNotes.length > 0 && (
-        <div 
-          id="teacher-golden-notes-box"
-          className="p-6 rounded-3xl bg-amber-50/80 border border-amber-200 shadow-xs space-y-3"
-        >
-          <div className="flex items-center gap-2 text-amber-900 font-extrabold text-sm sm:text-base">
-            <Lightbulb className="w-5 h-5 text-amber-600 fill-amber-500" />
-            <span>ملاحظات الأستاذ مصطفى تركي الذهبية للوزاري 2027</span>
-          </div>
-
-          <div className="space-y-2.5">
-            {lesson.teacherNotes.map((note, idx) => (
-              <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-amber-900 font-medium leading-relaxed">
-                <span className="text-amber-600 font-bold shrink-0">✦</span>
-                <p>{note}</p>
-              </div>
-            ))}
-          </div>
         </div>
       )}
 
-      {/* Common Ministerial Traps (فخاخ وزارية احذر منها) */}
-      {lesson.commonMistakes && lesson.commonMistakes.length > 0 && (
-        <div 
-          id="common-mistakes-box"
-          className="p-6 rounded-3xl bg-rose-50/70 border border-rose-200 shadow-xs space-y-3"
-        >
-          <div className="flex items-center gap-2 text-rose-900 font-extrabold text-sm sm:text-base">
-            <AlertTriangle className="w-5 h-5 text-rose-600" />
-            <span>فخاخ وزارية شائعة احذر الوقوع بها في الدفتر الامتحاني</span>
-          </div>
-
-          <div className="space-y-2">
-            {lesson.commonMistakes.map((mistake, idx) => (
-              <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-rose-800 leading-relaxed">
-                <X className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                <p>{mistake}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Bilingual Interactive Examples */}
-      {lesson.examples && lesson.examples.length > 0 && (
-        <div className="p-6 sm:p-8 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4">
-          <h2 className="text-lg font-extrabold text-slate-900">
-            أمثلة وتطبيقات وزارية نموذجية
-          </h2>
-
-          <div className="space-y-3">
-            {lesson.examples.map((ex, idx) => (
-              <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-indigo-300 transition-colors space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <p className="font-mono text-sm sm:text-base font-bold text-indigo-900 dir-ltr text-right">
-                    {ex.en}
-                  </p>
-                  {ex.note && (
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-800 whitespace-nowrap">
-                      {ex.note}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs sm:text-sm text-slate-600">
-                  {ex.ar}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Interactive Exercises with Instant Feedback */}
-      {lesson.exercises && lesson.exercises.length > 0 && (
-        <div className="p-6 sm:p-8 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-6">
+      {/* EXERCISES & TESTS (Shown in 'all' or 'exercises' views) */}
+      {(activeSectionView === 'all' || activeSectionView === 'exercises') && lesson.exercises && lesson.exercises.length > 0 && (
+        <div className="p-6 sm:p-8 bg-white rounded-3xl border border-slate-200/90 shadow-xs space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-extrabold text-slate-900">
-                تمارين واختبارات فورية
+              <h2 className="section-title text-base sm:text-lg">
+                <span>تمارين واختبارات وزارية فورية</span>
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 mt-1">
                 اختر الإجابة الصحيحة للتحقق من فهمك والحصول على نقاط الخبرة XP
               </p>
             </div>
-            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
               {lesson.exercises.length} أسئلة
             </span>
           </div>
@@ -292,12 +394,12 @@ export const LessonViewer: React.FC<LessonViewerProps> = ({
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
-                    <p className="font-bold text-sm sm:text-base text-slate-900 dir-ltr text-right">
-                      <span className="text-indigo-600 font-black mr-2">Q{idx + 1}.</span>
+                    <p dir="ltr" className="font-bold text-sm sm:text-base text-slate-900 text-left en-sentence">
+                      <span className="text-indigo-600 font-black mr-2 font-mono">Q{idx + 1}.</span>
                       {exercise.question}
                     </p>
                     {exercise.ministerialYear && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 whitespace-nowrap">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 whitespace-nowrap shrink-0">
                         {exercise.ministerialYear}
                       </span>
                     )}
@@ -305,7 +407,7 @@ export const LessonViewer: React.FC<LessonViewerProps> = ({
 
                   {/* Options */}
                   {exercise.options && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 dir-ltr">
+                    <div dir="ltr" className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
                       {exercise.options.map((opt) => {
                         const isThisSelected = selected === opt;
                         const isThisCorrect = opt === exercise.correctAnswer;
@@ -326,11 +428,11 @@ export const LessonViewer: React.FC<LessonViewerProps> = ({
                             key={opt}
                             disabled={isAnswered}
                             onClick={() => handleSelectOption(exercise, opt)}
-                            className={`p-3 rounded-xl border text-sm font-medium text-left transition-all flex items-center justify-between ${btnStyle}`}
+                            className={`p-3 rounded-xl border text-sm font-medium text-left transition-all flex items-center justify-between font-sans ${btnStyle}`}
                           >
-                            <span>{opt}</span>
-                            {isAnswered && isThisCorrect && <Check className="w-4 h-4 text-white" />}
-                            {isAnswered && isThisSelected && !isThisCorrect && <X className="w-4 h-4 text-white" />}
+                            <span dir="ltr" className="en-sentence">{opt}</span>
+                            {isAnswered && isThisCorrect && <Check className="w-4 h-4 text-white shrink-0 ml-2" />}
+                            {isAnswered && isThisSelected && !isThisCorrect && <X className="w-4 h-4 text-white shrink-0 ml-2" />}
                           </button>
                         );
                       })}

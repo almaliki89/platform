@@ -52,7 +52,7 @@ export const INITIAL_BADGES: Badge[] = [
 ];
 
 export const INITIAL_STUDENT_STATE: StudentState = {
-  name: 'مصطفى تركي',
+  name: 'طالب السادس المتفوق',
   xp: 150,
   completedLessonIds: [],
   bookmarkedQuestionIds: [],

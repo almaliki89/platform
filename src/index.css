@@ -2,8 +2,307 @@
 
 @theme {
   --font-sans: "Alexandria", "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Alexandria", system-ui, sans-serif;
+  --font-mono: "Plus Jakarta Sans", ui-monospace, monospace;
+}
+
+html {
+  max-width: 100vw;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
+  max-width: 100vw;
+  overflow-x: hidden;
   font-family: var(--font-sans);
+  color: #0f172a;
+  background-color: #f8fafc;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  max-width: 100vw;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Hide scrollbar while keeping scroll functionality */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar,
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ========================================================
+   Distinctive Typography & Heading Systems
+   ======================================================== */
+h1, h2, h3, h4, h5, h6, .title-prominent {
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* Default / General Section Title (Indigo Royal) */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 900;
+  color: #0f172a;
+}
+.section-title::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 1.2em;
+  background: linear-gradient(180deg, #4f46e5 0%, #3b82f6 100%);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Grammar Category Heading (Indigo - Violet) */
+.heading-grammar {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 900;
+  color: #1e1b4b;
+}
+.heading-grammar::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 1.2em;
+  background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Reading / Story Category Heading (Amber - Orange) */
+.heading-reading {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 900;
+  color: #451a03;
+}
+.heading-reading::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 1.2em;
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Vocabulary / Collocations Category Heading (Emerald - Teal) */
+.heading-vocab {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 900;
+  color: #064e3b;
+}
+.heading-vocab::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 1.2em;
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Spelling / Suffixes Category Heading (Rose - Ruby) */
+.heading-spelling {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 900;
+  color: #4c0519;
+}
+.heading-spelling::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 1.2em;
+  background: linear-gradient(180deg, #f43f5e 0%, #be123c 100%);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Literature Section Heading (Warm Gold & Bronze) */
+.section-title-gold {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 900;
+  color: #451a03;
+}
+.section-title-gold::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 1.2em;
+  background: linear-gradient(180deg, #d97706 0%, #b45309 100%);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Essays Section Heading (Forest Emerald) */
+.section-title-emerald {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 900;
+  color: #064e3b;
+}
+.section-title-emerald::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 1.2em;
+  background: linear-gradient(180deg, #059669 0%, #047857 100%);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Ministerial Exam / Bank Heading (Royal Purple - Navy) */
+.section-title-purple {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 900;
+  color: #2e1065;
+}
+.section-title-purple::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 1.2em;
+  background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Golden Note Box Badge Heading */
+.heading-teacher-notes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 900;
+  color: #78350f;
+}
+
+/* Ministerial Trap Hazard Heading */
+.heading-trap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 900;
+  color: #881337;
+}
+
+/* Formula Tokens in Grammar */
+.grammar-token {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.625rem;
+  font-weight: 800;
+  font-size: 0.8125rem;
+  letter-spacing: -0.01em;
+  transition: all 0.2s ease;
+}
+
+/* Clean custom scrollbar for horizontal sub-navs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Smooth line paper effect for notebooks */
+.lined-paper {
+  background-image: linear-gradient(#e2e8f0 1px, transparent 1px);
+  background-size: 100% 2.25rem;
+  line-height: 2.25rem;
+}
+
+/* ========================================================
+   BiDi Precision & Dual-Language (Arabic RTL & English LTR)
+   ======================================================== */
+
+/* Force LTR direction with proper left alignment and font */
+.dir-ltr,
+[dir="ltr"] {
+  direction: ltr !important;
+}
+
+.dir-rtl,
+[dir="rtl"] {
+  direction: rtl !important;
+}
+
+/* Inline English term inside Arabic RTL text with punctuation isolation */
+.bidi-en {
+  direction: ltr;
+  display: inline-block;
+  unicode-bidi: isolate;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Inline Arabic term inside LTR text with punctuation isolation */
+.bidi-ar {
+  direction: rtl;
+  display: inline-block;
+  unicode-bidi: isolate;
+  font-family: "Alexandria", system-ui, sans-serif;
+}
+
+/* Full English sentence blocks (preserves periods, question marks, and parentheses) */
+.en-sentence,
+.en-block {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: isolate;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+/* Dual language question cards layout */
+.bilingual-card {
+  unicode-bidi: isolate;
+}
+
+/* English badge or keyword pill */
+.en-badge {
+  direction: ltr;
+  display: inline-flex;
+  align-items: center;
+  unicode-bidi: isolate;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-weight: 700;
+}
+
+/* Grammar formula row (ensures + , / ➔ brackets stay in correct left-to-right math order) */
+.grammar-formula {
+  direction: ltr !important;
+  text-align: left !important;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  unicode-bidi: isolate;
+  font-family: "Plus Jakarta Sans", ui-monospace, monospace;
 }

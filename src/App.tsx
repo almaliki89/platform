@@ -6,6 +6,8 @@ import { ExamEngine } from './components/ExamEngine';
 import { LiteratureSection } from './components/LiteratureSection';
 import { EssaysSection } from './components/EssaysSection';
 import { IrregularVerbsLab } from './components/IrregularVerbsLab';
+import { MinisterialMockSimulator } from './components/MinisterialMockSimulator';
+import { VisualVocabAtlas } from './components/VisualVocabAtlas';
 import { StudentProfileModal } from './components/StudentProfileModal';
 
 import { CURRICULUM_UNITS } from './data/curriculumData';
@@ -19,7 +21,7 @@ import {
 
 export function App() {
   // Navigation tabs
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'lesson' | 'exam' | 'literature' | 'essays' | 'verbs'>('dashboard');
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab'>('dashboard');
 
   // Currently viewed Unit and Lesson
   const [activeUnit, setActiveUnit] = useState<Unit>(CURRICULUM_UNITS[0]);
@@ -130,7 +132,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100/70 text-slate-900 font-sans selection:bg-indigo-500 selection:text-white flex flex-col">
+    <div className="min-h-screen bg-slate-100/70 text-slate-900 font-sans selection:bg-indigo-500 selection:text-white flex flex-col w-full max-w-full overflow-x-hidden">
       
       {/* Top Navbar */}
       <Navbar
@@ -144,7 +146,7 @@ export function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-5 sm:pt-8 min-w-0">
         {currentTab === 'dashboard' && (
           <Dashboard
             studentState={studentState}
@@ -171,8 +173,21 @@ export function App() {
 
         {currentTab === 'exam' && (
           <ExamEngine
+            studentName={studentState.name}
             onRecordAnswer={(qId, isCorrect) => handleRecordQuestionAnswer(qId, isCorrect)}
           />
+        )}
+
+        {currentTab === 'mock' && (
+          <div className="max-w-5xl mx-auto">
+            <MinisterialMockSimulator
+              studentName={studentState.name}
+              onClose={() => setCurrentTab('dashboard')}
+              onRecordScore={(score, total) => {
+                handleRecordQuestionAnswer('mock-exam-complete', score >= 50);
+              }}
+            />
+          </div>
         )}
 
         {currentTab === 'literature' && (
@@ -187,6 +202,10 @@ export function App() {
           <IrregularVerbsLab
             onRecordAnswer={(isCorrect) => handleRecordQuestionAnswer(isCorrect)}
           />
+        )}
+
+        {currentTab === 'vocab' && (
+          <VisualVocabAtlas />
         )}
       </main>
 

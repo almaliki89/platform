@@ -1,16 +1,19 @@
 import React from 'react';
 import { 
   BookOpen, Sparkles, Trophy, CheckCircle2, ChevronLeft, ArrowRight,
-  HelpCircle, Compass, FileText, Bookmark, Star, ArrowUpRight, Flame
+  HelpCircle, Compass, FileText, Bookmark, Star, ArrowUpRight, Flame,
+  Target, GraduationCap, Clock, Award, CheckCircle, ShieldCheck, Zap, Eye
 } from 'lucide-react';
 import { CURRICULUM_UNITS } from '../data/curriculumData';
+import { ESSAYS_DATA } from '../data/essaysData';
 import { StudentState, Unit, Lesson } from '../types';
+import { CurriculumUnitsSection } from './CurriculumUnitsSection';
 
 interface DashboardProps {
   studentState: StudentState;
   onSelectUnit: (unit: Unit) => void;
   onSelectLesson: (lesson: Lesson) => void;
-  onNavigateTab: (tab: 'exam' | 'literature' | 'essays' | 'verbs') => void;
+  onNavigateTab: (tab: 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab') => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -36,90 +39,128 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const lastLesson = allLessons.find(l => l.id === studentState.lastVisitedLessonId) || allLessons[0];
   const lastLessonUnit = CURRICULUM_UNITS.find(u => u.id === lastLesson?.unitId);
 
+  // Ministerial Exam Map
+  const examStructure = [
+    { q: 'Q1', title: 'القطعة الخارجية وقطع الكتاب', marks: '20 درجة', tag: 'Reading & Stories', color: 'border-amber-400/40 text-amber-300' },
+    { q: 'Q2', title: 'القواعد والوظائف اللغوية', marks: '30 درجة', tag: 'Grammar & Functions', color: 'border-blue-400/40 text-blue-300' },
+    { q: 'Q3', title: 'المفردات والتوصيل والإملاء', marks: '20 درجة', tag: 'Vocab & Spelling', color: 'border-emerald-400/40 text-emerald-300' },
+    { q: 'Q4', title: 'الأدب الوزاري: كبرياء وتحامل (جين أوستن) وكما تشاء (شكسبير)', marks: '10 درجات', tag: 'Literature Focus', color: 'border-purple-400/40 text-purple-300' },
+    { q: 'Q5', title: 'الإنشاء الوزاري النموذجي', marks: '20 درجة', tag: 'Written Composition', color: 'border-rose-400/40 text-rose-300' },
+  ];
+
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-8 sm:space-y-10 pb-20 max-w-7xl mx-auto w-full min-w-0">
       
-      {/* Hero Welcome Banner */}
+      {/* 1. Executive Master Hero Section */}
       <section 
         id="hero-dashboard-banner"
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 text-white p-6 sm:p-10 shadow-xl border border-indigo-700/50"
+        className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 text-white p-5 sm:p-7 lg:p-10 shadow-2xl"
       >
-        {/* Background glow graphics */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        {/* Subtle architectural background accents */}
+        <div className="absolute top-0 right-0 w-64 sm:w-[500px] h-64 sm:h-[500px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -mr-10 sm:-mr-20 -mt-10 sm:-mt-20 max-w-full" />
+        <div className="absolute bottom-0 left-0 w-52 sm:w-[400px] h-52 sm:h-[400px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none -ml-10 sm:-ml-20 -mb-10 sm:-mb-20 max-w-full" />
+        
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
 
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
           
-          <div className="lg:col-span-8 space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-200 text-xs font-semibold">
-              <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span>منهاج 2027 • طبعة الأستاذ مصطفى تركي النموذجية</span>
+          {/* Main Hero Copy */}
+          <div className="lg:col-span-7 space-y-4 sm:space-y-5 min-w-0">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/90 border border-slate-700/80 text-[11px] sm:text-xs font-semibold text-amber-300 shadow-sm flex-wrap">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+              <span>منهاج اللغة الإنكليزية المعتمد 2027 • إعداد الأستاذ مصطفى تركي</span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
-              أهلاً بك يا بطل، <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-200">{studentState.name}</span>!
-            </h1>
+            <div className="space-y-2">
+              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.2] break-words">
+                مرحباً بك يا بطل، <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-200 to-yellow-100">{studentState.name}</span>
+              </h1>
+              <p className="text-slate-300 text-xs sm:text-base leading-relaxed max-w-xl font-normal">
+                منصتك الشاملة لضمان الدرجة الكاملة <strong className="text-white font-bold">(100/100)</strong> في الامتحان الوزاري عبر الفهم الدقيق للقواعد وتفكيك الأفخاخ الامتحانية وحل الأسئلة الوزارية المكررة.
+              </p>
+            </div>
 
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
-              طريقك نحو درجة 100 في اللغة الإنكليزية يبدأ بالانضباط اليومي، وفهم القواعد بدقة، وحل النماذج الوزارية المكررة بدون تعقيد.
-            </p>
-
-            {/* Quick Resume Strip */}
+            {/* Resume Last Lesson Quick Action */}
             {lastLesson && (
-              <div className="pt-2">
-                <div 
+              <div className="pt-1">
+                <button 
                   id="resume-last-lesson-card"
                   onClick={() => onSelectLesson(lastLesson)}
-                  className="inline-flex items-center gap-3 p-2.5 sm:px-4 sm:py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 backdrop-blur-sm cursor-pointer transition-all group"
+                  className="w-full sm:w-auto inline-flex items-center justify-between sm:justify-start gap-4 p-3.5 sm:px-5 sm:py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/40 transition-all group"
                 >
-                  <div className="w-8 h-8 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center font-bold text-xs group-hover:scale-110 transition-transform">
-                    {lastLessonUnit?.number || 1}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center font-black text-xs text-white shrink-0">
+                      U{lastLessonUnit?.number || 1}
+                    </div>
+                    <div className="text-right truncate">
+                      <span className="text-[10px] text-indigo-100 block font-normal">متابعة الدرس الحالي:</span>
+                      <span className="text-xs sm:text-sm font-bold text-white truncate block">
+                        {lastLesson.titleAr}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[11px] text-indigo-200 font-medium">تابع من حيث توقفت:</p>
-                    <p className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
-                      {lastLesson.titleAr}
-                    </p>
-                  </div>
-                  <ChevronLeft className="w-4 h-4 text-slate-300 group-hover:-translate-x-1 transition-transform" />
-                </div>
+                  <ChevronLeft className="w-4 h-4 text-indigo-200 group-hover:-translate-x-1 transition-transform shrink-0" />
+                </button>
               </div>
             )}
           </div>
 
-          {/* Quick Stats Grid */}
-          <div className="lg:col-span-4 grid grid-cols-2 gap-3 sm:gap-4">
+          {/* Master Stats Bento Grid */}
+          <div className="lg:col-span-5 grid grid-cols-2 gap-2.5 sm:gap-3.5">
             
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm text-center">
-              <div className="w-8 h-8 mx-auto mb-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center">
-                <CheckCircle2 className="w-4 h-4" />
+            <div className="p-3 sm:p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 backdrop-blur-md flex flex-col justify-between min-w-0">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] sm:text-[11px] font-bold text-slate-400">إنجاز المنهاج</span>
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
               </div>
-              <p className="text-2xl font-black text-white">{overallProgressPercentage}%</p>
-              <p className="text-[11px] text-slate-400 font-medium">التقدم العام بالمنهج</p>
+              <div className="mt-2 sm:mt-3">
+                <p className="text-xl sm:text-3xl font-black text-white">{overallProgressPercentage}%</p>
+                <div className="w-full bg-slate-700 h-1.5 rounded-full mt-1.5 sm:mt-2 overflow-hidden">
+                  <div className="bg-indigo-500 h-full rounded-full transition-all" style={{ width: `${overallProgressPercentage}%` }} />
+                </div>
+              </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm text-center">
-              <div className="w-8 h-8 mx-auto mb-1.5 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center">
-                <Sparkles className="w-4 h-4" />
+            <div className="p-3 sm:p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 backdrop-blur-md flex flex-col justify-between min-w-0">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] sm:text-[11px] font-bold text-slate-400">نقاط التميز (XP)</span>
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
               </div>
-              <p className="text-2xl font-black text-white">{studentState.xp}</p>
-              <p className="text-[11px] text-slate-400 font-medium">نقاط الخبرة (XP)</p>
+              <div className="mt-2 sm:mt-3">
+                <p className="text-xl sm:text-3xl font-black text-amber-300">{studentState.xp}</p>
+                <p className="text-[10px] sm:text-[11px] text-slate-400 mt-1 truncate">{completedLessonsCount} من {totalLessonsCount} درس</p>
+              </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm text-center">
-              <div className="w-8 h-8 mx-auto mb-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
-                <Trophy className="w-4 h-4" />
+            <div className="p-3 sm:p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 backdrop-blur-md flex flex-col justify-between min-w-0">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] sm:text-[11px] font-bold text-slate-400">دقة الإجابات الوزارية</span>
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
               </div>
-              <p className="text-2xl font-black text-white">{accuracyPercentage}%</p>
-              <p className="text-[11px] text-slate-400 font-medium">دقة الإجابات الوزارية</p>
+              <div className="mt-2 sm:mt-3">
+                <p className="text-xl sm:text-3xl font-black text-emerald-300">{accuracyPercentage}%</p>
+                <p className="text-[10px] sm:text-[11px] text-slate-400 mt-1 truncate">{studentState.totalQuestionsAttempted} سؤال تم حله</p>
+              </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm text-center">
-              <div className="w-8 h-8 mx-auto mb-1.5 rounded-lg bg-rose-500/20 text-rose-300 flex items-center justify-center">
-                <Flame className="w-4 h-4 text-rose-400" />
+            <div className="p-3 sm:p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 backdrop-blur-md flex flex-col justify-between min-w-0">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] sm:text-[11px] font-bold text-slate-400">التتابع والانضباط</span>
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+                  <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" />
+                </div>
               </div>
-              <p className="text-2xl font-black text-white">{studentState.streakDays} أيام</p>
-              <p className="text-[11px] text-slate-400 font-medium">التتابع الدراسي</p>
+              <div className="mt-2 sm:mt-3">
+                <p className="text-xl sm:text-3xl font-black text-rose-300">{studentState.streakDays} أيام</p>
+                <p className="text-[10px] sm:text-[11px] text-slate-400 mt-1 truncate">دراسة يومية مستمرة</p>
+              </div>
             </div>
 
           </div>
@@ -127,205 +168,259 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </section>
 
-      {/* Fast Shortcuts Cards */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        
-        <div 
-          id="shortcut-exam-card"
-          onClick={() => onNavigateTab('exam')}
-          className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 hover:border-indigo-300 cursor-pointer transition-all hover:shadow-md group"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
-              <HelpCircle className="w-5 h-5" />
-            </div>
-            <ArrowUpRight className="w-4 h-4 text-indigo-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+      {/* 2. Ministerial Exam 100 Marks Blueprint Strip */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Target className="w-4 h-4 text-indigo-600" />
+            <h2 className="text-sm sm:text-base font-black text-slate-900">
+              خريطة توزيع درجات الدفتر الامتحاني الوزاري (100 درجة)
+            </h2>
           </div>
-          <h3 className="font-bold text-slate-900 text-sm sm:text-base group-hover:text-indigo-700 transition-colors">
-            بنك الأسئلة الوزارية
-          </h3>
-          <p className="text-xs text-slate-500 mt-1 line-clamp-1">
-            2014-2025 مع الحلول والشرح
-          </p>
+          <span className="text-xs text-slate-500 hidden sm:inline font-medium">
+            توزيع الأسئلة الرسمي في قاعة الامتحان
+          </span>
         </div>
 
-        <div 
-          id="shortcut-literature-card"
-          onClick={() => onNavigateTab('literature')}
-          className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 hover:border-amber-300 cursor-pointer transition-all hover:shadow-md group"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center shadow-xs">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <ArrowUpRight className="w-4 h-4 text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </div>
-          <h3 className="font-bold text-slate-900 text-sm sm:text-base group-hover:text-amber-700 transition-colors">
-            الأدب المقرّر
-          </h3>
-          <p className="text-xs text-slate-500 mt-1 line-clamp-1">
-            كبرياء وتحامل & كما تشاء
-          </p>
-        </div>
-
-        <div 
-          id="shortcut-essays-card"
-          onClick={() => onNavigateTab('essays')}
-          className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 hover:border-emerald-300 cursor-pointer transition-all hover:shadow-md group"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
-              <FileText className="w-5 h-5" />
-            </div>
-            <ArrowUpRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </div>
-          <h3 className="font-bold text-slate-900 text-sm sm:text-base group-hover:text-emerald-700 transition-colors">
-            الإنشاءات النموذجية
-          </h3>
-          <p className="text-xs text-slate-500 mt-1 line-clamp-1">
-            20 درجة مع الترجمة واختبار الفراغات
-          </p>
-        </div>
-
-        <div 
-          id="shortcut-verbs-card"
-          onClick={() => onNavigateTab('verbs')}
-          className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-rose-50 to-pink-50 border border-rose-100 hover:border-rose-300 cursor-pointer transition-all hover:shadow-md group"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-xs">
-              <Compass className="w-5 h-5" />
-            </div>
-            <ArrowUpRight className="w-4 h-4 text-rose-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </div>
-          <h3 className="font-bold text-slate-900 text-sm sm:text-base group-hover:text-rose-700 transition-colors">
-            مختبر الأفعال الشاذة
-          </h3>
-          <p className="text-xs text-slate-500 mt-1 line-clamp-1">
-            تصنيف ثلاثي واختبار سرعة فوري
-          </p>
-        </div>
-
-      </section>
-
-      {/* Quick Study Review Section */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { title: 'قاعدة اليوم', text: 'استخدم صيغة Subject + used to + base في الجمل عن الماضي.', badge: 'Grammar' },
-          { title: 'الفخ الوزاري', text: 'انتبه إلى زمن الجملة قبل اختيار الفعل المساعد في السؤال.', badge: 'Tip' },
-          { title: 'تمرين 3 دقائق', text: 'حل 3 أسئلة من بنك الوزاريات ثم راجع الخطأ قبل المتابعة.', badge: 'Practice' }
-        ].map((tip) => (
-          <div key={tip.title} className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
-                {tip.badge}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+          {examStructure.map((item) => (
+            <div 
+              key={item.q}
+              className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="font-mono font-black text-xs px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-200">
+                    {item.q}
+                  </span>
+                  <span className="text-xs font-black text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md">
+                    {item.marks}
+                  </span>
+                </div>
+                <p className="font-bold text-slate-900 text-xs mt-1 leading-snug">
+                  {item.title}
+                </p>
+              </div>
+              <span className="text-[10px] text-slate-400 font-medium mt-2 pt-2 border-t border-slate-100 block">
+                {item.tag}
               </span>
-              <Sparkles className="w-4 h-4 text-amber-500" />
             </div>
-            <h3 className="font-black text-slate-900 mb-2">{tip.title}</h3>
-            <p className="text-sm text-slate-600 leading-relaxed">{tip.text}</p>
+          ))}
+        </div>
+
+        {/* Full Mock Simulator Action Card */}
+        <div 
+          id="hero-mock-exam-cta"
+          onClick={() => onNavigateTab('mock')}
+          className="p-6 rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 text-white border border-indigo-700/50 shadow-xl cursor-pointer hover:border-amber-400/80 transition-all group relative overflow-hidden"
+        >
+          <div className="absolute top-0 left-0 w-64 h-64 bg-amber-400/10 rounded-full blur-2xl pointer-events-none -ml-16 -mt-16" />
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1.5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black shadow-xs">
+                <Trophy className="w-3.5 h-3.5" />
+                <span>المحاكي الوزاري الرسمي • 100 درجة كاملة</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-white group-hover:text-amber-300 transition-colors">
+                محاكي الامتحان الوزاري الشامل (3 ساعات موقوتة)
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                عش تجربة قاعة الامتحان الحقيقية بجميع الأسئلة الـ 5 (القطعة، القواعد، المعاني، الأدب، والإنشاء) مع التصحيح التلقائي والمقارنة بالدفتر النموذجي لوزارة التربية.
+              </p>
+            </div>
+            <button 
+              id="start-mock-btn-banner"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm whitespace-nowrap shadow-lg shadow-amber-400/20 group-hover:scale-105 transition-all flex items-center justify-center gap-2"
+            >
+              <span>بدء محاكي الامتحان</span>
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            </button>
           </div>
-        ))}
+        </div>
       </section>
 
-      {/* Curriculum Units (Units 1 - 8) */}
+      {/* 3. Core Ministerial Hubs (الوصول السريع للمحاور التخصصية) */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
-              الوحدات الدراسية (Curriculum Units)
+            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+              المحاور التخصصية لبنك الوزاريات
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500">
-              اختر الوحدة لبدء استعراض دروس القواعد والمفردات والقطع الوزارية
+            <p className="text-xs text-slate-500 mt-0.5">
+              تدريب مكثف على الأدب، الإنشاءات، الأفعال الشاذة، والأسئلة الوزارية الشاملة
             </p>
           </div>
-          <button
-            onClick={() => onNavigateTab('exam')}
-            className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>ابدأ المراجعة</span>
-          </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {CURRICULUM_UNITS.map((unit) => {
-            const completedInUnit = unit.lessons.filter(l => 
-              studentState.completedLessonIds.includes(l.id)
-            ).length;
-            const progressRatio = unit.lessons.length > 0 
-              ? Math.round((completedInUnit / unit.lessons.length) * 100) 
-              : 0;
-
-            return (
-              <div
-                key={unit.id}
-                id={`unit-card-${unit.id}`}
-                onClick={() => onSelectUnit(unit)}
-                className={`p-5 rounded-2xl border hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between group ${unit.bgGradient}`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-extrabold px-2.5 py-1 rounded-lg bg-white/70 text-slate-800 border border-slate-200/80 backdrop-blur-sm">
-                      الوحدة {unit.number}
-                    </span>
-                    <span className="text-xs font-medium text-slate-500">
-                      {unit.lessons.length} دروس
-                    </span>
-                  </div>
-
-                  <h3 className="font-bold text-slate-900 text-base group-hover:opacity-90 transition-colors">
-                    {unit.titleAr}
-                  </h3>
-                  
-                  <p className="text-xs text-slate-500 font-mono mt-0.5 dir-ltr text-right">
-                    {unit.titleEn}
-                  </p>
-
-                  <p className="text-xs text-slate-700 mt-2.5 line-clamp-2 leading-relaxed">
-                    {unit.description}
-                  </p>
-                </div>
-
-                <div className="mt-5 pt-4 border-t border-slate-100">
-                  <div className="flex items-center justify-between text-xs text-slate-600 font-medium mb-1.5">
-                    <span>نسبة الإنجاز</span>
-                    <span className="font-bold text-slate-800">{progressRatio}%</span>
-                  </div>
-                  <div className="w-full bg-white/60 h-2 rounded-full overflow-hidden border border-slate-200/80">
-                    <div 
-                      className={`h-full bg-gradient-to-r ${unit.accentColor} transition-all duration-300`}
-                      style={{ width: `${progressRatio}%` }}
-                    ></div>
-                  </div>
-                </div>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5 sm:gap-4">
+          
+          {/* Hub 1: Ministerial Exam Bank */}
+          <div 
+            id="shortcut-exam-card"
+            onClick={() => onNavigateTab('exam')}
+            className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 hover:border-indigo-400 hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group min-w-0"
+          >
+            <div>
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-xs shrink-0">
+                <HelpCircle className="w-5 h-5" />
               </div>
-            );
-          })}
+              <span className="text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                2014 - 2026
+              </span>
+              <h3 className="text-base font-black text-slate-900 mt-2 group-hover:text-indigo-600 transition-colors">
+                بنك الأسئلة الوزارية
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                جميع الأسئلة المقسمة حسب الأدوار والقواعد مع الحل النموذجي والتعليل.
+              </p>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-600">
+              <span>بدء الاختبار</span>
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform shrink-0" />
+            </div>
+          </div>
+
+          {/* Hub 2: Visual Vocabulary & Idioms Atlas */}
+          <div 
+            id="shortcut-vocab-card"
+            onClick={() => onNavigateTab('vocab')}
+            className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 hover:border-indigo-500 hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group min-w-0"
+          >
+            <div>
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-xs shrink-0">
+                <Eye className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md">
+                السؤال الثالث • 20 درجة
+              </span>
+              <h3 className="text-base font-black text-slate-900 mt-2 group-hover:text-indigo-600 transition-colors">
+                أطلس الرموز والمفردات
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                تثبيت المفردات والمتلازمات الوزارية بالترميز الرمزي والروابط الذهنية البصرية.
+              </p>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-600">
+              <span>استعراض الأطلس</span>
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform shrink-0" />
+            </div>
+          </div>
+
+          {/* Hub 3: Literature Focus */}
+          <div 
+            id="shortcut-literature-card"
+            onClick={() => onNavigateTab('literature')}
+            className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 hover:border-amber-400 hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group min-w-0"
+          >
+            <div>
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 group-hover:bg-amber-600 group-hover:text-white transition-all shadow-xs shrink-0">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">
+                السؤال الرابع • 10 درجات
+              </span>
+              <h3 className="text-base font-black text-slate-900 mt-2 group-hover:text-amber-600 transition-colors">
+                الأدب الوزاري المقرّر
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                رواية «كبرياء وتحامل» لجين أوستن، ومسرحية «كما تشاء» لشكسبير والشخصيات والأسئلة الوزارية.
+              </p>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-700">
+              <span>استكشاف الأدب</span>
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform shrink-0" />
+            </div>
+          </div>
+
+          {/* Hub 4: Model Essays */}
+          <div 
+            id="shortcut-essays-card"
+            onClick={() => onNavigateTab('essays')}
+            className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-400 hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group min-w-0"
+          >
+            <div>
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-xs shrink-0">
+                <FileText className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                السؤال الخامس • 20 درجة
+              </span>
+              <h3 className="text-base font-black text-slate-900 mt-2 group-hover:text-emerald-600 transition-colors">
+                الإنشاءات النموذجية
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                نماذج الحفظ المعتمدة، مع عدّاد الكلمات الوزاري ومحاكي التسميع الآلي.
+              </p>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-700">
+              <span>تسميع الإنشاء</span>
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform shrink-0" />
+            </div>
+          </div>
+
+          {/* Hub 5: Irregular Verbs */}
+          <div 
+            id="shortcut-verbs-card"
+            onClick={() => onNavigateTab('verbs')}
+            className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 hover:border-rose-400 hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group min-w-0"
+          >
+            <div>
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-xs shrink-0">
+                <Compass className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md">
+                V1 ➔ V2 ➔ V3
+              </span>
+              <h3 className="text-base font-black text-slate-900 mt-2 group-hover:text-rose-600 transition-colors">
+                مختبر الأفعال الشاذة
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                تصنيف الأفعال الشاذة حسب الأنماط الصوتية لسرعة الحفظ وثبات التصاريف.
+              </p>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-rose-700">
+              <span>دخول المختبر</span>
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform shrink-0" />
+            </div>
+          </div>
+
         </div>
       </section>
 
-      {/* Study Strategy Card */}
-      <section className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg border border-indigo-700/50">
-        <div className="space-y-2 text-center sm:text-right">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/30 text-indigo-100 text-xs font-bold">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>خطة مراجعة ذكية</span>
+      {/* 4. Curriculum Units Master Section (Interactive Filter, Drawer, & Roadmap) */}
+      <CurriculumUnitsSection
+        studentState={studentState}
+        onSelectUnit={onSelectUnit}
+        onSelectLesson={onSelectLesson}
+      />
+
+      {/* 5. Teacher's Golden Daily Directive */}
+      <section className="rounded-3xl p-6 sm:p-8 bg-slate-900 border border-slate-800 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="space-y-2 text-center sm:text-right relative z-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-400/30">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>توجيه الأستاذ مصطفى تركي للامتحان الوزاري</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-black">
-            اكتسب 5 نقاط يوميًا بترتيب منطقي!
+          <h2 className="text-xl sm:text-2xl font-black text-white">
+            الانضباط اليومي يضمن الـ 100 بدون ضغط ليلة الامتحان
           </h2>
-          <p className="text-xs sm:text-sm text-indigo-100 max-w-xl">
-            اقرأ قاعدة اليوم، ثم حل سؤال واحد من بنك الوزاريات، ثم راجع الفخ الوزاري قبل النهاية. هذه الدورة الصغيرة ترفع الثقة وتمنع أخطاء الامتحان.
+          <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+            احرص يومياً على مراجعة قاعدة نحوية واحدة، وتكرار حفظ 5 أفعال شاذة، وحل 3 أسئلة وزارية من بنك الاختبارات. التراكم الذكي هو سر طلاب الدرجات الكاملة.
           </p>
         </div>
 
         <button
           onClick={() => onNavigateTab('exam')}
-          className="px-6 py-3.5 rounded-2xl bg-white text-indigo-950 font-bold text-sm hover:bg-indigo-50 active:scale-95 shadow-lg transition-all shrink-0 flex items-center gap-2"
+          className="relative z-10 px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-950 font-black text-sm shadow-lg shadow-amber-400/20 transition-all shrink-0 flex items-center gap-2"
         >
-          <span>ابدأ المراجعة الآن</span>
+          <span>اختبر نفسك وزارياً</span>
           <ChevronLeft className="w-4 h-4" />
         </button>
       </section>

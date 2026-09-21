@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { 
   HelpCircle, Search, Filter, CheckCircle2, Clock, 
-  RotateCcw, Sparkles, BookOpen, AlertCircle, Award, Check, X, ArrowLeft
+  RotateCcw, Sparkles, BookOpen, AlertCircle, Award, Check, X, ArrowLeft, Trophy, FileText
 } from 'lucide-react';
 import { MINISTERIAL_QUESTIONS } from '../data/ministerialQuestions';
 import { MinisterialExamQuestion } from '../types';
 import { triggerCelebration } from '../utils/storage';
+import { MinisterialMockSimulator } from './MinisterialMockSimulator';
 
 interface ExamEngineProps {
+  studentName?: string;
   onRecordAnswer: (questionId: string, isCorrect: boolean) => void;
+  defaultMode?: 'practice' | 'mock' | 'full-mock';
 }
 
 export const ExamEngine: React.FC<ExamEngineProps> = ({
+  studentName = 'طالب السادس المتميز',
   onRecordAnswer,
+  defaultMode = 'practice',
 }) => {
-  // Mode: 'practice' vs 'mock'
-  const [mode, setMode] = useState<'practice' | 'mock'>('practice');
+  // Mode: 'practice' vs 'mock' vs 'full-mock'
+  const [mode, setMode] = useState<'practice' | 'mock' | 'full-mock'>(defaultMode);
 
   // Filtering state
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,7 +31,7 @@ export const ExamEngine: React.FC<ExamEngineProps> = ({
   // Practice mode revealed answers
   const [revealedSolutions, setRevealedSolutions] = useState<Record<string, boolean>>({});
 
-  // Mock Exam State
+  // Mock Exam State (Quick 10Q)
   const [isExamActive, setIsExamActive] = useState(false);
   const [examQuestions, setExamQuestions] = useState<MinisterialExamQuestion[]>([]);
   const [userExamAnswers, setUserExamAnswers] = useState<Record<string, string>>({});
@@ -115,31 +120,56 @@ export const ExamEngine: React.FC<ExamEngineProps> = ({
         </div>
 
         {/* Toggle Mode */}
-        <div className="flex items-center p-1 bg-slate-100 rounded-2xl border border-slate-200">
+        <div className="flex flex-wrap items-center p-1.5 bg-slate-100 rounded-2xl border border-slate-200 gap-1">
+          <button
+            id="mode-full-mock-btn"
+            onClick={() => setMode('full-mock')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
+              mode === 'full-mock'
+                ? 'bg-indigo-600 text-white shadow-sm font-black'
+                : 'text-slate-700 hover:text-slate-950 hover:bg-slate-200/60'
+            }`}
+          >
+            <Trophy className="w-3.5 h-3.5 text-amber-300" />
+            <span>محاكي الامتحان الوزاري الشامل (100 درجة)</span>
+          </button>
+          
           <button
             id="mode-practice-btn"
             onClick={() => setMode('practice')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
               mode === 'practice'
                 ? 'bg-white text-indigo-700 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            التدريب والمراجعة الحرة
+            بنك الوزاريات والبحث
           </button>
+          
           <button
             id="mode-mock-btn"
             onClick={() => setMode('mock')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
               mode === 'mock'
-                ? 'bg-indigo-600 text-white shadow-xs'
+                ? 'bg-white text-indigo-700 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            اختبار وزاري موقوت (Mock)
+            تحدي 10 أسئلة سريعة
           </button>
         </div>
       </div>
+
+      {/* ===================== MODE 0: FULL MINISTERIAL MOCK (100 MARKS) ===================== */}
+      {mode === 'full-mock' && (
+        <MinisterialMockSimulator 
+          studentName={studentName}
+          onClose={() => setMode('practice')}
+          onRecordScore={(score, total) => {
+            onRecordAnswer('full-mock-paper', score >= 50);
+          }}
+        />
+      )}
 
       {/* ===================== MODE 1: PRACTICE MODE ===================== */}
       {mode === 'practice' && (
@@ -264,7 +294,7 @@ export const ExamEngine: React.FC<ExamEngineProps> = ({
                       </div>
                     </div>
 
-                    <p className="text-base sm:text-lg font-bold text-slate-900 dir-ltr text-right">
+                    <p dir="ltr" className="text-base sm:text-lg font-bold text-slate-900 text-left en-sentence">
                       {q.questionText}
                     </p>
 
@@ -285,9 +315,9 @@ export const ExamEngine: React.FC<ExamEngineProps> = ({
 
                     {isRevealed && (
                       <div className="mt-3 p-4 rounded-2xl bg-indigo-50/80 border border-indigo-100 space-y-2 text-right">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="text-xs font-bold text-indigo-900">الجواب الوزاري النموذجي:</span>
-                          <span className="font-mono text-sm font-black text-emerald-700 dir-ltr">
+                          <span dir="ltr" className="font-mono text-sm font-black text-emerald-700 bg-white px-2.5 py-0.5 rounded-lg border border-emerald-200 bidi-en">
                             {q.correctAnswer}
                           </span>
                         </div>
@@ -428,7 +458,7 @@ export const ExamEngine: React.FC<ExamEngineProps> = ({
                         <span className="px-2 py-0.5 rounded-md bg-slate-100">الوحدة {q.unitId}</span>
                       </div>
 
-                      <p className="font-bold text-base sm:text-lg text-slate-900 dir-ltr text-right">
+                      <p dir="ltr" className="font-bold text-base sm:text-lg text-slate-900 text-left en-sentence">
                         {q.questionText}
                       </p>
 
@@ -438,21 +468,22 @@ export const ExamEngine: React.FC<ExamEngineProps> = ({
                         </label>
                         <input
                           type="text"
+                          dir="ltr"
                           disabled={examSubmitted}
-                          placeholder="اكتب الجواب النموذجي هنا باللغة الإنجليزية..."
+                          placeholder="Type your answer in English here..."
                           value={userAns}
                           onChange={(e) => {
                             const val = e.target.value;
                             setUserExamAnswers(prev => ({ ...prev, [q.id]: val }));
                           }}
-                          className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-mono dir-ltr focus:outline-hidden focus:border-indigo-500"
+                          className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-mono text-left focus:outline-hidden focus:border-indigo-500"
                         />
                       </div>
 
                       {examSubmitted && (
                         <div className="mt-3 p-3.5 rounded-2xl bg-white border border-slate-200 space-y-1 text-right">
                           <p className="text-xs font-bold text-indigo-900">
-                            الجواب النموذجي: <span className="font-mono text-emerald-700">{q.correctAnswer}</span>
+                            الجواب النموذجي: <span dir="ltr" className="font-mono text-emerald-700 font-black inline-block ml-1">{q.correctAnswer}</span>
                           </p>
                           <p className="text-xs text-slate-600">
                             {q.ruleExplanation}

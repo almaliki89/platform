@@ -139,7 +139,7 @@ export const IrregularVerbsLab: React.FC<IrregularVerbsLabProps> = ({
             <p className="text-xs font-bold text-indigo-600">
               ما هو تصريف ({testTargetForm === 'past' ? 'الماضي البسيط Past' : 'التصريف الثالث Past Participle P.P'}) للفعل:
             </p>
-            <p className="text-3xl sm:text-4xl font-black font-mono text-slate-900 dir-ltr">
+            <p dir="ltr" className="text-3xl sm:text-4xl font-black font-mono text-slate-900 text-center bidi-en">
               {currentTestVerb.base}
             </p>
             <p className="text-xs text-slate-500">
@@ -150,11 +150,12 @@ export const IrregularVerbsLab: React.FC<IrregularVerbsLabProps> = ({
           <form onSubmit={handleCheckSpeedAnswer} className="space-y-4">
             <input
               type="text"
+              dir="ltr"
               autoFocus
-              placeholder="اكتب التصريف هنا..."
+              placeholder="Type the verb form..."
               value={userTestInput}
               onChange={(e) => setUserTestInput(e.target.value)}
-              className="w-full px-5 py-3.5 rounded-2xl bg-slate-100 border border-slate-200 text-center font-mono font-bold text-lg dir-ltr focus:outline-hidden focus:border-rose-500 focus:bg-white transition-all"
+              className="w-full px-5 py-3.5 rounded-2xl bg-slate-100 border border-slate-200 text-center font-mono font-bold text-lg focus:outline-hidden focus:border-rose-500 focus:bg-white transition-all"
             />
 
             <div className="flex items-center gap-2">
@@ -204,10 +205,10 @@ export const IrregularVerbsLab: React.FC<IrregularVerbsLabProps> = ({
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar w-full text-xs font-bold">
               <button
                 onClick={() => setActiveGroup('all')}
-                className={`px-3.5 py-2 rounded-xl transition-all ${
+                className={`px-3.5 py-2 rounded-xl transition-all whitespace-nowrap shrink-0 ${
                   activeGroup === 'all' ? 'bg-rose-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -215,15 +216,15 @@ export const IrregularVerbsLab: React.FC<IrregularVerbsLabProps> = ({
               </button>
               <button
                 onClick={() => setActiveGroup('all-same')}
-                className={`px-3.5 py-2 rounded-xl transition-all ${
+                className={`px-3.5 py-2 rounded-xl transition-all whitespace-nowrap shrink-0 ${
                   activeGroup === 'all-same' ? 'bg-rose-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                المجموعة 1: الأشكال الثلاثة متطابقة (cost / cut)
+                المجموعة 1: متطابقة (cost / cut)
               </button>
               <button
                 onClick={() => setActiveGroup('two-same')}
-                className={`px-3.5 py-2 rounded-xl transition-all ${
+                className={`px-3.5 py-2 rounded-xl transition-all whitespace-nowrap shrink-0 ${
                   activeGroup === 'two-same' ? 'bg-rose-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -231,11 +232,11 @@ export const IrregularVerbsLab: React.FC<IrregularVerbsLabProps> = ({
               </button>
               <button
                 onClick={() => setActiveGroup('all-different')}
-                className={`px-3.5 py-2 rounded-xl transition-all ${
+                className={`px-3.5 py-2 rounded-xl transition-all whitespace-nowrap shrink-0 ${
                   activeGroup === 'all-different' ? 'bg-rose-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                المجموعة 3: الأشكال الثلاثة مختلفة (break / broke / broken)
+                المجموعة 3: 3 أشكال مختلفة (break / broke / broken)
               </button>
             </div>
 
@@ -243,14 +244,14 @@ export const IrregularVerbsLab: React.FC<IrregularVerbsLabProps> = ({
 
           {/* Table Container */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-right text-xs sm:text-sm">
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full text-right text-xs sm:text-sm min-w-[560px]">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-extrabold text-xs">
                     <th className="p-3.5 sm:p-4 text-center w-12">#</th>
-                    <th className="p-3.5 sm:p-4 text-left dir-ltr">المصدر (Base)</th>
-                    <th className="p-3.5 sm:p-4 text-left dir-ltr">الماضي البسيط (Past)</th>
-                    <th className="p-3.5 sm:p-4 text-left dir-ltr">التصريف الثالث (P.P)</th>
+                    <th dir="ltr" className="p-3.5 sm:p-4 text-left">Base (المصدر)</th>
+                    <th dir="ltr" className="p-3.5 sm:p-4 text-left">Past (الماضي)</th>
+                    <th dir="ltr" className="p-3.5 sm:p-4 text-left">P.P (التصريف الثالث)</th>
                     <th className="p-3.5 sm:p-4 text-right">المعنى بالعربية</th>
                     <th className="p-3.5 sm:p-4 text-center w-16">نطق</th>
                   </tr>
@@ -261,13 +262,13 @@ export const IrregularVerbsLab: React.FC<IrregularVerbsLabProps> = ({
                       <td className="p-3.5 sm:p-4 text-center text-slate-400 font-mono text-xs">
                         {idx + 1}
                       </td>
-                      <td className="p-3.5 sm:p-4 font-mono font-bold text-indigo-900 dir-ltr text-left">
+                      <td dir="ltr" className="p-3.5 sm:p-4 font-mono font-bold text-indigo-900 text-left">
                         {verb.base}
                       </td>
-                      <td className="p-3.5 sm:p-4 font-mono font-bold text-amber-800 dir-ltr text-left">
+                      <td dir="ltr" className="p-3.5 sm:p-4 font-mono font-bold text-amber-800 text-left">
                         {verb.past}
                       </td>
-                      <td className="p-3.5 sm:p-4 font-mono font-bold text-emerald-800 dir-ltr text-left">
+                      <td dir="ltr" className="p-3.5 sm:p-4 font-mono font-bold text-emerald-800 text-left">
                         {verb.pastParticiple}
                       </td>
                       <td className="p-3.5 sm:p-4 font-medium text-slate-700">

@@ -59,8 +59,28 @@ export interface MinisterialExamQuestion {
 
 export interface CharacterInfo {
   name: string;
+  nameAr?: string;
   role: string;
+  roleAr?: string;
   description: string;
+  descriptionAr?: string;
+}
+
+export interface LiteratureQA {
+  id?: string;
+  question: string;
+  questionAr?: string;
+  answer: string;
+  answerAr?: string;
+  year: string;
+  keyHint?: string;
+}
+
+export interface LiteratureVocabulary {
+  word: string;
+  meaningAr: string;
+  contextEn: string;
+  contextAr: string;
 }
 
 export interface LiteratureItem {
@@ -68,15 +88,33 @@ export interface LiteratureItem {
   title: string;
   titleAr: string;
   author: string;
+  authorAr: string;
+  authorYears?: string;
+  authorBioEn?: string[];
+  authorBioAr?: string[];
+  authorPrizes?: string[];
   genre: string;
+  genreAr?: string;
+  image: string;
+  galleryImages?: { url: string; captionEn: string; captionAr: string }[];
+  imageCaptionEn?: string;
+  imageCaptionAr?: string;
+  historicalContextEn?: string;
+  historicalContextAr?: string;
+  summaryEn?: string;
   summaryAr: string;
-  characters: CharacterInfo[];
+  moralLessonEn?: string;
+  moralLessonAr?: string;
   keyThemes: string[];
-  ministerialQA: {
-    question: string;
-    answer: string;
-    year: string;
+  keyThemesEn?: string[];
+  characters: CharacterInfo[];
+  keyVocabulary?: LiteratureVocabulary[];
+  quotes?: {
+    textEn: string;
+    textAr: string;
+    speaker: string;
   }[];
+  ministerialQA: LiteratureQA[];
 }
 
 export interface EssayItem {
