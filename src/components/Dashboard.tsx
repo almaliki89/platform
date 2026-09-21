@@ -2,18 +2,22 @@ import React from 'react';
 import { 
   BookOpen, Sparkles, Trophy, CheckCircle2, ChevronLeft, ArrowRight,
   HelpCircle, Compass, FileText, Bookmark, Star, ArrowUpRight, Flame,
-  Target, GraduationCap, Clock, Award, CheckCircle, ShieldCheck, Zap, Eye
+  Target, GraduationCap, Clock, Award, CheckCircle, ShieldCheck, Zap, Eye,
+  UploadCloud
 } from 'lucide-react';
 import { CURRICULUM_UNITS } from '../data/curriculumData';
+import { THIRD_INTERMEDIATE_UNITS } from '../data/thirdIntermediateData';
 import { ESSAYS_DATA } from '../data/essaysData';
-import { StudentState, Unit, Lesson } from '../types';
+import { StudentState, Unit, Lesson, EducationalGrade } from '../types';
 import { CurriculumUnitsSection } from './CurriculumUnitsSection';
 
 interface DashboardProps {
   studentState: StudentState;
   onSelectUnit: (unit: Unit) => void;
   onSelectLesson: (lesson: Lesson) => void;
-  onNavigateTab: (tab: 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab') => void;
+  onNavigateTab: (tab: 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama') => void;
+  selectedGrade?: EducationalGrade;
+  onSelectGrade?: (grade: EducationalGrade) => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -21,9 +25,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onSelectUnit,
   onSelectLesson,
   onNavigateTab,
+  selectedGrade = 'sixth-preparatory',
+  onSelectGrade,
 }) => {
+  const isThirdIntermediate = selectedGrade === 'third-intermediate' || studentState.selectedGrade === 'third-intermediate';
+  const currentUnitsList = isThirdIntermediate ? THIRD_INTERMEDIATE_UNITS : CURRICULUM_UNITS;
+
   // Compute overall progress
-  const allLessons = CURRICULUM_UNITS.flatMap(u => u.lessons);
+  const allLessons = currentUnitsList.flatMap(u => u.lessons);
   const totalLessonsCount = allLessons.length;
   const completedLessonsCount = studentState.completedLessonIds.length;
   const overallProgressPercentage = totalLessonsCount > 0 
@@ -37,10 +46,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   // Find last visited lesson
   const lastLesson = allLessons.find(l => l.id === studentState.lastVisitedLessonId) || allLessons[0];
-  const lastLessonUnit = CURRICULUM_UNITS.find(u => u.id === lastLesson?.unitId);
+  const lastLessonUnit = currentUnitsList.find(u => u.id === lastLesson?.unitId);
 
   // Ministerial Exam Map
-  const examStructure = [
+  const examStructure = isThirdIntermediate ? [
+    { q: 'Q1', title: 'القطعة الخارجية وقطع الكتاب المقررة', marks: '20 درجة', tag: 'Reading & Panther 3.0D', color: 'border-teal-400/40 text-teal-300' },
+    { q: 'Q2', title: 'القواعد والوظائف اللغوية', marks: '20 درجة', tag: 'Grammar & Functions', color: 'border-blue-400/40 text-blue-300' },
+    { q: 'Q3', title: 'المفردات والتوصيل والإملاء والتنقيط', marks: '20 درجة', tag: 'Vocab, Spelling & Punctuation', color: 'border-emerald-400/40 text-emerald-300' },
+    { q: 'Q4', title: 'القصص المقررة (Story Time): لوسي والغزالة وابن الهيثم', marks: '10 درجات', tag: 'Story Time Focus', color: 'border-purple-400/40 text-purple-300' },
+    { q: 'Q5', title: 'الإنشاء الوزاري النموذجي: وصف صديق أو دعوة', marks: '15 درجة', tag: 'Written Composition', color: 'border-rose-400/40 text-rose-300' },
+  ] : [
     { q: 'Q1', title: 'القطعة الخارجية وقطع الكتاب', marks: '20 درجة', tag: 'Reading & Stories', color: 'border-amber-400/40 text-amber-300' },
     { q: 'Q2', title: 'القواعد والوظائف اللغوية', marks: '30 درجة', tag: 'Grammar & Functions', color: 'border-blue-400/40 text-blue-300' },
     { q: 'Q3', title: 'المفردات والتوصيل والإملاء', marks: '20 درجة', tag: 'Vocab & Spelling', color: 'border-emerald-400/40 text-emerald-300' },
@@ -167,6 +182,35 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         </div>
       </section>
+
+      {/* 3rd Intermediate Malzama Special Banner */}
+      {isThirdIntermediate && (
+        <div 
+          onClick={() => onNavigateTab('malzama')}
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-teal-950 via-slate-900 to-indigo-950 border border-teal-500/40 p-6 sm:p-7 text-white shadow-xl cursor-pointer hover:border-teal-400 transition-all group"
+        >
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-black border border-teal-400/30">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>قسم خاص بالصف الثالث المتوسط • رفع ومعالجة الملزمة</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-white">
+                مختبر رفع واستخراج ملزمة الثالث المتوسط التفاعلي
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                ارفع أي ملزمة (PDF أو Word أو صورة) لاستخراج القواعد والتمارين تلقائياً، أو ادرس مع ملزمة الأستاذ مصطفى تركي المعتمدة والمفهرسة بالكامل (الوحدات من 1 إلى 7 والقصص والإنشاءات).
+              </p>
+            </div>
+
+            <button className="px-5 py-3 rounded-2xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs sm:text-sm transition-all shadow-lg flex items-center gap-2 shrink-0 group-hover:scale-105">
+              <UploadCloud className="w-4 h-4" />
+              <span>فتح مختبر الملزمة الآن</span>
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 2. Ministerial Exam 100 Marks Blueprint Strip */}
       <section className="space-y-3">
@@ -397,6 +441,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         studentState={studentState}
         onSelectUnit={onSelectUnit}
         onSelectLesson={onSelectLesson}
+        units={currentUnitsList}
       />
 
       {/* 5. Teacher's Golden Daily Directive */}

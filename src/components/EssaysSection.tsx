@@ -6,7 +6,8 @@ import {
   ListChecks, Wand2, RefreshCw, Layers
 } from 'lucide-react';
 import { ESSAYS_DATA } from '../data/essaysData';
-import { EssayItem } from '../types';
+import { THIRD_INTERMEDIATE_ESSAYS } from '../data/thirdIntermediateData';
+import { EssayItem, EducationalGrade } from '../types';
 import { triggerCelebration } from '../utils/storage';
 
 // Common linking words and discourse markers to highlight in English essays
@@ -20,8 +21,13 @@ const LINKING_PHRASES = [
 type StudyMode = 'dual' | 'memory' | 'simulator' | 'cloze' | 'cards' | 'rubric';
 type MemoryLevel = '100' | '75' | '50' | 'first-letter' | 'blur';
 
-export const EssaysSection: React.FC = () => {
-  const [selectedEssayId, setSelectedEssayId] = useState<string>(ESSAYS_DATA[0].id);
+interface EssaysSectionProps {
+  grade?: EducationalGrade;
+}
+
+export const EssaysSection: React.FC<EssaysSectionProps> = ({ grade = 'sixth-preparatory' }) => {
+  const currentEssaysList: EssayItem[] = grade === 'third-intermediate' ? THIRD_INTERMEDIATE_ESSAYS : ESSAYS_DATA;
+  const [selectedEssayId, setSelectedEssayId] = useState<string>(currentEssaysList[0]?.id || ESSAYS_DATA[0].id);
   const [selectedUnitFilter, setSelectedUnitFilter] = useState<number | 'all'>('all');
   
   // Display & Study modes
@@ -61,11 +67,11 @@ export const EssaysSection: React.FC = () => {
 
   // Filtered essays list
   const filteredEssays = selectedUnitFilter === 'all'
-    ? ESSAYS_DATA
-    : ESSAYS_DATA.filter(e => e.unitId === selectedUnitFilter);
+    ? currentEssaysList
+    : currentEssaysList.filter(e => e.unitId === selectedUnitFilter);
 
   // Current selected essay
-  const currentEssay: EssayItem = ESSAYS_DATA.find(e => e.id === selectedEssayId) || filteredEssays[0] || ESSAYS_DATA[0];
+  const currentEssay: EssayItem = currentEssaysList.find(e => e.id === selectedEssayId) || filteredEssays[0] || currentEssaysList[0];
 
   // Stop speech when changing essay or unmounting
   useEffect(() => {

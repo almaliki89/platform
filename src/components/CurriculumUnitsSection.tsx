@@ -13,6 +13,7 @@ interface CurriculumUnitsSectionProps {
   studentState: StudentState;
   onSelectUnit: (unit: Unit) => void;
   onSelectLesson: (lesson: Lesson) => void;
+  units?: Unit[];
 }
 
 // Unit Metadata for enriched ministerial cards
@@ -159,6 +160,7 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
   studentState,
   onSelectUnit,
   onSelectLesson,
+  units = CURRICULUM_UNITS,
 }) => {
   const [filterTerm, setFilterTerm] = useState<'all' | 'term1' | 'term2' | 'in_progress' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -176,8 +178,22 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
 
   // Filtered units computation
   const filteredUnits = useMemo(() => {
-    return CURRICULUM_UNITS.filter(unit => {
-      const meta = UNIT_META[unit.number];
+    return units.filter(unit => {
+      const meta = UNIT_META[unit.number] || {
+        color: {
+          badge: 'bg-teal-600 text-white',
+          bgHover: 'hover:border-teal-400',
+          border: 'border-teal-100',
+          progress: 'bg-teal-600',
+          accent: 'text-teal-600',
+          lightBg: 'bg-teal-50/50',
+        },
+        ministerialWeight: '15-20 درجة وزارية',
+        keyGrammar: [unit.lessons[0]?.titleAr || 'قواعد الوحدة الوزارية'],
+        readingPassages: [unit.description],
+        term: unit.number <= 3 ? 1 : 2,
+        iconName: 'Unit ' + unit.number,
+      };
       const completedCount = unit.lessons.filter(l => studentState.completedLessonIds.includes(l.id)).length;
       const isCompleted = unit.lessons.length > 0 && completedCount === unit.lessons.length;
       const isInProgress = completedCount > 0 && completedCount < unit.lessons.length;
@@ -202,11 +218,11 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
 
       return true;
     });
-  }, [filterTerm, searchQuery, studentState.completedLessonIds]);
+  }, [filterTerm, searchQuery, studentState.completedLessonIds, units]);
 
   // Overall statistics
-  const totalUnits = CURRICULUM_UNITS.length;
-  const allLessons = CURRICULUM_UNITS.flatMap(u => u.lessons);
+  const totalUnits = units.length;
+  const allLessons = units.flatMap(u => u.lessons);
   const totalCompletedLessons = studentState.completedLessonIds.length;
   const overallPercentage = allLessons.length > 0 ? Math.round((totalCompletedLessons / allLessons.length) * 100) : 0;
 

@@ -9,9 +9,11 @@ import { IrregularVerbsLab } from './components/IrregularVerbsLab';
 import { MinisterialMockSimulator } from './components/MinisterialMockSimulator';
 import { VisualVocabAtlas } from './components/VisualVocabAtlas';
 import { StudentProfileModal } from './components/StudentProfileModal';
+import { MalzamaUploadLab } from './components/MalzamaUploadLab';
 
 import { CURRICULUM_UNITS } from './data/curriculumData';
-import { Unit, Lesson, StudentState } from './types';
+import { THIRD_INTERMEDIATE_UNITS } from './data/thirdIntermediateData';
+import { Unit, Lesson, StudentState, EducationalGrade } from './types';
 import { 
   loadStudentState, 
   saveStudentState, 
@@ -21,22 +23,44 @@ import {
 
 export function App() {
   // Navigation tabs
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab'>('dashboard');
-
-  // Currently viewed Unit and Lesson
-  const [activeUnit, setActiveUnit] = useState<Unit>(CURRICULUM_UNITS[0]);
-  const [activeLesson, setActiveLesson] = useState<Lesson>(CURRICULUM_UNITS[0].lessons[0]);
-
-  // Modals state
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama'>('dashboard');
 
   // Student progress state
   const [studentState, setStudentState] = useState<StudentState>(loadStudentState);
 
+  // Active Grade selection
+  const [selectedGrade, setSelectedGrade] = useState<EducationalGrade>(() => {
+    return studentState.selectedGrade || 'sixth-preparatory';
+  });
+
+  const isThirdIntermediate = selectedGrade === 'third-intermediate';
+  const currentUnits = isThirdIntermediate ? THIRD_INTERMEDIATE_UNITS : CURRICULUM_UNITS;
+
+  // Currently viewed Unit and Lesson
+  const [activeUnit, setActiveUnit] = useState<Unit>(currentUnits[0]);
+  const [activeLesson, setActiveLesson] = useState<Lesson>(currentUnits[0].lessons[0]);
+
+  // Modals state
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  // Handle grade change
+  const handleSelectGrade = (newGrade: EducationalGrade) => {
+    setSelectedGrade(newGrade);
+    setStudentState(prev => ({ ...prev, selectedGrade: newGrade }));
+    const units = newGrade === 'third-intermediate' ? THIRD_INTERMEDIATE_UNITS : CURRICULUM_UNITS;
+    setActiveUnit(units[0]);
+    setActiveLesson(units[0].lessons[0]);
+    setCurrentTab('dashboard');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Persist student state changes
   useEffect(() => {
-    saveStudentState(studentState);
-  }, [studentState]);
+    saveStudentState({
+      ...studentState,
+      selectedGrade,
+    });
+  }, [studentState, selectedGrade]);
 
   // Handle selecting a unit from dashboard
   const handleSelectUnit = (unit: Unit) => {
@@ -51,7 +75,7 @@ export function App() {
 
   // Handle selecting a specific lesson
   const handleSelectLesson = (lesson: Lesson) => {
-    const parentUnit = CURRICULUM_UNITS.find(u => u.id === lesson.unitId) || CURRICULUM_UNITS[0];
+    const parentUnit = currentUnits.find(u => u.id === lesson.unitId) || currentUnits[0];
     setActiveUnit(parentUnit);
     setActiveLesson(lesson);
     setStudentState(prev => ({ ...prev, lastVisitedLessonId: lesson.id }));
@@ -142,6 +166,8 @@ export function App() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         studentState={studentState}
+        selectedGrade={selectedGrade}
+        onSelectGrade={handleSelectGrade}
         onOpenProfile={() => setIsProfileOpen(true)}
       />
 
@@ -150,6 +176,8 @@ export function App() {
         {currentTab === 'dashboard' && (
           <Dashboard
             studentState={studentState}
+            selectedGrade={selectedGrade}
+            onSelectGrade={handleSelectGrade}
             onSelectUnit={handleSelectUnit}
             onSelectLesson={handleSelectLesson}
             onNavigateTab={(tab) => {
@@ -174,6 +202,7 @@ export function App() {
         {currentTab === 'exam' && (
           <ExamEngine
             studentName={studentState.name}
+            grade={selectedGrade}
             onRecordAnswer={(qId, isCorrect) => handleRecordQuestionAnswer(qId, isCorrect)}
           />
         )}
@@ -182,6 +211,7 @@ export function App() {
           <div className="max-w-5xl mx-auto">
             <MinisterialMockSimulator
               studentName={studentState.name}
+              grade={selectedGrade}
               onClose={() => setCurrentTab('dashboard')}
               onRecordScore={(score, total) => {
                 handleRecordQuestionAnswer('mock-exam-complete', score >= 50);
@@ -191,11 +221,25 @@ export function App() {
         )}
 
         {currentTab === 'literature' && (
-          <LiteratureSection />
+          <LiteratureSection grade={selectedGrade} />
         )}
 
         {currentTab === 'essays' && (
-          <EssaysSection />
+          <EssaysSection grade={selectedGrade} />
+        )}
+
+        {currentTab === 'malzama' && (
+          <MalzamaUploadLab 
+            onNavigateToUnits={() => {
+              setCurrentTab('dashboard');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onNavigateToMock={() => {
+              setCurrentTab('mock');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onSelectGrade={handleSelectGrade}
+          />
         )}
 
         {currentTab === 'verbs' && (
@@ -213,7 +257,7 @@ export function App() {
       <footer className="mt-auto border-t border-slate-200 bg-white/80 py-6 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 space-y-2">
           <p className="font-bold text-slate-700">
-            المنصة الرقمية المتكاملة لملزمة «النموذجية في اللغة الإنكليزية - السادس الإعدادي 2027»
+            المنصة الرقمية المتكاملة لملزمة «النموذجية في اللغة الإنكليزية - {isThirdIntermediate ? 'الثالث المتوسط 2027' : 'السادس الإعدادي 2027'}»
           </p>
           <p>
             إعداد وإشراف الأستاذ مصطفى تركي • صممت وبرمجت وفق أحدث المعايير الوزارية والتربوية

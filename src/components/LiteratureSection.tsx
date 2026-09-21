@@ -21,11 +21,20 @@ import {
   Check
 } from 'lucide-react';
 import { LITERATURE_DATA } from '../data/literatureData';
-import { LiteratureItem, LiteratureQA } from '../types';
+import { THIRD_INTERMEDIATE_STORIES } from '../data/thirdIntermediateData';
+import { LiteratureItem, LiteratureQA, EducationalGrade } from '../types';
 
-export const LiteratureSection: React.FC = () => {
+interface LiteratureSectionProps {
+  grade?: EducationalGrade;
+}
+
+export const LiteratureSection: React.FC<LiteratureSectionProps> = ({ grade = 'sixth-preparatory' }) => {
+  const storiesList: LiteratureItem[] = grade === 'third-intermediate' ? THIRD_INTERMEDIATE_STORIES : LITERATURE_DATA;
   const [activeItemIndex, setActiveItemIndex] = useState(0);
-  const activeLiterature: LiteratureItem = LITERATURE_DATA[activeItemIndex];
+  
+  // Guard against index out of bounds
+  const safeIndex = activeItemIndex < storiesList.length ? activeItemIndex : 0;
+  const activeLiterature: LiteratureItem = storiesList[safeIndex] || storiesList[0];
 
   // Gallery active image index
   const [activeImageIdx, setActiveImageIdx] = useState(0);
@@ -147,19 +156,22 @@ export const LiteratureSection: React.FC = () => {
 
         <div className="relative z-10 space-y-2">
           <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-amber-50">
-            الأدب الوزاري المقرّر • ملزمة الأستاذ مصطفى تركي
+            {grade === 'third-intermediate' 
+              ? 'القصص الوزارية المقررة • الثالث المتوسط (Story Time)' 
+              : 'الأدب الوزاري المقرّر • السادس الإعدادي • ملزمة الأستاذ مصطفى تركي'}
           </h1>
           <p className="text-xs sm:text-sm text-stone-300 max-w-3xl leading-relaxed">
-            المنهج الأدبي المعتمد وفق ملزمة الأستاذ مصطفى تركي: دراسة تحليلية شاملة ومفصلة للرواية المقررة «كبرياء وتحامل» (Pride and Prejudice) لجين أوستن، والمسرحية المقررة «كما تشاء» (As You Like It) لويليام شكسبير، مع الشرح التفاعلي والشخصيات والأسئلة الوزارية النموذجية.
+            {grade === 'third-intermediate'
+              ? 'دراسة شاملة ومبسطة للقصص الوزارية المقررة للثالث المتوسط (لوسي وكوميديا التلفزيون، الغزالة الحامل، وابن الهيثم) مع الأسئلة الوزارية النموذجية وتحليل المعاني والشخصيات.'
+              : 'المنهج الأدبي المعتمد وفق ملزمة الأستاذ مصطفى تركي: دراسة تحليلية شاملة ومفصلة للرواية المقررة «كبرياء وتحامل» (Pride and Prejudice) لجين أوستن، والمسرحية المقررة «كما تشاء» (As You Like It) لويليام شكسبير، مع الشرح التفاعلي والشخصيات والأسئلة الوزارية النموذجية.'}
           </p>
         </div>
 
         {/* Literature Switcher Tabs */}
         <div className="flex flex-wrap items-center gap-3 pt-3 relative z-10">
-          {LITERATURE_DATA.map((item, idx) => {
-            const isActive = activeItemIndex === idx;
-            const badgeText = 
-              item.id === 'lit-pride' ? 'الرواية المقررة • جين أوستن' : 'المسرحية المقررة • شكسبير';
+          {storiesList.map((item, idx) => {
+            const isActive = safeIndex === idx;
+            const badgeText = item.genre || (item.id === 'lit-pride' ? 'الرواية المقررة • جين أوستن' : 'المسرحية المقررة • شكسبير');
 
             return (
               <button

@@ -6,6 +6,8 @@ import {
   Layers, AlertTriangle, BookOpen, PenTool, Flag, RefreshCw, Trophy
 } from 'lucide-react';
 import { MOCK_EXAM_PAPERS, MockExamPaper, MockExamSection, MockQuestionItem } from '../data/mockExamPapers';
+import { THIRD_INTERMEDIATE_MOCK_PAPER } from '../data/thirdMockExamPaper';
+import { EducationalGrade } from '../types';
 import { triggerCelebration } from '../utils/storage';
 import { speakEnglish } from '../utils/speech';
 
@@ -13,15 +15,19 @@ interface MinisterialMockSimulatorProps {
   studentName: string;
   onClose: () => void;
   onRecordScore?: (score: number, total: number) => void;
+  grade?: EducationalGrade;
 }
 
 export const MinisterialMockSimulator: React.FC<MinisterialMockSimulatorProps> = ({
   studentName,
   onClose,
   onRecordScore,
+  grade = 'sixth-preparatory',
 }) => {
   const [selectedPaperIndex, setSelectedPaperIndex] = useState<number>(0);
-  const currentPaper: MockExamPaper = MOCK_EXAM_PAPERS[selectedPaperIndex] || MOCK_EXAM_PAPERS[0];
+  const currentPaper: MockExamPaper = grade === 'third-intermediate'
+    ? THIRD_INTERMEDIATE_MOCK_PAPER
+    : (MOCK_EXAM_PAPERS[selectedPaperIndex] || MOCK_EXAM_PAPERS[0]);
 
   // Active view: 'intro' | 'exam' | 'results'
   const [examStatus, setExamStatus] = useState<'intro' | 'exam' | 'results'>('intro');
@@ -32,7 +38,9 @@ export const MinisterialMockSimulator: React.FC<MinisterialMockSimulatorProps> =
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
 
   // Active Section Navigation
-  const [activeSectionId, setActiveSectionId] = useState<string>('q1-a');
+  const [activeSectionId, setActiveSectionId] = useState<string>(() => {
+    return currentPaper.sections[0]?.id || 'q1-a';
+  });
 
   // Answers State
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
@@ -52,7 +60,7 @@ export const MinisterialMockSimulator: React.FC<MinisterialMockSimulatorProps> =
     setSecondsRemaining(durationMins * 60);
     setIsTimerRunning(true);
     setExamStatus('exam');
-    setActiveSectionId('q1-a');
+    setActiveSectionId(currentPaper.sections[0]?.id || 'q1-a');
     setUserAnswers({});
     setEssayText('');
     setFlaggedQuestions({});
@@ -291,16 +299,26 @@ export const MinisterialMockSimulator: React.FC<MinisterialMockSimulatorProps> =
 
               <div className="p-3.5 text-xs text-slate-800 grid grid-cols-12 gap-2 items-center">
                 <span className="col-span-2 font-mono font-bold text-indigo-700">Q4</span>
-                <span className="col-span-6 font-medium">الأدب الوزاري: كبرياء وتحامل (جين أوستن) وكما تشاء (شكسبير)</span>
+                <span className="col-span-6 font-medium">
+                  {grade === 'third-intermediate'
+                    ? 'القصص المقررة (Story Time): لوسي، الغزالة، ابن الهيثم، فنجان قهوة'
+                    : 'الأدب الوزاري: كبرياء وتحامل (جين أوستن) وكما تشاء (شكسبير)'}
+                </span>
                 <span className="col-span-2 text-center text-slate-500">أجب عن 5 من 6</span>
                 <span className="col-span-2 text-left font-black text-slate-900">10 درجات</span>
               </div>
 
               <div className="p-3.5 text-xs text-slate-800 grid grid-cols-12 gap-2 items-center">
                 <span className="col-span-2 font-mono font-bold text-indigo-700">Q5</span>
-                <span className="col-span-6 font-medium">الإنشاء الوزاري النموذجي (100 إلى 120 كلمة)</span>
+                <span className="col-span-6 font-medium">
+                  {grade === 'third-intermediate'
+                    ? 'الإنشاء الوزاري النموذجي: وصف صديق، دعوة تخرج، أو ملف الحياة البرية'
+                    : 'الإنشاء الوزاري النموذجي (100 إلى 120 كلمة)'}
+                </span>
                 <span className="col-span-2 text-center text-slate-500">اختر A أو B</span>
-                <span className="col-span-2 text-left font-black text-slate-900">20 درجة</span>
+                <span className="col-span-2 text-left font-black text-slate-900">
+                  {grade === 'third-intermediate' ? '15 درجة' : '20 درجة'}
+                </span>
               </div>
             </div>
 

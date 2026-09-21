@@ -4,7 +4,8 @@ import {
   RotateCcw, Sparkles, BookOpen, AlertCircle, Award, Check, X, ArrowLeft, Trophy, FileText
 } from 'lucide-react';
 import { MINISTERIAL_QUESTIONS } from '../data/ministerialQuestions';
-import { MinisterialExamQuestion } from '../types';
+import { THIRD_INTERMEDIATE_QUESTIONS } from '../data/thirdIntermediateData';
+import { MinisterialExamQuestion, EducationalGrade } from '../types';
 import { triggerCelebration } from '../utils/storage';
 import { MinisterialMockSimulator } from './MinisterialMockSimulator';
 
@@ -12,13 +13,19 @@ interface ExamEngineProps {
   studentName?: string;
   onRecordAnswer: (questionId: string, isCorrect: boolean) => void;
   defaultMode?: 'practice' | 'mock' | 'full-mock';
+  grade?: EducationalGrade;
 }
 
 export const ExamEngine: React.FC<ExamEngineProps> = ({
-  studentName = 'طالب السادس المتميز',
+  studentName = 'طالب المنهاج المتميز',
   onRecordAnswer,
   defaultMode = 'practice',
+  grade = 'sixth-preparatory',
 }) => {
+  const baseQuestionsList: MinisterialExamQuestion[] = grade === 'third-intermediate' 
+    ? THIRD_INTERMEDIATE_QUESTIONS 
+    : MINISTERIAL_QUESTIONS;
+
   // Mode: 'practice' vs 'mock' vs 'full-mock'
   const [mode, setMode] = useState<'practice' | 'mock' | 'full-mock'>(defaultMode);
 
@@ -41,7 +48,7 @@ export const ExamEngine: React.FC<ExamEngineProps> = ({
   // Start a new mock exam
   const handleStartMockExam = () => {
     // Shuffle and pick 10 questions
-    const shuffled = [...MINISTERIAL_QUESTIONS].sort(() => 0.5 - Math.random());
+    const shuffled = [...baseQuestionsList].sort(() => 0.5 - Math.random());
     const selected = shuffled.slice(0, 10);
     setExamQuestions(selected);
     setUserExamAnswers({});
@@ -81,7 +88,7 @@ export const ExamEngine: React.FC<ExamEngineProps> = ({
   };
 
   // Filtered practice questions
-  const filteredQuestions = MINISTERIAL_QUESTIONS.filter(q => {
+  const filteredQuestions = baseQuestionsList.filter(q => {
     const matchesSearch = q.questionText.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           q.topic.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesUnit = selectedUnit === 'all' || q.unitId.toString() === selectedUnit;
@@ -164,6 +171,7 @@ export const ExamEngine: React.FC<ExamEngineProps> = ({
       {mode === 'full-mock' && (
         <MinisterialMockSimulator 
           studentName={studentName}
+          grade={grade}
           onClose={() => setMode('practice')}
           onRecordScore={(score, total) => {
             onRecordAnswer('full-mock-paper', score >= 50);

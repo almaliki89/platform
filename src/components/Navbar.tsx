@@ -1,11 +1,13 @@
 import React from 'react';
-import { Sparkles, Trophy, Flame, GraduationCap } from 'lucide-react';
-import { StudentState } from '../types';
+import { Sparkles, Trophy, Flame, GraduationCap, UploadCloud } from 'lucide-react';
+import { StudentState, EducationalGrade } from '../types';
 
 interface NavbarProps {
-  currentTab: 'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab';
-  setCurrentTab: (tab: 'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab') => void;
+  currentTab: 'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama';
+  setCurrentTab: (tab: 'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama') => void;
   studentState: StudentState;
+  selectedGrade: EducationalGrade;
+  onSelectGrade: (grade: EducationalGrade) => void;
   onOpenProfile: () => void;
 }
 
@@ -13,47 +15,92 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentTab,
   setCurrentTab,
   studentState,
+  selectedGrade,
+  onSelectGrade,
   onOpenProfile,
 }) => {
+  const isThirdIntermediate = selectedGrade === 'third-intermediate';
+
+  const navItems = isThirdIntermediate ? [
+    { id: 'dashboard', label: 'الرئيسية' },
+    { id: 'malzama', label: 'رفع ومعالجة الملزمة', highlight: true, icon: UploadCloud },
+    { id: 'mock', label: 'محاكي الوزاري 100د' },
+    { id: 'exam', label: 'الأسئلة الوزارية' },
+    { id: 'literature', label: 'قصص الثالث (Story Time)' },
+    { id: 'essays', label: 'الإنشاءات' },
+    { id: 'vocab', label: 'المفردات والتوصيل' },
+  ] : [
+    { id: 'dashboard', label: 'الرئيسية' },
+    { id: 'mock', label: 'محاكي الوزاري 100د', highlight: true },
+    { id: 'exam', label: 'بنك الوزاريات' },
+    { id: 'vocab', label: 'أطلس الرموز والمفردات' },
+    { id: 'literature', label: 'الأدب الوزاري' },
+    { id: 'essays', label: 'الإنشاءات' },
+    { id: 'verbs', label: 'الأفعال الشاذة' },
+  ];
+
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-3">
           
-          {/* Logo & Platform Identity */}
-          <div 
-            id="brand-logo"
-            onClick={() => setCurrentTab('dashboard')}
-            className="flex items-center gap-3 cursor-pointer select-none group"
-          >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-indigo-700 via-indigo-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-indigo-200 group-hover:scale-105 transition-transform duration-200">
-              <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg sm:text-xl text-slate-900 tracking-tight">النموذجية 2027</span>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-                  السادس الإعدادي
-                </span>
+          {/* Logo & Grade Identity */}
+          <div className="flex items-center gap-3 select-none">
+            <div 
+              id="brand-logo"
+              onClick={() => setCurrentTab('dashboard')}
+              className="flex items-center gap-2 sm:gap-3 cursor-pointer group"
+            >
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform duration-200 ${
+                isThirdIntermediate 
+                  ? 'bg-gradient-to-tr from-teal-700 via-teal-600 to-emerald-500 shadow-teal-200' 
+                  : 'bg-gradient-to-tr from-indigo-700 via-indigo-600 to-blue-500 shadow-indigo-200'
+              }`}>
+                <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7" />
               </div>
-              <p className="text-xs text-slate-500 font-medium hidden sm:block">
-                إشراف الأستاذ مصطفى تركي • المنهج الوزاري المعتمد
-              </p>
+              <div className="hidden sm:block">
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">النموذجية 2027</span>
+                </div>
+                <p className="text-[11px] text-slate-500 font-medium truncate">
+                  إشراف الأستاذ مصطفى تركي
+                </p>
+              </div>
+            </div>
+
+            {/* Grade Switcher Segmented Control */}
+            <div className="flex items-center p-1 bg-slate-100 rounded-2xl border border-slate-200 shrink-0">
+              <button
+                id="grade-sixth-btn"
+                onClick={() => onSelectGrade('sixth-preparatory')}
+                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-black transition-all ${
+                  !isThirdIntermediate
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                السادس الإعدادي
+              </button>
+              <button
+                id="grade-third-btn"
+                onClick={() => onSelectGrade('third-intermediate')}
+                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center gap-1.5 ${
+                  isThirdIntermediate
+                    ? 'bg-teal-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span>الثالث المتوسط</span>
+                {isThirdIntermediate && <span className="w-1.5 h-1.5 rounded-full bg-teal-300 animate-pulse" />}
+              </button>
             </div>
           </div>
 
-          {/* Navigation Links - Desktop (Only on xl screens 1280px+ where all 7 tabs fit comfortably) */}
+          {/* Navigation Links - Desktop (Only on xl screens 1280px+) */}
           <nav className="hidden xl:flex items-center gap-1.5">
-            {[
-              { id: 'dashboard', label: 'الرئيسية' },
-              { id: 'mock', label: 'محاكي الوزاري 100د', highlight: true },
-              { id: 'exam', label: 'بنك الوزاريات' },
-              { id: 'vocab', label: 'أطلس الرموز والمفردات' },
-              { id: 'literature', label: 'الأدب الوزاري' },
-              { id: 'essays', label: 'الإنشاءات' },
-              { id: 'verbs', label: 'الأفعال الشاذة' },
-            ].map((tab) => {
+            {navItems.map((tab) => {
               const isActive = currentTab === tab.id;
+              const Icon = (tab as any).icon;
               return (
                 <button
                   key={tab.id}
@@ -62,14 +109,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`px-3 py-2 rounded-xl text-xs xl:text-sm font-bold transition-all relative flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
                     isActive
                       ? tab.highlight 
-                        ? 'bg-amber-400 text-slate-950 shadow-sm font-black' 
-                        : 'bg-indigo-600 text-white shadow-sm shadow-indigo-200/60 font-black'
+                        ? 'bg-amber-400 text-slate-950 shadow-xs font-black' 
+                        : isThirdIntermediate ? 'bg-teal-600 text-white shadow-xs font-black' : 'bg-indigo-600 text-white shadow-xs font-black'
                       : tab.highlight
-                        ? 'text-amber-700 bg-amber-50 hover:bg-amber-100/80 border border-amber-200/60 font-black'
-                        : 'text-slate-600 hover:text-indigo-950 hover:bg-slate-100/80'
+                        ? 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 font-black'
+                        : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100/80'
                   }`}
                 >
-                  {tab.label}
+                  {Icon && <Icon className="w-3.5 h-3.5" />}
+                  <span>{tab.label}</span>
                 </button>
               );
             })}
@@ -110,31 +158,25 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Responsive Sub-Navigation Bar for Screens Under 1280px (Tablets, Laptops, Mobile) */}
         <div className="flex xl:hidden items-center overflow-x-auto py-2.5 border-t border-slate-100 no-scrollbar gap-1.5 text-xs scroll-smooth">
-          {[
-            { id: 'dashboard', label: 'الرئيسية' },
-            { id: 'mock', label: 'محاكي الوزاري 100د', highlight: true },
-            { id: 'exam', label: 'بنك الوزاريات' },
-            { id: 'vocab', label: 'أطلس الرموز والمفردات' },
-            { id: 'literature', label: 'الأدب الوزاري' },
-            { id: 'essays', label: 'الإنشاءات' },
-            { id: 'verbs', label: 'الأفعال الشاذة' },
-          ].map((tab) => {
+          {navItems.map((tab) => {
             const isActive = currentTab === tab.id;
+            const Icon = (tab as any).icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setCurrentTab(tab.id as any)}
-                className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all shrink-0 ${
+                className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all shrink-0 flex items-center gap-1.5 ${
                   isActive
                     ? tab.highlight
                       ? 'bg-amber-400 text-slate-950 shadow-xs font-black'
-                      : 'bg-indigo-600 text-white shadow-xs font-black'
+                      : isThirdIntermediate ? 'bg-teal-600 text-white shadow-xs font-black' : 'bg-indigo-600 text-white shadow-xs font-black'
                     : tab.highlight
                       ? 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200'
                       : 'text-slate-600 bg-slate-100/80 hover:bg-slate-200/80'
                 }`}
               >
-                {tab.label}
+                {Icon && <Icon className="w-3.5 h-3.5" />}
+                <span>{tab.label}</span>
               </button>
             );
           })}

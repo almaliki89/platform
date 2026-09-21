@@ -148,9 +148,27 @@ export interface Badge {
   maxProgress: number;
 }
 
+export type EducationalGrade = 'sixth-preparatory' | 'third-intermediate';
+
+export interface UploadedMalzama {
+  id: string;
+  name: string;
+  size: string;
+  uploadDate: string;
+  fileType: string;
+  summary: string;
+  grade: EducationalGrade;
+  unitsCount: number;
+  extractedRules: { title: string; formula: string; explanation: string; examples: string[] }[];
+  extractedVocab: { word: string; meaning: string; context: string }[];
+  extractedQuestions: { question: string; answer: string; type: string }[];
+  rawContentPreview?: string;
+}
+
 export interface StudentState {
   name: string;
   xp: number;
+  selectedGrade?: EducationalGrade;
   completedLessonIds: string[];
   bookmarkedQuestionIds: string[];
   answeredExercises: Record<string, boolean>;
@@ -160,6 +178,7 @@ export interface StudentState {
   lastActiveDate: string;
   lastVisitedLessonId?: string;
   unlockedBadges: string[];
+  uploadedMalzamas?: UploadedMalzama[];
 }
 
 export interface AiChatMessage {
