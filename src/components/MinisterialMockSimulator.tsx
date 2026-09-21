@@ -301,7 +301,7 @@ export const MinisterialMockSimulator: React.FC<MinisterialMockSimulatorProps> =
                 <span className="col-span-2 font-mono font-bold text-indigo-700">Q4</span>
                 <span className="col-span-6 font-medium">
                   {grade === 'third-intermediate'
-                    ? 'القصص المقررة (Story Time): لوسي، الغزالة، ابن الهيثم، فنجان قهوة'
+                    ? 'القصص المقررة (Story Time): كريم، كرم، ملء الفراغ، إبراهيم، سلام أحمد، داليا'
                     : 'الأدب الوزاري: كبرياء وتحامل (جين أوستن) وكما تشاء (شكسبير)'}
                 </span>
                 <span className="col-span-2 text-center text-slate-500">أجب عن 5 من 6</span>
@@ -312,7 +312,7 @@ export const MinisterialMockSimulator: React.FC<MinisterialMockSimulatorProps> =
                 <span className="col-span-2 font-mono font-bold text-indigo-700">Q5</span>
                 <span className="col-span-6 font-medium">
                   {grade === 'third-intermediate'
-                    ? 'الإنشاء الوزاري النموذجي: وصف صديق، دعوة تخرج، أو ملف الحياة البرية'
+                    ? 'الإنشاء الوزاري النموذجي: سيرة نور صبري أو برنامج تلفزيوني عن الفيلة'
                     : 'الإنشاء الوزاري النموذجي (100 إلى 120 كلمة)'}
                 </span>
                 <span className="col-span-2 text-center text-slate-500">اختر A أو B</span>
