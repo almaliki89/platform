@@ -1,6 +1,7 @@
 import React from 'react';
-import { Sparkles, Trophy, Flame, GraduationCap, UploadCloud } from 'lucide-react';
+import { Sparkles, Trophy, Flame, GraduationCap, UploadCloud, User as UserIcon, CloudCheck, Cloud } from 'lucide-react';
 import { StudentState, EducationalGrade } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 interface NavbarProps {
   currentTab: 'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama';
@@ -9,6 +10,7 @@ interface NavbarProps {
   selectedGrade: EducationalGrade;
   onSelectGrade: (grade: EducationalGrade) => void;
   onOpenProfile: () => void;
+  onOpenAuth: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -18,7 +20,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   selectedGrade,
   onSelectGrade,
   onOpenProfile,
+  onOpenAuth,
 }) => {
+  const { user, syncStatus } = useAuth();
   const isThirdIntermediate = selectedGrade === 'third-intermediate';
 
   const navItems = isThirdIntermediate ? [
@@ -76,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="grade-sixth-btn"
                 onClick={() => onSelectGrade('sixth-preparatory')}
-                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all whitespace-nowrap ${
+                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                   !isThirdIntermediate
                     ? 'bg-indigo-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
@@ -87,19 +91,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="grade-third-btn"
                 onClick={() => onSelectGrade('third-intermediate')}
-                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap ${
+                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap cursor-pointer ${
                   isThirdIntermediate
                     ? 'bg-teal-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <span>الثالث المتوسط</span>
-                {isThirdIntermediate && <span className="w-1.5 h-1.5 rounded-full bg-teal-300 animate-pulse" />}
+                الثالث المتوسط
               </button>
             </div>
           </div>
 
-          {/* Navigation Links - Desktop Large Screens (2xl and wide displays only) */}
+          {/* Navigation Links - Desktop Large Screens */}
           <nav className="hidden 2xl:flex items-center gap-1 shrink-0">
             {navItems.map((tab) => {
               const isActive = currentTab === tab.id;
@@ -109,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={tab.id}
                   id={`nav-${tab.id}-btn`}
                   onClick={() => setCurrentTab(tab.id as any)}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all relative flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all relative flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
                     isActive
                       ? tab.highlight 
                         ? 'bg-amber-400 text-slate-950 shadow-xs font-black' 
@@ -126,8 +129,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          {/* Action Hub (XP Badge + Profile) */}
+          {/* Action Hub (Auth + XP Badge + Profile) */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            
             {/* Streak & XP Pill */}
             <div 
               id="student-stats-pill"
@@ -146,6 +150,29 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </div>
 
+            {/* Cloud User / Sign In Button */}
+            {user ? (
+              <button
+                id="cloud-user-btn"
+                onClick={onOpenProfile}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+                title={`حساب متزامن سحابياً: ${user.phoneNumber || user.email || user.displayName}`}
+              >
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span className="max-w-[90px] sm:max-w-[120px] truncate">{user.displayName || studentState.name || 'حسابي'}</span>
+              </button>
+            ) : (
+              <button
+                id="auth-login-btn"
+                onClick={onOpenAuth}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
+                title="تسجيل الدخول أو إنشاء حساب لحفظ درجاتك سحابياً"
+              >
+                <UserIcon className="w-3.5 h-3.5" />
+                <span className="whitespace-nowrap">تسجيل الدخول</span>
+              </button>
+            )}
+
             {/* Profile Avatar Button */}
             <button
               id="student-profile-btn"
@@ -159,7 +186,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         </div>
 
-        {/* Dedicated Navigation Bar for all screens under 2xl (Mobile, Tablets, Laptops, Desktops) */}
+        {/* Dedicated Navigation Bar for screens under 2xl */}
         <div className="flex 2xl:hidden items-center overflow-x-auto py-2 border-t border-slate-100 no-scrollbar gap-1.5 text-xs scroll-smooth">
           {navItems.map((tab) => {
             const isActive = currentTab === tab.id;
@@ -168,7 +195,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setCurrentTab(tab.id as any)}
-                className={`px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition-all shrink-0 flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
                   isActive
                     ? tab.highlight
                       ? 'bg-amber-400 text-slate-950 shadow-xs font-black'

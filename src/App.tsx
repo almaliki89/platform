@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './components/Dashboard';
 import { LessonViewer } from './components/LessonViewer';
@@ -10,6 +11,7 @@ import { MinisterialMockSimulator } from './components/MinisterialMockSimulator'
 import { VisualVocabAtlas } from './components/VisualVocabAtlas';
 import { StudentProfileModal } from './components/StudentProfileModal';
 import { MalzamaUploadLab } from './components/MalzamaUploadLab';
+import { AuthGate } from './components/AuthGate';
 
 import { CURRICULUM_UNITS } from './data/curriculumData';
 import { THIRD_INTERMEDIATE_UNITS } from './data/thirdIntermediateData';
@@ -20,8 +22,11 @@ import {
   triggerCelebration, 
   INITIAL_STUDENT_STATE 
 } from './utils/storage';
+import { GraduationCap, Loader2 } from 'lucide-react';
 
-export function App() {
+function MainAppContent() {
+  const { user, loading, saveStudentToCloud, loadStudentFromCloud } = useAuth();
+
   // Navigation tabs
   const [currentTab, setCurrentTab] = useState<'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama'>('dashboard');
 
@@ -43,10 +48,59 @@ export function App() {
   // Modals state
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+  // Sync with Firestore when user logs in
+  const prevUserIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    async function syncOnLogin() {
+      if (user && user.uid !== prevUserIdRef.current) {
+        prevUserIdRef.current = user.uid;
+        const cloudData = await loadStudentFromCloud(user.uid);
+        if (cloudData) {
+          // Merge local and cloud progress smartly (take highest XP/progress)
+          setStudentState(prev => {
+            const merged: StudentState = {
+              ...cloudData,
+              name: cloudData.name || user.displayName || prev.name,
+              xp: Math.max(cloudData.xp || 0, prev.xp || 0),
+              completedLessonIds: Array.from(new Set([...cloudData.completedLessonIds, ...prev.completedLessonIds])),
+              bookmarkedQuestionIds: Array.from(new Set([...cloudData.bookmarkedQuestionIds, ...prev.bookmarkedQuestionIds])),
+              totalQuestionsAttempted: Math.max(cloudData.totalQuestionsAttempted || 0, prev.totalQuestionsAttempted || 0),
+              totalQuestionsCorrect: Math.max(cloudData.totalQuestionsCorrect || 0, prev.totalQuestionsCorrect || 0),
+              unlockedBadges: Array.from(new Set([...cloudData.unlockedBadges, ...prev.unlockedBadges])),
+              selectedGrade: cloudData.selectedGrade || prev.selectedGrade || selectedGrade
+            };
+            if (merged.selectedGrade) {
+              setSelectedGrade(merged.selectedGrade);
+            }
+            saveStudentState(merged);
+            saveStudentToCloud(merged);
+            return merged;
+          });
+        } else {
+          // First time cloud user -> Upload current progress
+          const initialCloudState = {
+            ...studentState,
+            name: user.displayName || studentState.name,
+          };
+          setStudentState(initialCloudState);
+          saveStudentToCloud(initialCloudState);
+        }
+      } else if (!user) {
+        prevUserIdRef.current = null;
+      }
+    }
+    syncOnLogin();
+  }, [user]);
+
   // Handle grade change
   const handleSelectGrade = (newGrade: EducationalGrade) => {
     setSelectedGrade(newGrade);
-    setStudentState(prev => ({ ...prev, selectedGrade: newGrade }));
+    setStudentState(prev => {
+      const updated = { ...prev, selectedGrade: newGrade };
+      if (user) saveStudentToCloud(updated);
+      return updated;
+    });
     const units = newGrade === 'third-intermediate' ? THIRD_INTERMEDIATE_UNITS : CURRICULUM_UNITS;
     setActiveUnit(units[0]);
     setActiveLesson(units[0].lessons[0]);
@@ -54,13 +108,17 @@ export function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Persist student state changes
+  // Persist student state changes locally & to cloud
   useEffect(() => {
-    saveStudentState({
+    const fullState = {
       ...studentState,
       selectedGrade,
-    });
-  }, [studentState, selectedGrade]);
+    };
+    saveStudentState(fullState);
+    if (user) {
+      saveStudentToCloud(fullState);
+    }
+  }, [studentState, selectedGrade, user]);
 
   // Handle selecting a unit from dashboard
   const handleSelectUnit = (unit: Unit) => {
@@ -98,11 +156,13 @@ export function App() {
         triggerCelebration();
       }
 
-      return {
+      const newState = {
         ...prev,
         completedLessonIds: updated,
         xp: prev.xp + addedXp
       };
+      if (user) saveStudentToCloud(newState);
+      return newState;
     });
   };
 
@@ -117,7 +177,7 @@ export function App() {
         triggerCelebration();
       }
 
-      return {
+      const newState = {
         ...prev,
         totalQuestionsAttempted: newAttempted,
         totalQuestionsCorrect: newCorrect,
@@ -127,6 +187,8 @@ export function App() {
           [exerciseId]: isCorrect
         }
       };
+      if (user) saveStudentToCloud(newState);
+      return newState;
     });
   };
 
@@ -136,47 +198,96 @@ export function App() {
       ? questionIdOrIsCorrect 
       : !!maybeIsCorrect;
 
-    setStudentState(prev => ({
-      ...prev,
-      totalQuestionsAttempted: prev.totalQuestionsAttempted + 1,
-      totalQuestionsCorrect: isCorrect ? prev.totalQuestionsCorrect + 1 : prev.totalQuestionsCorrect,
-      xp: prev.xp + (isCorrect ? 15 : 5)
-    }));
+    setStudentState(prev => {
+      const newAttempted = prev.totalQuestionsAttempted + 1;
+      const newCorrect = isCorrect ? prev.totalQuestionsCorrect + 1 : prev.totalQuestionsCorrect;
+      const gainedXp = isCorrect ? 20 : 5;
+
+      if (isCorrect) {
+        triggerCelebration();
+      }
+
+      const newState = {
+        ...prev,
+        totalQuestionsAttempted: newAttempted,
+        totalQuestionsCorrect: newCorrect,
+        xp: prev.xp + gainedXp
+      };
+      if (user) saveStudentToCloud(newState);
+      return newState;
+    });
   };
 
   // Update student name
   const handleUpdateStudentName = (newName: string) => {
-    setStudentState(prev => ({ ...prev, name: newName }));
+    setStudentState(prev => {
+      const newState = { ...prev, name: newName };
+      if (user) saveStudentToCloud(newState);
+      return newState;
+    });
   };
 
-  // Reset progress
+  // Reset student progress
   const handleResetProgress = () => {
-    setStudentState(INITIAL_STUDENT_STATE);
-    setIsProfileOpen(false);
+    const resetState = {
+      ...INITIAL_STUDENT_STATE,
+      name: studentState.name
+    };
+    setStudentState(resetState);
+    saveStudentState(resetState);
+    if (user) saveStudentToCloud(resetState);
   };
 
+  // 1. Loading Screen
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 text-white" dir="rtl">
+        <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4 shadow-xl shadow-indigo-500/20">
+          <GraduationCap className="w-8 h-8 text-white animate-pulse" />
+        </div>
+        <div className="flex items-center gap-2 font-black text-lg text-white mb-2">
+          <Loader2 className="w-5 h-5 animate-spin text-amber-300" />
+          <span>جاري فتح منصة النموذجية السحابية...</span>
+        </div>
+        <p className="text-xs text-indigo-200">إشراف الأستاذ مصطفى تركي • 2027</p>
+      </div>
+    );
+  }
+
+  // 2. Compulsory Authentication Gate (Blocks site until registered / logged in)
+  if (!user) {
+    return (
+      <AuthGate
+        onSuccessfulAuth={(name, grade) => {
+          if (name) handleUpdateStudentName(name);
+          if (grade) handleSelectGrade(grade);
+        }}
+      />
+    );
+  }
+
+  // 3. Authenticated Full Platform Experience
   return (
-    <div className="min-h-screen bg-slate-100/70 text-slate-900 font-sans selection:bg-indigo-500 selection:text-white flex flex-col w-full max-w-full overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-indigo-500 selection:text-white" dir="rtl">
       
-      {/* Top Navbar */}
+      {/* Top Navigation */}
       <Navbar
         currentTab={currentTab}
-        setCurrentTab={(tab) => {
-          setCurrentTab(tab);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
+        setCurrentTab={setCurrentTab}
         studentState={studentState}
         selectedGrade={selectedGrade}
         onSelectGrade={handleSelectGrade}
         onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenAuth={() => setIsProfileOpen(true)}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-5 sm:pt-8 min-w-0">
+      {/* Main Interactive Views */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
         {currentTab === 'dashboard' && (
           <Dashboard
-            studentState={studentState}
             selectedGrade={selectedGrade}
+            studentState={studentState}
             onSelectGrade={handleSelectGrade}
             onSelectUnit={handleSelectUnit}
             onSelectLesson={handleSelectLesson}
@@ -213,7 +324,7 @@ export function App() {
               studentName={studentState.name}
               grade={selectedGrade}
               onClose={() => setCurrentTab('dashboard')}
-              onRecordScore={(score, total) => {
+              onRecordScore={(score) => {
                 handleRecordQuestionAnswer('mock-exam-complete', score >= 50);
               }}
             />
@@ -265,16 +376,25 @@ export function App() {
         </div>
       </footer>
 
-      {/* Modals */}
+      {/* Profile & Achievements Modal */}
       <StudentProfileModal
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
         studentState={studentState}
         onUpdateName={handleUpdateStudentName}
         onResetProgress={handleResetProgress}
+        onOpenAuth={() => setIsProfileOpen(true)}
       />
 
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <AuthProvider>
+      <MainAppContent />
+    </AuthProvider>
   );
 }
 

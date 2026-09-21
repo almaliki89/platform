@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Student profile and progress data
+    match /students/{studentId} {
+      allow read, write: if true;
+    }
+
+    // Student exam results and submissions
+    match /students/{studentId}/exam_results/{resultId} {
+      allow read, write: if true;
+    }
+
+    // Global leaderboards / public statistics
+    match /leaderboard/{entry} {
+      allow read, write: if true;
+    }
+  }
+}

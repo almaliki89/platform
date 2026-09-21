@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "students": {
+      "title": "Students",
+      "description": "Student user profiles, progress, XP, completed lessons and bookmarks",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "xp": { "type": "number" },
+        "selectedGrade": { "type": "string", "enum": ["sixth-preparatory", "third-intermediate"] },
+        "completedLessonIds": { "type": "array", "items": { "type": "string" } },
+        "bookmarkedQuestionIds": { "type": "array", "items": { "type": "string" } },
+        "totalQuestionsAttempted": { "type": "number" },
+        "totalQuestionsCorrect": { "type": "number" },
+        "streakDays": { "type": "number" },
+        "lastActiveDate": { "type": "string" },
+        "lastVisitedLessonId": { "type": "string" },
+        "unlockedBadges": { "type": "array", "items": { "type": "string" } },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "name", "email", "xp"]
+    }
+  }
+}

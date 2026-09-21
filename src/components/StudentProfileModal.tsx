@@ -1,7 +1,23 @@
 import React, { useState } from 'react';
-import { Trophy, Award, Flame, Sparkles, CheckCircle2, X, Zap, BookOpen, RotateCcw } from 'lucide-react';
+import { 
+  Trophy, 
+  Award, 
+  Flame, 
+  Sparkles, 
+  CheckCircle2, 
+  X, 
+  Zap, 
+  BookOpen, 
+  RotateCcw,
+  Cloud,
+  CloudCheck,
+  UserCheck,
+  LogOut,
+  LogIn
+} from 'lucide-react';
 import { StudentState } from '../types';
 import { INITIAL_BADGES } from '../utils/storage';
+import { useAuth } from '../context/AuthContext';
 
 interface StudentProfileModalProps {
   isOpen: boolean;
@@ -9,6 +25,7 @@ interface StudentProfileModalProps {
   studentState: StudentState;
   onUpdateName: (newName: string) => void;
   onResetProgress: () => void;
+  onOpenAuth: () => void;
 }
 
 export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
@@ -17,7 +34,9 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
   studentState,
   onUpdateName,
   onResetProgress,
+  onOpenAuth
 }) => {
+  const { user, logout, syncStatus } = useAuth();
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(studentState.name);
 
@@ -56,7 +75,7 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -65,6 +84,57 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
         {/* Content Body */}
         <div className="p-6 overflow-y-auto space-y-6">
           
+          {/* Cloud Account Status Banner */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                user ? 'bg-indigo-600 text-white shadow-xs' : 'bg-amber-100 text-amber-800'
+              }`}>
+                {user ? <UserCheck className="w-5 h-5" /> : <Cloud className="w-5 h-5" />}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black text-slate-900">
+                    {user ? `حساب سحابي مفعل: ${user.phoneNumber || user.email || user.displayName}` : 'حساب محلي (ضيف)'}
+                  </span>
+                  {user && (
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                      ✓ سحابي متزامن
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500 font-medium">
+                  {user 
+                    ? 'تقدمك ودرجاتك الوزارية محفوظة بأمان في خوادم Google Cloud السحابية.' 
+                    : 'سجل حسابك الآن لتحفظ درجاتك ونقاطك وتفتحها من أي موبايل أو لابتوب.'}
+                </p>
+              </div>
+            </div>
+
+            {user ? (
+              <button
+                onClick={async () => {
+                  await logout();
+                }}
+                className="px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>تسجيل الخروج</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenAuth();
+                }}
+                className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-1.5 shrink-0 shadow-xs transition-colors cursor-pointer"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>تسجيل الدخول / إنشاء حساب</span>
+              </button>
+            )}
+          </div>
+
           {/* Name & Title Card */}
           <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
@@ -79,7 +149,7 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                   />
                   <button
                     type="submit"
-                    className="px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold"
+                    className="px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold cursor-pointer"
                   >
                     حفظ
                   </button>
@@ -89,7 +159,7 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                   <h3 className="text-xl font-black text-slate-900">{studentState.name}</h3>
                   <button
                     onClick={() => setEditingName(true)}
-                    className="text-xs text-indigo-600 hover:underline font-semibold"
+                    className="text-xs text-indigo-600 hover:underline font-semibold cursor-pointer"
                   >
                     (تعديل)
                   </button>
@@ -178,14 +248,14 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
 
           {/* Reset Progress Warning Button */}
           <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-            <span>البيانات محفوظة محلياً في متصفحك</span>
+            <span>{user ? 'البيانات متزامنة سحابياً مع حسابك' : 'البيانات محفوظة محلياً في متصفحك'}</span>
             <button
               onClick={() => {
                 if (window.confirm('هل أنت متأكد من تصفير تقدمك بالكامل؟')) {
                   onResetProgress();
                 }
               }}
-              className="text-rose-600 hover:text-rose-800 font-bold flex items-center gap-1"
+              className="text-rose-600 hover:text-rose-800 font-bold flex items-center gap-1 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>تصفير التقدم الدراسي</span>
