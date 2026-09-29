@@ -1,7 +1,6 @@
 import { 
   CurriculumDraft, 
   ExtractedUnitDraft, 
-  ExtractedLessonDraft, 
   ExtractedRuleDraft, 
   ExtractedVocabDraft, 
   ExtractedQuestionDraft 
@@ -9,24 +8,60 @@ import {
 
 export class CurriculumAnalyzer {
   /**
-   * Analyzes raw extracted malzama text and produces a structured CurriculumDraft
+   * Analyzes raw extracted malzama text and produces a structured CurriculumDraft.
+   * Enforces truthfulness: does NOT fabricate rules, vocab or questions if text is missing or scanned.
    */
   public static async analyze(
     rawText: string,
     fileName: string = 'ملزمة دراسية',
     fileSize?: string,
-    fileType: 'pdf' | 'text' | 'paste' = 'pdf'
+    fileType: 'pdf' | 'text' | 'docx' | 'paste' = 'pdf'
   ): Promise<CurriculumDraft> {
-    const isRealExtraction = rawText.trim().length > 30;
+    const trimmed = (rawText || '').trim();
+    const isRealExtraction = trimmed.length > 50;
 
-    // First attempt to enrich via backend AI endpoint if available
-    let aiDraftData: any = null;
+    // SCANNED / EMPTY PDF HANDLING: Never fabricate mock educational rules
+    if (!isRealExtraction) {
+      return {
+        id: 'draft-' + Date.now(),
+        courseTitle: fileName.replace(/\.[^/.]+$/, ''),
+        subject: 'اللغة الإنكليزية',
+        grade: 'السادس الإعدادي / الثالث المتوسط',
+        language: 'bilingual',
+        summary: 'تعذر استخراج نص حقيقي من هذا الملف. يبدو أن ملف PDF ممسوح ضوئياً أو يحتوي على صور فقط. يحتاج الملف إلى OCR قبل تحليله.',
+        sourceFileName: fileName,
+        sourceFileSize: fileSize || '0 KB',
+        sourceFileType: fileType,
+        isRealExtraction: false,
+        extractionStatus: 'scanned-or-empty',
+        rawTextPreview: trimmed || '(لا يوجد نص مقروء في الملف)',
+        units: [],
+        extractedRules: [],
+        extractedVocab: [],
+        extractedQuestions: [],
+        totalUnitsDetected: 0,
+        totalLessonsDetected: 0,
+        totalRulesDetected: 0,
+        totalVocabDetected: 0,
+        totalQuestionsDetected: 0,
+        extractedAt: new Date().toISOString()
+      };
+    }
+
+    // REAL TEXT EXTRACTION: Attempt backend AI enrichment first (bounded input)
+    let aiDraftData: {
+      summary?: string;
+      extractedRules?: ExtractedRuleDraft[];
+      extractedVocab?: ExtractedVocabDraft[];
+      extractedQuestions?: ExtractedQuestionDraft[];
+    } | null = null;
+
     try {
       const response = await fetch('/api/ai/analyze-curriculum', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text: rawText.slice(0, 15000),
+          text: trimmed.slice(0, 12000), // Bounded input max 12,000 chars
           fileName,
           grade: 'السادس الإعدادي والثالث المتوسط',
           subject: 'اللغة الإنكليزية'
@@ -38,18 +73,18 @@ export class CurriculumAnalyzer {
           aiDraftData = result.draft;
         }
       }
-    } catch (e) {
-      console.warn('AI curriculum analysis offline, using heuristic analyzer', e);
+    } catch (e: unknown) {
+      console.warn('AI curriculum analysis offline or failed, using heuristic analyzer:', e);
     }
 
-    // Heuristic extraction
-    const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+    // Heuristic extraction from actual lines
+    const lines = trimmed.split('\n').map(l => l.trim()).filter(Boolean);
 
     const extractedRules: ExtractedRuleDraft[] = [];
     const extractedVocab: ExtractedVocabDraft[] = [];
     const extractedQuestions: ExtractedQuestionDraft[] = [];
 
-    // If AI draft returned, merge them
+    // Merge AI extracted items if present
     if (aiDraftData?.extractedRules && Array.isArray(aiDraftData.extractedRules)) {
       extractedRules.push(...aiDraftData.extractedRules);
     }
@@ -60,7 +95,7 @@ export class CurriculumAnalyzer {
       extractedQuestions.push(...aiDraftData.extractedQuestions);
     }
 
-    // Heuristic pattern matching on lines
+    // Heuristic pattern matching on real lines of text
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
@@ -70,7 +105,7 @@ export class CurriculumAnalyzer {
         line.length > 5 && line.length < 120
       ) {
         const formulaLine = lines[i + 1] && lines[i + 1].includes('+') ? lines[i + 1] : line;
-        const explanation = lines[i + 2] || 'قاعدة وزارية مستخرجة آلياً من نصوص الملزمة.';
+        const explanation = lines[i + 2] || 'قاعدة مستخرجة من سياق الملزمة.';
         const example = lines[i + 3] && lines[i + 3].length > 10 ? lines[i + 3] : undefined;
 
         if (!extractedRules.some(r => r.title === line)) {
@@ -116,53 +151,27 @@ export class CurriculumAnalyzer {
       }
     }
 
-    // Default fallbacks if document had minimal text or was scanned
-    if (extractedRules.length === 0) {
-      extractedRules.push({
-        title: "قاعدة الماضي البسيط والمستمر (Past Simple & Continuous with While / As)",
-        formula: "While / As + Past Continuous (was/were + v-ing) , Past Simple (v-ed)",
-        explanation: "عندما تأتي While أو As يكون بعدها ماضٍ مستمر، والحدث القاطع بالماضي البسيط.",
-        examples: ["While Ali was taking a shower, somebody knocked at the front door."]
-      });
-    }
-
-    if (extractedVocab.length === 0) {
-      extractedVocab.push(
-        { word: "unconscious", meaning: "فاقد للوعي", context: "She was unconscious and could not wake up." },
-        { word: "puzzled", meaning: "متحير / مدهوش", context: "The doctor was puzzled by her symptoms." }
-      );
-    }
-
-    if (extractedQuestions.length === 0) {
-      extractedQuestions.push({
-        question: "She (tell) us to be quiet as we (make) too much noise. (Correct the form)",
-        answer: "told / were making",
-        type: "Grammar & Functions"
-      });
-    }
-
-    // Build synthetic units & lessons from discovered content
-    const units: ExtractedUnitDraft[] = [
-      {
+    // Truthful Units creation (only if real extracted content exists)
+    const units: ExtractedUnitDraft[] = [];
+    if (extractedRules.length > 0 || extractedVocab.length > 0 || extractedQuestions.length > 0) {
+      units.push({
         unitNumber: 1,
-        title: fileName.replace(/\.[^/.]+$/, '') || 'الوحدة الأولى المستخرجة',
+        title: fileName.replace(/\.[^/.]+$/, '') || 'الوحدة المستخرجة',
         lessons: [
           {
-            title: 'الدرس الاستخلاصي الأول: القواعد والمفاهيم الوزارية',
-            titleEn: 'Extracted Lesson 1: Grammar & Key Rules',
-            summary: `استخراج ذكي لـ ${extractedRules.length} قواعد وزارية من ملف الملزمة.`,
-            rules: extractedRules.slice(0, 5),
-            vocabulary: extractedVocab.slice(0, 10),
-            questions: extractedQuestions.slice(0, 5)
+            title: 'المحتوى المستخرج من نصوص الملزمة',
+            titleEn: 'Extracted Content & Exercises',
+            summary: `استخراج ذكي لـ ${extractedRules.length} قواعد و ${extractedVocab.length} مفردات من نصوص الملف.`,
+            rules: extractedRules.slice(0, 10),
+            vocabulary: extractedVocab.slice(0, 20),
+            questions: extractedQuestions.slice(0, 10)
           }
         ]
-      }
-    ];
+      });
+    }
 
     const summary = aiDraftData?.summary || 
-      (isRealExtraction
-        ? `تمت معالجة ملف «${fileName}» بنجاح عبر المحرك الذكي. تم تحليل ${rawText.length.toLocaleString('ar-IQ')} حرف واستخلاص ${extractedRules.length} قواعد و${extractedVocab.length} مفردات و${extractedQuestions.length} أسئلة وزارية.`
-        : `تم فحص الملف «${fileName}». نظراً لأن الملف قد يكون صورة ممسوحة ضوئياً، تم تفعيل النموذج التوضيحي المعتمد لضمان تجربة تعليمية متكاملة.`);
+      `تمت معالجة ملف «${fileName}» بنجاح. تم تحليل ${trimmed.length.toLocaleString('ar-IQ')} حرف واستخلاص ${extractedRules.length} قواعد و${extractedVocab.length} مفردات و${extractedQuestions.length} أسئلة حقيقية.`;
 
     return {
       id: 'draft-' + Date.now(),
@@ -172,16 +181,17 @@ export class CurriculumAnalyzer {
       language: 'bilingual',
       summary,
       sourceFileName: fileName,
-      sourceFileSize: fileSize || '1.5 MB',
+      sourceFileSize: fileSize || '1.0 MB',
       sourceFileType: fileType,
-      isRealExtraction,
-      rawTextPreview: rawText.slice(0, 2000),
+      isRealExtraction: true,
+      extractionStatus: 'success',
+      rawTextPreview: trimmed.slice(0, 2000),
       units,
       extractedRules,
       extractedVocab,
       extractedQuestions,
       totalUnitsDetected: units.length,
-      totalLessonsDetected: 1,
+      totalLessonsDetected: units.reduce((acc, u) => acc + u.lessons.length, 0),
       totalRulesDetected: extractedRules.length,
       totalVocabDetected: extractedVocab.length,
       totalQuestionsDetected: extractedQuestions.length,

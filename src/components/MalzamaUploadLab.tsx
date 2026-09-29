@@ -1,12 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { 
   Upload, FileText, CheckCircle2, Sparkles, AlertCircle, BookOpen, 
-  Layers, BrainCircuit, RefreshCw, Download, ArrowRight, Check,
-  Volume2, Search, HelpCircle, FileCheck, Shield, ChevronDown, ChevronUp, Eye
+  RefreshCw, Volume2, Search, HelpCircle, FileCheck, Shield, Eye
 } from 'lucide-react';
 import { UploadedMalzama, EducationalGrade } from '../types';
 import { DEFAULT_PRELOADED_3RD_MALZAMA } from '../data/thirdIntermediateData';
-
 import { CurriculumAnalyzer } from '../services/curriculumAnalyzer';
 
 interface MalzamaUploadLabProps {
@@ -18,7 +16,6 @@ interface MalzamaUploadLabProps {
 export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
   onNavigateToUnits,
   onNavigateToMock,
-  onSelectGrade
 }) => {
   // State for active malzama
   const [activeMalzama, setActiveMalzama] = useState<UploadedMalzama>(() => {
@@ -37,6 +34,7 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
   const [processingStep, setProcessingStep] = useState<string>('');
   const [processingProgress, setProcessingProgress] = useState(0);
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState<string | null>(null);
+  const [uploadWarningMessage, setUploadWarningMessage] = useState<string | null>(null);
 
   // Active view tab inside the extracted malzama
   const [activeTab, setActiveTab] = useState<'rules' | 'vocab' | 'quiz' | 'reader'>('rules');
@@ -83,6 +81,8 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
     setIsProcessing(true);
     setProcessingProgress(15);
     setProcessingStep('جارٍ قراءة وفك تشفير ملف الملزمة (' + file.name + ')...');
+    setUploadWarningMessage(null);
+    setUploadSuccessMessage(null);
 
     const fileName = file.name;
     const fileSize = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
@@ -97,7 +97,7 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
       });
 
       setProcessingProgress(45);
-      setProcessingStep('جارٍ استخراج النصوص الحقيقية عبر معالج PDF المركزي...');
+      setProcessingStep('جارٍ استخراج النصوص الحقيقية والتحقق من التوقيع الرقمي...');
 
       // 2. Call server-side PDF ingestion endpoint
       const response = await fetch('/api/ingest/pdf', {
@@ -113,21 +113,33 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
         const data = await response.json();
         extractedRawText = data.extractedText || '';
         isRealExtraction = Boolean(data.isRealExtraction);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'فشل استخراج النصوص من الملف');
       }
 
       setProcessingProgress(75);
-      setProcessingStep('جارٍ تحليل البنية الهيكلية واستخلاص القواعد والمفردات والتمارين...');
+      setProcessingStep('جارٍ تحليل البنية التعليمية واستخلاص القواعد والمفردات...');
 
       // 3. Process through CurriculumAnalyzer
       const draft = await CurriculumAnalyzer.analyze(
-        extractedRawText || 'ملزمة الثالث المتوسط المرفوعة',
+        extractedRawText,
         fileName,
         fileSize,
         'pdf'
       );
 
       setProcessingProgress(95);
-      setProcessingStep('بناء الاختبار التفاعلي والربط السحابي...');
+      setProcessingStep('اكتمال المعالجة...');
+
+      if (!draft.isRealExtraction || draft.extractionStatus === 'scanned-or-empty') {
+        setIsProcessing(false);
+        setProcessingProgress(100);
+        setUploadWarningMessage(
+          'تعذر استخراج نص حقيقي من هذا الملف. يبدو أن ملف PDF ممسوح ضوئياً أو يحتوي على صور فقط. يحتاج الملف إلى OCR قبل تحليله.'
+        );
+        return;
+      }
 
       const newMalzama: UploadedMalzama = {
         id: 'user-malzama-' + Date.now(),
@@ -136,7 +148,7 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
         uploadDate: new Date().toISOString().split('T')[0],
         fileType: file.type || 'application/pdf',
         grade: 'third-intermediate',
-        unitsCount: draft.totalUnitsDetected || 7,
+        unitsCount: draft.totalUnitsDetected || 1,
         summary: draft.summary,
         extractedRules: draft.extractedRules,
         extractedVocab: draft.extractedVocab,
@@ -148,16 +160,14 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
       setProcessingProgress(100);
       setIsProcessing(false);
       setUploadSuccessMessage(
-        isRealExtraction
-          ? `تم استخراج محتويات ملزمة «${fileName}» حقيقياً (${draft.totalRulesDetected} قواعد و ${draft.totalVocabDetected} مفردات)!`
-          : `تمت معالجة ملف «${fileName}» مع تطبيق القواعد الوزارية النموذجية بنجاح!`
+        `تم استخراج محتويات ملزمة «${fileName}» بنجاح (${draft.totalRulesDetected} قواعد و ${draft.totalVocabDetected} مفردات و ${draft.totalQuestionsDetected} أسئلة)!`
       );
-      setTimeout(() => setUploadSuccessMessage(null), 6000);
-    } catch (err: any) {
+      setTimeout(() => setUploadSuccessMessage(null), 7000);
+    } catch (err: unknown) {
       console.error('File ingestion error:', err);
       setIsProcessing(false);
-      setUploadSuccessMessage('حدث خطأ أثناء قراءة الملف، تم الإبقاء على الملزمة الحالية.');
-      setTimeout(() => setUploadSuccessMessage(null), 4000);
+      const errMsg = err instanceof Error ? err.message : 'حدث خطأ أثناء قراءة الملف.';
+      setUploadWarningMessage(errMsg);
     }
   };
 
@@ -178,6 +188,8 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
     setIsProcessing(true);
     setProcessingProgress(35);
     setProcessingStep('جارٍ تحليل النص المنسوخ واستخراج القواعد والمفردات...');
+    setUploadWarningMessage(null);
+    setUploadSuccessMessage(null);
 
     try {
       const draft = await CurriculumAnalyzer.analyze(
@@ -186,6 +198,12 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
         (pastedText.length / 1024).toFixed(1) + ' KB',
         'paste'
       );
+
+      if (!draft.isRealExtraction) {
+        setIsProcessing(false);
+        setUploadWarningMessage('النص المدخل قصير جداً ولا يحتوي على محتوى تعليمي كافٍ للاستخراج.');
+        return;
+      }
 
       const newMalzama: UploadedMalzama = {
         id: 'pasted-malzama-' + Date.now(),
@@ -209,15 +227,17 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
       setIsProcessing(false);
       setUploadSuccessMessage('تم استخراج وتحليل النص بنجاح وإضافته إلى المنصة!');
       setTimeout(() => setUploadSuccessMessage(null), 5000);
-    } catch (err) {
+    } catch (err: unknown) {
       setIsProcessing(false);
       console.error('Paste analyze error:', err);
+      setUploadWarningMessage('حدث خطأ أثناء معالجة النص المنسوخ.');
     }
   };
 
   // Reset to default
   const handleResetToOfficialMalzama = () => {
     saveMalzama(DEFAULT_PRELOADED_3RD_MALZAMA);
+    setUploadWarningMessage(null);
     setUploadSuccessMessage('تمت استعادة ملزمة الأستاذ مصطفى تركي الرسمية للثالث المتوسط بنجاح!');
     setTimeout(() => setUploadSuccessMessage(null), 4000);
   };
@@ -255,7 +275,7 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
             </h1>
             
             <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-              ارفع ملزمتك بصيغة (PDF أو Word أو صورة أو نص) ليقوم النظام تلقائياً باستخراج القواعد، المفردات، والأسئلة الوزارية، أو ادرس مباشرة مع <strong>ملزمة الأستاذ مصطفى تركي المعتمدة</strong> بنفس مواصفات وقوة السادس الإعدادي.
+              ارفع ملزمتك بصيغة (PDF حقيقي أو نص) ليقوم النظام تلقائياً باستخراج القواعد، المفردات، والأسئلة، أو ادرس مباشرة مع <strong>ملزمة الأستاذ مصطفى تركي المعتمدة</strong>.
             </p>
           </div>
 
@@ -280,11 +300,22 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
         </div>
       </div>
 
-      {/* Upload Notification Toast */}
+      {/* Success Notification Toast */}
       {uploadSuccessMessage && (
         <div className="p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-2xl flex items-center gap-3 shadow-sm animate-fade-in">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <p className="text-sm font-bold">{uploadSuccessMessage}</p>
+        </div>
+      )}
+
+      {/* Warning Notification Toast for Scanned / Empty PDFs */}
+      {uploadWarningMessage && (
+        <div className="p-4 bg-amber-50 border border-amber-300 text-amber-950 rounded-2xl flex items-start gap-3 shadow-sm animate-fade-in">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="text-sm font-bold text-amber-900">تنبيه معالجة المستند</p>
+            <p className="text-xs sm:text-sm text-amber-800 leading-relaxed">{uploadWarningMessage}</p>
+          </div>
         </div>
       )}
 
@@ -311,7 +342,7 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
                 handleProcessFile(e.target.files[0]);
               }
             }}
-            accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg"
+            accept=".pdf,.txt"
             className="hidden" 
           />
 
@@ -321,22 +352,22 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
 
           <div className="space-y-1.5 max-w-md">
             <h3 className="text-lg font-black text-slate-800">
-              اسحب ملزمة الثالث المتوسط وأفلتها هنا، أو اضغط للاختيار
+              اسحب ملزمة الثالث المتوسط (PDF نصي) وأفلتها هنا، أو اضغط للاختيار
             </h3>
             <p className="text-xs text-slate-500">
-              يدعم ملفات PDF، مستندات Word (.docx)، الملفات النصية (.txt)، والصور الممسوحة ضوئياً.
+              يدعم ملفات PDF النصية الحقيقية (حتى 20 ميغابايت) والملفات النصية (.txt).
             </p>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
             <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-[11px] font-bold">
-              معالجة فورية للملزمة
+              معالجة حقيقية
             </span>
             <span className="px-2.5 py-1 rounded-full bg-teal-100 text-teal-800 text-[11px] font-bold">
-              استخراج تلقائي للقواعد
+              استخراج دقيق للقواعد
             </span>
             <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">
-              توليد اختبار وزاري ذكي
+              كشف المستندات الممسوحة
             </span>
           </div>
 
@@ -360,7 +391,7 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
           )}
         </div>
 
-        {/* Side Actions & Official Preloaded Malzama */}
+        {/* Side Actions & Active Malzama */}
         <div className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between space-y-5 shadow-xs">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-slate-800 font-bold text-sm">
@@ -388,15 +419,15 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
             <div className="grid grid-cols-3 gap-2 text-center">
               <div className="p-2.5 rounded-xl bg-teal-50/80 border border-teal-100">
                 <div className="font-black text-sm text-teal-700">{activeMalzama.unitsCount}</div>
-                <div className="text-[10px] text-teal-900 font-medium">وحدات مقررة</div>
+                <div className="text-[10px] text-teal-900 font-medium">وحدات</div>
               </div>
               <div className="p-2.5 rounded-xl bg-indigo-50/80 border border-indigo-100">
                 <div className="font-black text-sm text-indigo-700">{activeMalzama.extractedRules.length}</div>
-                <div className="text-[10px] text-indigo-900 font-medium">قواعد مستخرجة</div>
+                <div className="text-[10px] text-indigo-900 font-medium">قواعد</div>
               </div>
               <div className="p-2.5 rounded-xl bg-amber-50/80 border border-amber-100">
                 <div className="font-black text-sm text-amber-700">{activeMalzama.extractedQuestions.length}</div>
-                <div className="text-[10px] text-amber-900 font-medium">أسئلة للاختبار</div>
+                <div className="text-[10px] text-amber-900 font-medium">أسئلة</div>
               </div>
             </div>
           </div>
@@ -429,10 +460,10 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
             {[
-              { id: 'rules', label: 'القواعد الذهبية المستخرجة', count: activeMalzama.extractedRules.length },
-              { id: 'vocab', label: 'المفردات وجداول الإملاء', count: activeMalzama.extractedVocab.length },
-              { id: 'quiz', label: 'اختبر نفسك من الملزمة', count: activeMalzama.extractedQuestions.length, highlight: true },
-              { id: 'reader', label: 'معاينة نصوص الملزمة', count: null }
+              { id: 'rules', label: 'القواعد المستخرجة', count: activeMalzama.extractedRules.length },
+              { id: 'vocab', label: 'المفردات المستخرجة', count: activeMalzama.extractedVocab.length },
+              { id: 'quiz', label: 'أسئلة الملزمة', count: activeMalzama.extractedQuestions.length, highlight: true },
+              { id: 'reader', label: 'معاينة النصوص', count: null }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -473,77 +504,89 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
         {/* Tab 1: Extracted Rules */}
         {activeTab === 'rules' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredRules.map((rule, idx) => (
-              <div 
-                key={idx}
-                className="p-5 rounded-2xl bg-slate-50/80 border border-slate-200 hover:border-teal-300 transition-all space-y-3"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <h4 className="font-extrabold text-sm sm:text-base text-slate-900">
-                    {rule.title}
-                  </h4>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-teal-100 text-teal-800 font-bold">
-                    قاعدة {idx + 1}
-                  </span>
-                </div>
-
-                <div className="p-3 bg-white rounded-xl border border-teal-200/70 font-mono text-xs text-teal-900 leading-relaxed dir-ltr">
-                  {rule.formula}
-                </div>
-
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {rule.explanation}
-                </p>
-
-                {rule.examples.length > 0 && (
-                  <div className="space-y-1 pt-2 border-t border-slate-200">
-                    <p className="text-[11px] font-bold text-slate-500">أمثلة وزارية مستخرجة:</p>
-                    {rule.examples.map((ex, exIdx) => (
-                      <div key={exIdx} className="flex items-center justify-between text-xs text-slate-800 font-medium py-1 px-2 rounded-lg bg-white/70">
-                        <span className="font-mono">{ex}</span>
-                        <button 
-                          onClick={() => speakWord(ex)}
-                          className="text-slate-400 hover:text-teal-600 p-1" 
-                          title="استمع للنطق"
-                        >
-                          <Volume2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+            {filteredRules.length === 0 ? (
+              <div className="col-span-2 text-center py-10 text-slate-400 text-xs">
+                لا توجد قواعد مستخرجة متطابقة مع البحث أو في الملزمة الحالية.
               </div>
-            ))}
+            ) : (
+              filteredRules.map((rule, idx) => (
+                <div 
+                  key={idx}
+                  className="p-5 rounded-2xl bg-slate-50/80 border border-slate-200 hover:border-teal-300 transition-all space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="font-extrabold text-sm sm:text-base text-slate-900">
+                      {rule.title}
+                    </h4>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-teal-100 text-teal-800 font-bold">
+                      قاعدة {idx + 1}
+                    </span>
+                  </div>
+
+                  <div className="p-3 bg-white rounded-xl border border-teal-200/70 font-mono text-xs text-teal-900 leading-relaxed dir-ltr">
+                    {rule.formula}
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {rule.explanation}
+                  </p>
+
+                  {rule.examples.length > 0 && (
+                    <div className="space-y-1 pt-2 border-t border-slate-200">
+                      <p className="text-[11px] font-bold text-slate-500">أمثلة وزارية مستخرجة:</p>
+                      {rule.examples.map((ex, exIdx) => (
+                        <div key={exIdx} className="flex items-center justify-between text-xs text-slate-800 font-medium py-1 px-2 rounded-lg bg-white/70">
+                          <span className="font-mono">{ex}</span>
+                          <button 
+                            onClick={() => speakWord(ex)}
+                            className="text-slate-400 hover:text-teal-600 p-1" 
+                            title="استمع للنطق"
+                          >
+                            <Volume2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         )}
 
         {/* Tab 2: Extracted Vocab */}
         {activeTab === 'vocab' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {filteredVocab.map((item, idx) => (
-              <div 
-                key={idx}
-                className="p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-indigo-300 transition-all space-y-2 group"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-black text-sm text-indigo-700">{item.word}</span>
-                    <button 
-                      onClick={() => speakWord(item.word)}
-                      className="text-slate-400 group-hover:text-indigo-600 transition-colors p-1"
-                      title="استمع للنطق الإنجليزي"
-                    >
-                      <Volume2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <span className="font-extrabold text-xs text-slate-800">{item.meaning}</span>
-                </div>
-
-                <p className="text-xs text-slate-500 italic bg-white p-2 rounded-xl border border-slate-100 font-serif">
-                  "{item.context}"
-                </p>
+            {filteredVocab.length === 0 ? (
+              <div className="col-span-3 text-center py-10 text-slate-400 text-xs">
+                لا توجد مفردات مستخرجة في الملزمة الحالية.
               </div>
-            ))}
+            ) : (
+              filteredVocab.map((item, idx) => (
+                <div 
+                  key={idx}
+                  className="p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-indigo-300 transition-all space-y-2 group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-black text-sm text-indigo-700">{item.word}</span>
+                      <button 
+                        onClick={() => speakWord(item.word)}
+                        className="text-slate-400 group-hover:text-indigo-600 transition-colors p-1"
+                        title="استمع للنطق الإنجليزي"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <span className="font-extrabold text-xs text-slate-800">{item.meaning}</span>
+                  </div>
+
+                  <p className="text-xs text-slate-500 italic bg-white p-2 rounded-xl border border-slate-100 font-serif">
+                    "{item.context}"
+                  </p>
+                </div>
+              ))
+            )}
           </div>
         )}
 
@@ -553,55 +596,61 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
             <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center gap-3">
               <HelpCircle className="w-5 h-5 text-amber-600 shrink-0" />
               <p className="text-xs sm:text-sm font-bold">
-                أسئلة مستخرجة مباشرة من ملزمتك لاختبار فهمك السريع قبل خوض الامتحان الوزاري الكامل.
+                أسئلة مستخرجة مباشرة من سياق الملزمة لاختبار الفهم والجاهزية.
               </p>
             </div>
 
-            {activeMalzama.extractedQuestions.map((q, qIdx) => {
-              const isRevealed = revealedQuizAnswers[qIdx];
-              return (
-                <div 
-                  key={qIdx}
-                  className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-teal-100 text-teal-800">
-                      سؤال {qIdx + 1} • {q.type}
-                    </span>
-                    <button
-                      onClick={() => setRevealedQuizAnswers(prev => ({ ...prev, [qIdx]: !prev[qIdx] }))}
-                      className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>{isRevealed ? 'إخفاء الإجابة النموذجية' : 'كشف الإجابة النموذجية'}</span>
-                    </button>
-                  </div>
-
-                  <p className="text-sm sm:text-base font-bold text-slate-900 leading-relaxed">
-                    {q.question}
-                  </p>
-
-                  {/* Input answer */}
-                  <div className="pt-1">
-                    <input
-                      type="text"
-                      value={quizAnswers[qIdx] || ''}
-                      onChange={(e) => setQuizAnswers({ ...quizAnswers, [qIdx]: e.target.value })}
-                      placeholder="اكتب إجابتك هنا للاختبار الذاتي..."
-                      className="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-hidden"
-                    />
-                  </div>
-
-                  {/* Revealed answer box */}
-                  {isRevealed && (
-                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-950 font-bold space-y-1">
-                      <span className="text-emerald-700">الإجابة النموذجية في الملزمة:</span>
-                      <p className="font-mono text-sm">{q.answer}</p>
+            {activeMalzama.extractedQuestions.length === 0 ? (
+              <div className="text-center py-10 text-slate-400 text-xs">
+                لا توجد أسئلة مستخرجة في هذا الملف.
+              </div>
+            ) : (
+              activeMalzama.extractedQuestions.map((q, qIdx) => {
+                const isRevealed = revealedQuizAnswers[qIdx];
+                return (
+                  <div 
+                    key={qIdx}
+                    className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-teal-100 text-teal-800">
+                        سؤال {qIdx + 1} • {q.type}
+                      </span>
+                      <button
+                        onClick={() => setRevealedQuizAnswers(prev => ({ ...prev, [qIdx]: !prev[qIdx] }))}
+                        className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>{isRevealed ? 'إخفاء الإجابة النموذجية' : 'كشف الإجابة النموذجية'}</span>
+                      </button>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+
+                    <p className="text-sm sm:text-base font-bold text-slate-900 leading-relaxed">
+                      {q.question}
+                    </p>
+
+                    {/* Input answer */}
+                    <div className="pt-1">
+                      <input
+                        type="text"
+                        value={quizAnswers[qIdx] || ''}
+                        onChange={(e) => setQuizAnswers({ ...quizAnswers, [qIdx]: e.target.value })}
+                        placeholder="اكتب إجابتك هنا للاختبار الذاتي..."
+                        className="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-hidden"
+                      />
+                    </div>
+
+                    {/* Revealed answer box */}
+                    {isRevealed && (
+                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-950 font-bold space-y-1">
+                        <span className="text-emerald-700">الإجابة النموذجية في الملزمة:</span>
+                        <p className="font-mono text-sm">{q.answer}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
         )}
 

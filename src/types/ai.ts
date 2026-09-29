@@ -50,6 +50,7 @@ export interface CurriculumDraft {
   sourceFileSize?: string;
   sourceFileType: 'pdf' | 'text' | 'docx' | 'paste';
   isRealExtraction: boolean;
+  extractionStatus?: 'success' | 'scanned-or-empty' | 'truncated' | 'error';
   rawTextPreview: string;
   units: ExtractedUnitDraft[];
   extractedRules: ExtractedRuleDraft[];

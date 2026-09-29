@@ -13,7 +13,6 @@ import {
   getDoc, 
   setDoc, 
   collection, 
-  addDoc, 
   getDocs, 
   query, 
   orderBy, 
@@ -58,31 +57,15 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Storage key for client cache / preferences
-const PREFERENCES_CACHE_KEY = 'omega_student_preferences';
-
 // Helper to normalize phone numbers
 export function cleanPhoneNumber(phone: string): string {
   return phone.replace(/[^0-9]/g, '');
 }
 
-// Phone Auth Adapter: maps phone to a dedicated Firebase Auth virtual account
-export function phoneToAuthEmail(phone: string): string {
-  const cleaned = cleanPhoneNumber(phone);
-  return `phone_${cleaned}@phone.omega.edu.iq`;
-}
-
-// Secure SHA-256 hash helper (never store plaintext passwords anywhere)
-async function hashSecret(secret: string): Promise<string> {
-  if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(secret + 'omega_v3_salt_secure');
-    const hash = await window.crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hash))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-  }
-  return btoa(secret);
+// Helper to safely extract error message from unknown error
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -95,23 +78,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       try {
         if (firebaseUser) {
-          const isPhoneAuth = firebaseUser.email?.endsWith('@phone.omega.edu.iq');
-          const derivedPhone = isPhoneAuth 
-            ? firebaseUser.email?.replace('phone_', '').replace('@phone.omega.edu.iq', '') 
-            : undefined;
-
-          // Attempt to fetch custom profile from Firestore
+          // Attempt to fetch custom profile from Firestore for the authenticated user
           const studentDocRef = doc(db, 'students', firebaseUser.uid);
           const studentSnap = await getDoc(studentDocRef).catch(() => null);
 
           let displayName = firebaseUser.displayName || 'طالب متميز';
-          let phone = derivedPhone;
+          let phone: string | undefined = firebaseUser.phoneNumber || undefined;
           let authProvider: 'phone' | 'email' | 'google' = 'email';
 
-          if (isPhoneAuth) {
-            authProvider = 'phone';
-          } else if (firebaseUser.providerData.some(p => p.providerId === 'google.com')) {
+          if (firebaseUser.providerData.some(p => p.providerId === 'google.com')) {
             authProvider = 'google';
+          } else if (firebaseUser.providerData.some(p => p.providerId === 'phone')) {
+            authProvider = 'phone';
           }
 
           if (studentSnap && studentSnap.exists()) {
@@ -124,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const appUser: AppUser = {
             uid: firebaseUser.uid,
             displayName,
-            email: isPhoneAuth ? undefined : (firebaseUser.email || undefined),
+            email: firebaseUser.email || undefined,
             phoneNumber: phone,
             authProvider
           };
@@ -135,8 +113,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(null);
           setSyncStatus('offline');
         }
-      } catch (err) {
-        console.error('Auth state change resolution error:', err);
+      } catch (err: unknown) {
+        console.error('Auth state change resolution error:', getErrorMessage(err));
       } finally {
         setLoading(false);
       }
@@ -177,14 +155,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         setSyncStatus('synced');
       }
-    } catch (error: any) {
-      console.error('Google Sign-in error:', error);
+    } catch (error: unknown) {
+      console.error('Google Sign-in error:', getErrorMessage(error));
       setSyncStatus('error');
       throw error;
     }
   };
 
-  // Sign up with Email & Password
+  // Sign up with Email & Password (Real Firebase Auth)
   const signUpWithEmail = async (name: string, email: string, pass: string, grade: EducationalGrade = 'sixth-preparatory') => {
     try {
       setSyncStatus('saving');
@@ -219,162 +197,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       setSyncStatus('synced');
-    } catch (error: any) {
-      console.error('Email sign up error:', error);
+    } catch (error: unknown) {
+      console.error('Email sign up error:', getErrorMessage(error));
       setSyncStatus('error');
-      if (error.code === 'auth/email-already-in-use') {
+      const firebaseErrorCode = (error as { code?: string })?.code;
+      if (firebaseErrorCode === 'auth/email-already-in-use') {
         throw new Error('هذا البريد الإلكتروني مسجل مسبقاً، يمكنك تسجيل الدخول به');
-      } else if (error.code === 'auth/weak-password') {
+      } else if (firebaseErrorCode === 'auth/weak-password') {
         throw new Error('كلمة المرور ضعيفة، يرجى اختيار كلمة مرور أطول');
       }
       throw error;
     }
   };
 
-  // Sign in with Email & Password
+  // Sign in with Email & Password (Real Firebase Auth)
   const signInWithEmail = async (email: string, pass: string) => {
     try {
       setSyncStatus('saving');
       const normalizedEmail = email.trim().toLowerCase();
       await signInWithEmailAndPassword(auth, normalizedEmail, pass);
       setSyncStatus('synced');
-    } catch (error: any) {
-      console.error('Email sign in error:', error);
+    } catch (error: unknown) {
+      console.error('Email sign in error:', getErrorMessage(error));
       setSyncStatus('error');
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+      const firebaseErrorCode = (error as { code?: string })?.code;
+      if (firebaseErrorCode === 'auth/user-not-found' || firebaseErrorCode === 'auth/invalid-credential') {
         throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
-      } else if (error.code === 'auth/wrong-password') {
+      } else if (firebaseErrorCode === 'auth/wrong-password') {
         throw new Error('كلمة المرور غير صحيحة');
       }
       throw error;
     }
   };
 
-  // Sign up with Phone
-  const signUpWithPhone = async (name: string, phone: string, pass: string, grade: EducationalGrade = 'sixth-preparatory') => {
-    try {
-      setSyncStatus('saving');
-      const cleaned = cleanPhoneNumber(phone);
-      const authEmail = phoneToAuthEmail(cleaned);
-
-      let firebaseUser: FirebaseUser;
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, authEmail, pass);
-        firebaseUser = userCredential.user;
-      } catch (authErr: any) {
-        if (authErr.code === 'auth/email-already-in-use') {
-          throw new Error('رقم الهاتف هذا مسجل مسبقاً، يرجى الانتقال إلى تسجيل الدخول');
-        }
-        // Fallback for restricted provider environments
-        const passwordHash = await hashSecret(pass);
-        const pseudoUid = `phone_${cleaned}`;
-        const studentDocRef = doc(db, 'students', pseudoUid);
-        const existingDoc = await getDoc(studentDocRef).catch(() => null);
-        if (existingDoc && existingDoc.exists()) {
-          throw new Error('رقم الهاتف هذا مسجل مسبقاً، يرجى تسجيل الدخول به');
-        }
-        await setDoc(studentDocRef, {
-          uid: pseudoUid,
-          phoneNumber: cleaned,
-          name: name.trim(),
-          authProvider: 'phone',
-          credentialHash: passwordHash, // Hashed only, never raw
-          selectedGrade: grade,
-          xp: 100,
-          completedLessonIds: [],
-          bookmarkedQuestionIds: [],
-          totalQuestionsAttempted: 0,
-          totalQuestionsCorrect: 0,
-          streakDays: 1,
-          lastActiveDate: new Date().toISOString().split('T')[0],
-          lastVisitedLessonId: grade === 'third-intermediate' ? 't-u1-l1' : 'u1-l1',
-          unlockedBadges: ['first-step'],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
-
-        const appUser: AppUser = {
-          uid: pseudoUid,
-          displayName: name.trim(),
-          phoneNumber: cleaned,
-          authProvider: 'phone'
-        };
-        setUser(appUser);
-        setSyncStatus('synced');
-        return;
-      }
-
-      await updateProfile(firebaseUser, { displayName: name.trim() });
-
-      // Save student document in Firestore (NO PLAINTEXT PASSWORDS)
-      const studentDocRef = doc(db, 'students', firebaseUser.uid);
-      await setDoc(studentDocRef, {
-        uid: firebaseUser.uid,
-        phoneNumber: cleaned,
-        name: name.trim(),
-        authProvider: 'phone',
-        selectedGrade: grade,
-        xp: 100,
-        completedLessonIds: [],
-        bookmarkedQuestionIds: [],
-        totalQuestionsAttempted: 0,
-        totalQuestionsCorrect: 0,
-        streakDays: 1,
-        lastActiveDate: new Date().toISOString().split('T')[0],
-        lastVisitedLessonId: grade === 'third-intermediate' ? 't-u1-l1' : 'u1-l1',
-        unlockedBadges: ['first-step'],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
-
-      setSyncStatus('synced');
-    } catch (error: any) {
-      console.error('Phone sign up error:', error);
-      setSyncStatus('error');
-      throw error;
-    }
+  // Sign up with Phone — Policy Option B (Strictly No Custom Password Storage / No Pseudo Sessions)
+  const signUpWithPhone = async (_name: string, _phone: string, _pass: string, _grade: EducationalGrade = 'sixth-preparatory') => {
+    throw new Error('تسجيل الدخول برقم الهاتف قيد التفعيل حالياً. يرجى استخدام البريد الإلكتروني أو Google.');
   };
 
-  // Sign in with Phone
-  const signInWithPhone = async (phone: string, pass: string) => {
-    try {
-      setSyncStatus('saving');
-      const cleaned = cleanPhoneNumber(phone);
-      const authEmail = phoneToAuthEmail(cleaned);
-
-      try {
-        await signInWithEmailAndPassword(auth, authEmail, pass);
-        setSyncStatus('synced');
-      } catch (authErr: any) {
-        // Fallback for custom hashed records if auth provider rejected email
-        const passwordHash = await hashSecret(pass);
-        const pseudoUid = `phone_${cleaned}`;
-        const studentDocRef = doc(db, 'students', pseudoUid);
-        const snapshot = await getDoc(studentDocRef).catch(() => null);
-
-        if (!snapshot || !snapshot.exists()) {
-          throw new Error('رقم الهاتف هذا غير مسجل، يرجى إنشاء حساب جديد أولاً');
-        }
-
-        const data = snapshot.data();
-        if (data.credentialHash && data.credentialHash !== passwordHash) {
-          throw new Error('كلمة المرور غير صحيحة، يرجى التأكد والمحاولة ثانية');
-        }
-
-        const appUser: AppUser = {
-          uid: pseudoUid,
-          displayName: data.name || 'طالب متميز',
-          phoneNumber: data.phoneNumber || cleaned,
-          authProvider: 'phone'
-        };
-        setUser(appUser);
-        setSyncStatus('synced');
-      }
-    } catch (error: any) {
-      console.error('Phone sign in error:', error);
-      setSyncStatus('error');
-      throw error;
-    }
+  // Sign in with Phone — Policy Option B (Strictly No Custom Password Storage / No Pseudo Sessions)
+  const signInWithPhone = async (_phone: string, _pass: string) => {
+    throw new Error('تسجيل الدخول برقم الهاتف قيد التفعيل حالياً. يرجى استخدام البريد الإلكتروني أو Google.');
   };
 
   // Logout
@@ -385,14 +248,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setUser(null);
       setSyncStatus('offline');
-    } catch (error) {
-      console.error('Logout error:', error);
+    } catch (error: unknown) {
+      console.error('Logout error:', getErrorMessage(error));
       setUser(null);
       setSyncStatus('offline');
     }
   };
 
-  // Save student progress to Firestore Cloud (with safe atomic merge)
+  // Save student progress to Firestore Cloud (Owner only)
   const saveStudentToCloud = async (state: StudentState) => {
     if (!user) return;
     try {
@@ -417,13 +280,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updatedAt: new Date().toISOString()
       }, { merge: true });
       setSyncStatus('synced');
-    } catch (error) {
-      console.error('Error saving student state to cloud:', error);
+    } catch (error: unknown) {
+      console.error('Error saving student state to cloud:', getErrorMessage(error));
       setSyncStatus('error');
     }
   };
 
-  // Load student progress from Firestore Cloud
+  // Load student progress from Firestore Cloud (Owner only)
   const loadStudentFromCloud = async (uid: string): Promise<StudentState | null> => {
     try {
       const studentDocRef = doc(db, 'students', uid);
@@ -431,7 +294,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (snapshot.exists()) {
         const data = snapshot.data();
 
-        // Also fetch recent exam results subcollection
+        // Fetch recent exam results subcollection (Owner only)
         const examResultsRef = collection(db, 'students', uid, 'exam_results');
         const examQuery = query(examResultsRef, orderBy('timestamp', 'desc'), limit(20));
         const examSnaps = await getDocs(examQuery).catch(() => null);
@@ -442,7 +305,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
         }
 
-        // Fetch notes
+        // Fetch notes (Owner only)
         const notesRef = collection(db, 'students', uid, 'notes');
         const notesSnaps = await getDocs(notesRef).catch(() => null);
         const notes: StudentNote[] = [];
@@ -452,7 +315,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
         }
 
-        // Fetch bookmarks
+        // Fetch bookmarks (Owner only)
         const bookmarksRef = collection(db, 'students', uid, 'bookmarks');
         const bookmarksSnaps = await getDocs(bookmarksRef).catch(() => null);
         const bookmarks: BookmarkItem[] = [];
@@ -483,45 +346,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
       }
       return null;
-    } catch (error) {
-      console.error('Error loading student from cloud:', error);
+    } catch (error: unknown) {
+      console.error('Error loading student from cloud:', getErrorMessage(error));
       return null;
     }
   };
 
-  // Append-only Exam Result Record in subcollection
+  // Append-only Exam Result Record in subcollection (Owner only)
   const saveExamResultToCloud = async (result: ExamResultRecord) => {
     if (!user) return;
     try {
       const examDocRef = doc(db, 'students', user.uid, 'exam_results', result.id);
       await setDoc(examDocRef, result);
-
-      // Optionally update public leaderboard if score is high
-      if (result.percentage >= 60) {
-        const leaderboardRef = doc(db, 'leaderboard', user.uid);
-        await setDoc(leaderboardRef, {
-          uid: user.uid,
-          studentName: user.displayName,
-          examTitle: result.examTitle,
-          score: result.score,
-          maxScore: result.maxScore,
-          percentage: result.percentage,
-          updatedAt: new Date().toISOString()
-        }, { merge: true }).catch(() => {});
-      }
-    } catch (err) {
-      console.error('Error writing exam result to cloud:', err);
+    } catch (err: unknown) {
+      console.error('Error writing exam result to cloud:', getErrorMessage(err));
     }
   };
 
-  // Notes operations in subcollection
+  // Notes operations in subcollection (Owner only)
   const saveNoteToCloud = async (note: StudentNote) => {
     if (!user) return;
     try {
       const noteDocRef = doc(db, 'students', user.uid, 'notes', note.id);
       await setDoc(noteDocRef, note, { merge: true });
-    } catch (err) {
-      console.error('Error saving note:', err);
+    } catch (err: unknown) {
+      console.error('Error saving note:', getErrorMessage(err));
     }
   };
 
@@ -530,19 +379,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const noteDocRef = doc(db, 'students', user.uid, 'notes', noteId);
       await setDoc(noteDocRef, { deleted: true }, { merge: true });
-    } catch (err) {
-      console.error('Error deleting note:', err);
+    } catch (err: unknown) {
+      console.error('Error deleting note:', getErrorMessage(err));
     }
   };
 
-  // Bookmarks operations in subcollection
+  // Bookmarks operations in subcollection (Owner only)
   const saveBookmarkToCloud = async (bookmark: BookmarkItem) => {
     if (!user) return;
     try {
       const bookmarkDocRef = doc(db, 'students', user.uid, 'bookmarks', bookmark.id);
       await setDoc(bookmarkDocRef, bookmark, { merge: true });
-    } catch (err) {
-      console.error('Error saving bookmark:', err);
+    } catch (err: unknown) {
+      console.error('Error saving bookmark:', getErrorMessage(err));
     }
   };
 
@@ -551,8 +400,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const bookmarkDocRef = doc(db, 'students', user.uid, 'bookmarks', bookmarkId);
       await setDoc(bookmarkDocRef, { removed: true }, { merge: true });
-    } catch (err) {
-      console.error('Error removing bookmark:', err);
+    } catch (err: unknown) {
+      console.error('Error removing bookmark:', getErrorMessage(err));
     }
   };
 

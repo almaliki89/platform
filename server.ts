@@ -10,11 +10,13 @@ dotenv.config();
 const PORT = 3000;
 const app = express();
 
-// Increase JSON body limit to support PDF uploads
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+// Maximum allowed PDF payload: 20 MB decoded buffer limit
+const MAX_PDF_BYTES = 20 * 1024 * 1024; // 20 MB
 
-// Initialize Gemini SDK with telemetry header per guidelines
+app.use(express.json({ limit: "30mb" }));
+app.use(express.urlencoded({ limit: "30mb", extended: true }));
+
+// Server-side only Gemini API key - NEVER exposed to client or logged
 const apiKey = process.env.GEMINI_API_KEY || "";
 const ai = new GoogleGenAI({
   apiKey: apiKey,
@@ -25,34 +27,60 @@ const ai = new GoogleGenAI({
   },
 });
 
-// Health check endpoint
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+// Health check endpoint (never leaks raw API keys)
 app.get("/api/health", (_req, res) => {
   res.json({
     status: "ok",
-    app: "منصة أوميغا التعليمية - OMEGA V3",
+    app: "منصة أوميغا التعليمية - OMEGA V3.1",
     hasGeminiKey: Boolean(apiKey),
     timestamp: new Date().toISOString()
   });
 });
 
 // ============================================================================
-// PHASE 6: REAL PDF & TEXT INGESTION PIPELINE
+// PDF & TEXT INGESTION PIPELINE (STRICT VALIDATION & SIGNATURE CHECK)
 // ============================================================================
 
 app.post("/api/ingest/pdf", async (req: Request, res: Response) => {
   try {
     const { base64Data, fileName } = req.body;
 
-    if (!base64Data) {
-      return res.status(400).json({ error: "Missing base64Data for PDF ingestion." });
+    if (!base64Data || typeof base64Data !== "string") {
+      return res.status(400).json({ error: "Missing or invalid base64Data for PDF ingestion." });
     }
 
     // Strip data URL header if present
     const cleanBase64 = base64Data.replace(/^data:application\/pdf;base64,/, "");
-    const buffer = Buffer.from(cleanBase64, "base64");
+    
+    let buffer: Buffer;
+    try {
+      buffer = Buffer.from(cleanBase64, "base64");
+    } catch {
+      return res.status(400).json({ error: "Invalid base64 payload." });
+    }
 
     if (buffer.length === 0) {
-      return res.status(400).json({ error: "Provided buffer is empty." });
+      return res.status(400).json({ error: "Uploaded PDF buffer is empty." });
+    }
+
+    // Check maximum file size (20 MB)
+    if (buffer.length > MAX_PDF_BYTES) {
+      return res.status(400).json({ 
+        error: "حجم الملف يتجاوز الحد الأقصى المسموح به (20 ميغابايت)." 
+      });
+    }
+
+    // Signature Validation: Verify PDF magic bytes (%PDF)
+    const magicHeader = buffer.subarray(0, 4).toString("ascii");
+    if (magicHeader !== "%PDF") {
+      return res.status(400).json({ 
+        error: "ملف غير صالح، يجب أن يكون الملف بصيغة PDF حقيقية تبدأ بـ %PDF." 
+      });
     }
 
     // Real PDF text extraction via PDFParse
@@ -74,11 +102,11 @@ app.post("/api/ingest/pdf", async (req: Request, res: Response) => {
       info: info || {},
       preview: extractedText.slice(0, 1500)
     });
-  } catch (error: any) {
-    console.error("PDF Ingestion Error:", error);
+  } catch (error: unknown) {
+    console.error("PDF Ingestion Error:", getErrorMessage(error));
     return res.status(500).json({
       error: "فشل استخراج النص من ملف الـ PDF",
-      details: error.message || String(error)
+      details: getErrorMessage(error)
     });
   }
 });
@@ -98,15 +126,15 @@ app.post("/api/ingest/text", async (req: Request, res: Response) => {
       totalChars: trimmed.length,
       extractedText: trimmed,
       preview: trimmed.slice(0, 1500),
-      isRealExtraction: true
+      isRealExtraction: trimmed.length > 50
     });
-  } catch (error: any) {
-    return res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    return res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
 // ============================================================================
-// PHASE 8 & 9: GEMINI BACKEND API ENDPOINTS
+// GEMINI BACKEND API ENDPOINTS (BOUNDED INPUT & TRUTHFUL RESPONSES)
 // ============================================================================
 
 // POST /api/ai/analyze-curriculum
@@ -117,6 +145,10 @@ app.post("/api/ai/analyze-curriculum", async (req: Request, res: Response) => {
     if (!text || typeof text !== "string") {
       return res.status(400).json({ error: "Text payload is required." });
     }
+
+    // Limit input to 12,000 characters to ensure safe token usage
+    const isTruncated = text.length > 12000;
+    const boundedText = text.slice(0, 12000);
 
     if (apiKey) {
       try {
@@ -133,7 +165,7 @@ app.post("/api/ai/analyze-curriculum", async (req: Request, res: Response) => {
 4. extractedQuestions: مصفوفة بالأسئلة الوزارية والتمارين مع الأجوبة ونوع السؤال.
 
 النص:
-${text.slice(0, 10000)}
+${boundedText}
 `;
 
         const response = await ai.models.generateContent({
@@ -192,22 +224,24 @@ ${text.slice(0, 10000)}
         return res.json({
           success: true,
           aiPowered: true,
+          isTruncated,
           draft: parsed
         });
-      } catch (geminiError: any) {
-        console.warn("Gemini call hit quota or error, using educational heuristic fallback:", geminiError?.message || geminiError);
+      } catch (geminiError: unknown) {
+        console.warn("Gemini call error/quota:", getErrorMessage(geminiError));
       }
     }
 
-    // Heuristic fallback if Gemini API key is not attached or quota is exceeded
+    // Truthful fallback response
     return res.json({
       success: true,
       aiPowered: false,
-      message: "Analyzed using local heuristic engine (fallback active)."
+      isTruncated,
+      message: "AI analysis unavailable; relying on truthful heuristic parser."
     });
-  } catch (error: any) {
-    console.error("Analyze curriculum error:", error);
-    return res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    console.error("Analyze curriculum error:", getErrorMessage(error));
+    return res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -215,33 +249,37 @@ ${text.slice(0, 10000)}
 app.post("/api/ai/explain", async (req: Request, res: Response) => {
   try {
     const { concept, context } = req.body;
-    if (!concept) {
+    if (!concept || typeof concept !== "string") {
       return res.status(400).json({ error: "Concept is required." });
     }
+
+    const boundedConcept = concept.slice(0, 500);
+    const boundedContext = (context || "").slice(0, 2000);
 
     if (apiKey) {
       try {
         const response = await ai.models.generateContent({
           model: "gemini-3.8-flash",
           contents: `اشرح بأسلوب تربوي مبسط وواضح للطالب العراقي المفهوم التعليمي التالي مع أمثلة وفخاخ وزارية شائعة:
-المفهوم: ${concept}
-السياق: ${context || 'منهج اللغة الإنكليزية العراقي'}`
+المفهوم: ${boundedConcept}
+السياق: ${boundedContext || 'منهج اللغة الإنكليزية العراقي'}`
         });
 
         if (response.text) {
           return res.json({ explanation: response.text });
         }
-      } catch (err: any) {
-        console.warn("AI explain API quota/error, using educational fallback:", err?.message);
+      } catch (err: unknown) {
+        console.warn("AI explain API quota/error:", getErrorMessage(err));
       }
     }
 
-    return res.json({
-      explanation: `شرح المفهوم: ${concept}\nيعتمد هذا الموضوع على القواعد الذهبية للمنهج العراقي، مع التركيز على دلالات السؤال والأنماط الوزارية الشائعة.`
+    return res.status(503).json({
+      error: "تعذر الاتصال بالمساعد الذكي حالياً.",
+      explanation: null
     });
-  } catch (error: any) {
-    console.error("AI Explain error:", error);
-    return res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    console.error("AI Explain error:", getErrorMessage(error));
+    return res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -249,32 +287,34 @@ app.post("/api/ai/explain", async (req: Request, res: Response) => {
 app.post("/api/ai/summarize", async (req: Request, res: Response) => {
   try {
     const { text } = req.body;
-    if (!text) {
+    if (!text || typeof text !== "string") {
       return res.status(400).json({ error: "Text is required." });
     }
+
+    const boundedText = text.slice(0, 5000);
 
     if (apiKey) {
       try {
         const response = await ai.models.generateContent({
           model: "gemini-3.8-flash",
           contents: `لخص النص التعليمي التالي في نقاط ذهبية مركزة ومباشرة تفيد الطالب للامتحان الوزاري:
-${text}`
+${boundedText}`
         });
 
         if (response.text) {
           return res.json({ summary: response.text });
         }
-      } catch (err: any) {
-        console.warn("AI summarize quota/error, using fallback:", err?.message);
+      } catch (err: unknown) {
+        console.warn("AI summarize quota/error:", getErrorMessage(err));
       }
     }
 
     return res.json({
-      summary: text.slice(0, 250) + "..."
+      summary: boundedText.slice(0, 250) + "..."
     });
-  } catch (error: any) {
-    console.error("AI Summarize error:", error);
-    return res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    console.error("AI Summarize error:", getErrorMessage(error));
+    return res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -283,16 +323,18 @@ app.post("/api/ai/generate-quiz", async (req: Request, res: Response) => {
   try {
     const { context, questionCount = 5 } = req.body;
 
-    if (!context) {
+    if (!context || typeof context !== "string") {
       return res.status(400).json({ error: "Context is required." });
     }
+
+    const boundedContext = context.slice(0, 5000);
 
     if (apiKey) {
       try {
         const response = await ai.models.generateContent({
           model: "gemini-3.8-flash",
           contents: `قم بإنشاء اختبار اختيار من متعدد (MCQ) مكون من ${questionCount} أسئلة دقيقة مستوحاة من النمط الوزاري العراقي بناءً على السياق التالي:
-${context}`,
+${boundedContext}`,
           config: {
             responseMimeType: "application/json",
             responseSchema: {
@@ -329,36 +371,19 @@ ${context}`,
             }
           });
         }
-      } catch (err: any) {
-        console.warn("AI quiz quota/error, using fallback quiz:", err?.message);
+      } catch (err: unknown) {
+        console.warn("AI quiz quota/error:", getErrorMessage(err));
       }
     }
 
-    return res.json({
-      quiz: {
-        id: "quiz-" + Date.now(),
-        title: "اختبار وزاري تجريبي",
-        questions: [
-          {
-            id: "q-1",
-            prompt: "She was walking along the street when she ______ an old friend. (Choose)",
-            options: ["met", "was meeting", "meets", "meet"],
-            correctIndex: 0,
-            explanation: "الماضي البسيط بعد when (حدث قاطع للماضي المستمر)."
-          },
-          {
-            id: "q-2",
-            prompt: "Smoking is terrible. You should (give it up / give up it).",
-            options: ["give it up", "give up it"],
-            correctIndex: 0,
-            explanation: "الضمير it يجب أن يقع بين الفعل وحرف الجر مع Phrasal Verbs."
-          }
-        ]
-      }
+    // Truthful error response when AI quiz cannot be generated (no fake quiz fabrication)
+    return res.status(503).json({
+      error: "تعذر توليد الاختبار الذكي حالياً. حاول مرة أخرى لاحقاً.",
+      quiz: null
     });
-  } catch (error: any) {
-    console.error("AI Generate Quiz error:", error);
-    return res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    console.error("AI Generate Quiz error:", getErrorMessage(error));
+    return res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
