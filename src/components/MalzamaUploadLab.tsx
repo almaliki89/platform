@@ -7,6 +7,8 @@ import {
 import { UploadedMalzama, EducationalGrade } from '../types';
 import { DEFAULT_PRELOADED_3RD_MALZAMA } from '../data/thirdIntermediateData';
 
+import { CurriculumAnalyzer } from '../services/curriculumAnalyzer';
+
 interface MalzamaUploadLabProps {
   onNavigateToUnits?: () => void;
   onNavigateToMock?: () => void;
@@ -76,91 +78,87 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
     }
   };
 
-  // File upload processing simulator
-  const handleProcessFile = (file: File) => {
+  // Real File upload processing via server pipeline & CurriculumAnalyzer
+  const handleProcessFile = async (file: File) => {
     setIsProcessing(true);
-    setProcessingProgress(10);
+    setProcessingProgress(15);
     setProcessingStep('جارٍ قراءة وفك تشفير ملف الملزمة (' + file.name + ')...');
 
     const fileName = file.name;
     const fileSize = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
 
-    setTimeout(() => {
-      setProcessingProgress(35);
-      setProcessingStep('استخراج فصول الثالث المتوسط والقواعد الوزارية الذهبية...');
-    }, 600);
+    try {
+      // 1. Read file to Base64
+      const reader = new FileReader();
+      const base64Data = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+      });
 
-    setTimeout(() => {
-      setProcessingProgress(70);
-      setProcessingStep('فهرسة المفردات وجداول الإملاء والأسئلة الوزارية...');
-    }, 1200);
+      setProcessingProgress(45);
+      setProcessingStep('جارٍ استخراج النصوص الحقيقية عبر معالج PDF المركزي...');
 
-    setTimeout(() => {
+      // 2. Call server-side PDF ingestion endpoint
+      const response = await fetch('/api/ingest/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ base64Data, fileName })
+      });
+
+      let extractedRawText = '';
+      let isRealExtraction = false;
+
+      if (response.ok) {
+        const data = await response.json();
+        extractedRawText = data.extractedText || '';
+        isRealExtraction = Boolean(data.isRealExtraction);
+      }
+
+      setProcessingProgress(75);
+      setProcessingStep('جارٍ تحليل البنية الهيكلية واستخلاص القواعد والمفردات والتمارين...');
+
+      // 3. Process through CurriculumAnalyzer
+      const draft = await CurriculumAnalyzer.analyze(
+        extractedRawText || 'ملزمة الثالث المتوسط المرفوعة',
+        fileName,
+        fileSize,
+        'pdf'
+      );
+
       setProcessingProgress(95);
-      setProcessingStep('بناء الاختبار التفاعلي والربط مع منهج الأستاذ مصطفى تركي...');
-    }, 1800);
+      setProcessingStep('بناء الاختبار التفاعلي والربط السحابي...');
 
-    setTimeout(() => {
-      setProcessingProgress(100);
-      setIsProcessing(false);
-
-      // Create rich parsed object
       const newMalzama: UploadedMalzama = {
         id: 'user-malzama-' + Date.now(),
-        name: fileName.replace(/\.[^/.]+$/, "") || 'ملزمة الثالث المتوسط المرفوعة',
+        name: draft.courseTitle || fileName.replace(/\.[^/.]+$/, ""),
         size: fileSize,
         uploadDate: new Date().toISOString().split('T')[0],
         fileType: file.type || 'application/pdf',
         grade: 'third-intermediate',
-        unitsCount: 7,
-        summary: `تمت معالجة وفهرسة ملزمة «${fileName}» بنجاح وفق مواصفات الامتحان الوزاري للثالث المتوسط مع استخراج القواعد، المفردات، والتمارين.`,
-        extractedRules: [
-          ...DEFAULT_PRELOADED_3RD_MALZAMA.extractedRules,
-          {
-            title: "قاعدة المقارنة والتفضيل (-er / more / as...as)",
-            formula: "fast => faster | expensive => more expensive | isn't as big as",
-            explanation: "استخراج ذكي من الملزمة: تكرر هذا النمط في أسئلة القواعد وسؤال الإملاء الوزاري.",
-            examples: [
-              "A bear is bigger than a wolf.",
-              "A phone is not as expensive as a computer."
-            ]
-          },
-          {
-            title: "الموافقة والرفض (So do I / Neither do I)",
-            formula: "So do I (مثبت) | Neither do I (منفي)",
-            explanation: "إذا كانت الجملة الأصلية منفية بـ not أو don't نستخدم Neither، وإذا كانت مثبتة نستخدم So.",
-            examples: [
-              "I love tennis. => So do I.",
-              "I don't like flies. => Neither do I."
-            ]
-          }
-        ],
-        extractedVocab: [
-          ...DEFAULT_PRELOADED_3RD_MALZAMA.extractedVocab,
-          { word: "graduation", meaning: "تخرج / حفل تخرج", context: "You are invited to the school graduation party." },
-          { word: "migration", meaning: "هجرة موسمية للطيور", context: "Birds stop in the marshes during migration." },
-          { word: "blinded", meaning: "فقد البصر مؤقتاً / أُعشي", context: "The lightning blinded the hunter." }
-        ],
-        extractedQuestions: [
-          ...DEFAULT_PRELOADED_3RD_MALZAMA.extractedQuestions,
-          {
-            question: "Gold is (more expensive / expensiver) than silver. (Choose)",
-            answer: "more expensive",
-            type: "Grammar & Functions"
-          },
-          {
-            question: "I don't like spiders. (Agree): ______",
-            answer: "Neither do I",
-            type: "Grammar & Functions"
-          }
-        ],
-        rawContentPreview: `ملزمة مرفوعة: ${fileName} • الحجم: ${fileSize} • تمت قراءة الفصول واستخراج 7 وحدات دراسية، 6 قواعد وزارية، 8 مفردات محورية، و6 أسئلة مطابقة للوزاري.`
+        unitsCount: draft.totalUnitsDetected || 7,
+        summary: draft.summary,
+        extractedRules: draft.extractedRules,
+        extractedVocab: draft.extractedVocab,
+        extractedQuestions: draft.extractedQuestions,
+        rawContentPreview: draft.rawTextPreview || `ملف مرفوع: ${fileName}`
       };
 
       saveMalzama(newMalzama);
-      setUploadSuccessMessage(`تم استخراج محتويات ملزمة «${fileName}» بنجاح وتوليد الاختبار التفاعلي!`);
+      setProcessingProgress(100);
+      setIsProcessing(false);
+      setUploadSuccessMessage(
+        isRealExtraction
+          ? `تم استخراج محتويات ملزمة «${fileName}» حقيقياً (${draft.totalRulesDetected} قواعد و ${draft.totalVocabDetected} مفردات)!`
+          : `تمت معالجة ملف «${fileName}» مع تطبيق القواعد الوزارية النموذجية بنجاح!`
+      );
       setTimeout(() => setUploadSuccessMessage(null), 6000);
-    }, 2300);
+    } catch (err: any) {
+      console.error('File ingestion error:', err);
+      setIsProcessing(false);
+      setUploadSuccessMessage('حدث خطأ أثناء قراءة الملف، تم الإبقاء على الملزمة الحالية.');
+      setTimeout(() => setUploadSuccessMessage(null), 4000);
+    }
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -173,39 +171,48 @@ export const MalzamaUploadLab: React.FC<MalzamaUploadLabProps> = ({
     }
   };
 
-  const handleManualPasteSubmit = (e: React.FormEvent) => {
+  const handleManualPasteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pastedText.trim()) return;
 
     setIsProcessing(true);
-    setProcessingProgress(50);
+    setProcessingProgress(35);
     setProcessingStep('جارٍ تحليل النص المنسوخ واستخراج القواعد والمفردات...');
 
-    setTimeout(() => {
-      setIsProcessing(false);
-      setShowPasteModal(false);
+    try {
+      const draft = await CurriculumAnalyzer.analyze(
+        pastedText.trim(),
+        pastedTitle.trim() || 'ملخص ملزمة منسوخ',
+        (pastedText.length / 1024).toFixed(1) + ' KB',
+        'paste'
+      );
 
       const newMalzama: UploadedMalzama = {
         id: 'pasted-malzama-' + Date.now(),
-        name: pastedTitle.trim() || 'ملخص ملزمة الثالث المتوسط المنسوخ',
+        name: pastedTitle.trim() || draft.courseTitle || 'ملخص ملزمة الثالث المتوسط المنسوخ',
         size: (pastedText.length / 1024).toFixed(1) + ' KB',
         uploadDate: new Date().toISOString().split('T')[0],
         fileType: 'text/plain',
         grade: 'third-intermediate',
-        unitsCount: 7,
-        summary: 'تم تحليل النص المنسوخ وفهرسة أهم القواعد والمفردات الوزارية التابعة لمنهج الثالث المتوسط.',
-        extractedRules: DEFAULT_PRELOADED_3RD_MALZAMA.extractedRules,
-        extractedVocab: DEFAULT_PRELOADED_3RD_MALZAMA.extractedVocab,
-        extractedQuestions: DEFAULT_PRELOADED_3RD_MALZAMA.extractedQuestions,
+        unitsCount: draft.totalUnitsDetected || 1,
+        summary: draft.summary,
+        extractedRules: draft.extractedRules,
+        extractedVocab: draft.extractedVocab,
+        extractedQuestions: draft.extractedQuestions,
         rawContentPreview: pastedText
       };
 
       saveMalzama(newMalzama);
       setPastedText('');
       setPastedTitle('');
-      setUploadSuccessMessage('تم استخراج محتوى النص بنجاح وإضافته إلى المنصة!');
+      setShowPasteModal(false);
+      setIsProcessing(false);
+      setUploadSuccessMessage('تم استخراج وتحليل النص بنجاح وإضافته إلى المنصة!');
       setTimeout(() => setUploadSuccessMessage(null), 5000);
-    }, 1200);
+    } catch (err) {
+      setIsProcessing(false);
+      console.error('Paste analyze error:', err);
+    }
   };
 
   // Reset to default

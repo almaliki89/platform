@@ -15,7 +15,7 @@ interface DashboardProps {
   studentState: StudentState;
   onSelectUnit: (unit: Unit) => void;
   onSelectLesson: (lesson: Lesson) => void;
-  onNavigateTab: (tab: 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama') => void;
+  onNavigateTab: (tab: 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama' | 'review') => void;
   selectedGrade?: EducationalGrade;
   onSelectGrade?: (grade: EducationalGrade) => void;
 }

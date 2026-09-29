@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { Navbar } from './components/Navbar';
+import { Navbar, NavTabId } from './components/Navbar';
 import { Dashboard } from './components/Dashboard';
 import { LessonViewer } from './components/LessonViewer';
 import { ExamEngine } from './components/ExamEngine';
@@ -11,6 +11,8 @@ import { MinisterialMockSimulator } from './components/MinisterialMockSimulator'
 import { VisualVocabAtlas } from './components/VisualVocabAtlas';
 import { StudentProfileModal } from './components/StudentProfileModal';
 import { MalzamaUploadLab } from './components/MalzamaUploadLab';
+import { SmartReviewSection } from './components/SmartReviewSection';
+import { GlobalSearchModal } from './components/GlobalSearchModal';
 import { AuthGate } from './components/AuthGate';
 
 import { CURRICULUM_UNITS } from './data/curriculumData';
@@ -27,8 +29,18 @@ import { GraduationCap, Loader2 } from 'lucide-react';
 function MainAppContent() {
   const { user, loading, saveStudentToCloud, loadStudentFromCloud } = useAuth();
 
-  // Navigation tabs
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama'>('dashboard');
+  // Navigation tabs with hash synchronization (PHASE 3)
+  const [currentTab, setCurrentTab] = useState<NavTabId>(() => {
+    const hash = window.location.hash.replace('#', '') as NavTabId;
+    const validTabs: NavTabId[] = [
+      'dashboard', 'lesson', 'exam', 'mock', 'literature', 
+      'essays', 'verbs', 'vocab', 'malzama', 'review'
+    ];
+    return validTabs.includes(hash) ? hash : 'dashboard';
+  });
+
+  // Global Search Modal state (PHASE 14)
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Student progress state
   const [studentState, setStudentState] = useState<StudentState>(loadStudentState);
@@ -48,7 +60,41 @@ function MainAppContent() {
   // Modals state
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  // Sync with Firestore when user logs in
+  // Sync hash routing with window history
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '') as NavTabId;
+      const validTabs: NavTabId[] = [
+        'dashboard', 'lesson', 'exam', 'mock', 'literature', 
+        'essays', 'verbs', 'vocab', 'malzama', 'review'
+      ];
+      if (validTabs.includes(hash) && hash !== currentTab) {
+        setCurrentTab(hash);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [currentTab]);
+
+  const handleNavigateTab = (tab: NavTabId) => {
+    setCurrentTab(tab);
+    window.location.hash = tab;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Keyboard shortcut for Search (Ctrl+K or Cmd+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Sync with Firestore when user logs in (Structured Merge Strategy)
   const prevUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -57,18 +103,25 @@ function MainAppContent() {
         prevUserIdRef.current = user.uid;
         const cloudData = await loadStudentFromCloud(user.uid);
         if (cloudData) {
-          // Merge local and cloud progress smartly (take highest XP/progress)
           setStudentState(prev => {
             const merged: StudentState = {
               ...cloudData,
               name: cloudData.name || user.displayName || prev.name,
               xp: Math.max(cloudData.xp || 0, prev.xp || 0),
-              completedLessonIds: Array.from(new Set([...cloudData.completedLessonIds, ...prev.completedLessonIds])),
-              bookmarkedQuestionIds: Array.from(new Set([...cloudData.bookmarkedQuestionIds, ...prev.bookmarkedQuestionIds])),
+              completedLessonIds: Array.from(new Set([...(cloudData.completedLessonIds || []), ...(prev.completedLessonIds || [])])),
+              bookmarkedQuestionIds: Array.from(new Set([...(cloudData.bookmarkedQuestionIds || []), ...(prev.bookmarkedQuestionIds || [])])),
               totalQuestionsAttempted: Math.max(cloudData.totalQuestionsAttempted || 0, prev.totalQuestionsAttempted || 0),
               totalQuestionsCorrect: Math.max(cloudData.totalQuestionsCorrect || 0, prev.totalQuestionsCorrect || 0),
-              unlockedBadges: Array.from(new Set([...cloudData.unlockedBadges, ...prev.unlockedBadges])),
-              selectedGrade: cloudData.selectedGrade || prev.selectedGrade || selectedGrade
+              unlockedBadges: Array.from(new Set([...(cloudData.unlockedBadges || []), ...(prev.unlockedBadges || [])])),
+              selectedGrade: cloudData.selectedGrade || prev.selectedGrade || selectedGrade,
+              examResults: [
+                ...(cloudData.examResults || []),
+                ...(prev.examResults || []).filter(r => !cloudData.examResults?.some(cr => cr.id === r.id))
+              ],
+              notes: [
+                ...(cloudData.notes || []),
+                ...(prev.notes || []).filter(n => !cloudData.notes?.some(cn => cn.id === n.id))
+              ]
             };
             if (merged.selectedGrade) {
               setSelectedGrade(merged.selectedGrade);
@@ -78,7 +131,7 @@ function MainAppContent() {
             return merged;
           });
         } else {
-          // First time cloud user -> Upload current progress
+          // Initial cloud save for new account
           const initialCloudState = {
             ...studentState,
             name: user.displayName || studentState.name,
@@ -104,8 +157,7 @@ function MainAppContent() {
     const units = newGrade === 'third-intermediate' ? THIRD_INTERMEDIATE_UNITS : CURRICULUM_UNITS;
     setActiveUnit(units[0]);
     setActiveLesson(units[0].lessons[0]);
-    setCurrentTab('dashboard');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    handleNavigateTab('dashboard');
   };
 
   // Persist student state changes locally & to cloud
@@ -127,8 +179,7 @@ function MainAppContent() {
       setActiveLesson(unit.lessons[0]);
       setStudentState(prev => ({ ...prev, lastVisitedLessonId: unit.lessons[0].id }));
     }
-    setCurrentTab('lesson');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    handleNavigateTab('lesson');
   };
 
   // Handle selecting a specific lesson
@@ -137,11 +188,10 @@ function MainAppContent() {
     setActiveUnit(parentUnit);
     setActiveLesson(lesson);
     setStudentState(prev => ({ ...prev, lastVisitedLessonId: lesson.id }));
-    setCurrentTab('lesson');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    handleNavigateTab('lesson');
   };
 
-  // Toggle complete lesson
+  // Toggle complete lesson with progress percentage
   const handleToggleCompleteLesson = (lessonId: string) => {
     setStudentState(prev => {
       const isAlreadyCompleted = prev.completedLessonIds.includes(lessonId);
@@ -156,100 +206,84 @@ function MainAppContent() {
         triggerCelebration();
       }
 
-      const newState = {
+      // Check badge unlock
+      const newBadges = [...prev.unlockedBadges];
+      if (updated.length >= 1 && !newBadges.includes('first-step')) {
+        newBadges.push('first-step');
+      }
+      if (updated.length >= 5 && !newBadges.includes('grammar-master')) {
+        newBadges.push('grammar-master');
+      }
+
+      return {
         ...prev,
         completedLessonIds: updated,
-        xp: prev.xp + addedXp
+        xp: Math.max(0, prev.xp + addedXp),
+        unlockedBadges: newBadges
       };
-      if (user) saveStudentToCloud(newState);
-      return newState;
     });
   };
 
-  // Record exercise answer
+  // Handle answering interactive exercises
   const handleAnswerExercise = (exerciseId: string, isCorrect: boolean) => {
     setStudentState(prev => {
-      const newAttempted = prev.totalQuestionsAttempted + 1;
-      const newCorrect = isCorrect ? prev.totalQuestionsCorrect + 1 : prev.totalQuestionsCorrect;
-      const gainedXp = isCorrect ? 25 : 5;
+      const wasAlreadyAnswered = prev.answeredExercises[exerciseId];
+      if (wasAlreadyAnswered !== undefined) return prev;
 
-      if (isCorrect) {
-        triggerCelebration();
+      const addedXp = isCorrect ? 20 : 5;
+      if (isCorrect) triggerCelebration();
+
+      const totalAttempted = prev.totalQuestionsAttempted + 1;
+      const totalCorrect = prev.totalQuestionsCorrect + (isCorrect ? 1 : 0);
+
+      const newBadges = [...prev.unlockedBadges];
+      if (totalAttempted >= 10 && !newBadges.includes('dedicated-scholar')) {
+        newBadges.push('dedicated-scholar');
       }
 
-      const newState = {
+      return {
         ...prev,
-        totalQuestionsAttempted: newAttempted,
-        totalQuestionsCorrect: newCorrect,
-        xp: prev.xp + gainedXp,
-        answeredExercises: {
-          ...prev.answeredExercises,
-          [exerciseId]: isCorrect
-        }
+        xp: prev.xp + addedXp,
+        answeredExercises: { ...prev.answeredExercises, [exerciseId]: isCorrect },
+        totalQuestionsAttempted: totalAttempted,
+        totalQuestionsCorrect: totalCorrect,
+        unlockedBadges: newBadges
       };
-      if (user) saveStudentToCloud(newState);
-      return newState;
     });
   };
 
-  // Record exam or verb answer
-  const handleRecordQuestionAnswer = (questionIdOrIsCorrect: string | boolean, maybeIsCorrect?: boolean) => {
-    const isCorrect = typeof questionIdOrIsCorrect === 'boolean' 
-      ? questionIdOrIsCorrect 
-      : !!maybeIsCorrect;
-
-    setStudentState(prev => {
-      const newAttempted = prev.totalQuestionsAttempted + 1;
-      const newCorrect = isCorrect ? prev.totalQuestionsCorrect + 1 : prev.totalQuestionsCorrect;
-      const gainedXp = isCorrect ? 20 : 5;
-
-      if (isCorrect) {
-        triggerCelebration();
-      }
-
-      const newState = {
-        ...prev,
-        totalQuestionsAttempted: newAttempted,
-        totalQuestionsCorrect: newCorrect,
-        xp: prev.xp + gainedXp
-      };
-      if (user) saveStudentToCloud(newState);
-      return newState;
-    });
+  // Handle ministerial question answers
+  const handleRecordQuestionAnswer = (questionId: string, isCorrect: boolean) => {
+    setStudentState(prev => ({
+      ...prev,
+      xp: prev.xp + (isCorrect ? 25 : 5),
+      totalQuestionsAttempted: prev.totalQuestionsAttempted + 1,
+      totalQuestionsCorrect: prev.totalQuestionsCorrect + (isCorrect ? 1 : 0)
+    }));
   };
 
-  // Update student name
+  // Update Student Name
   const handleUpdateStudentName = (newName: string) => {
-    setStudentState(prev => {
-      const newState = { ...prev, name: newName };
-      if (user) saveStudentToCloud(newState);
-      return newState;
-    });
+    setStudentState(prev => ({ ...prev, name: newName }));
   };
 
-  // Reset student progress
+  // Reset progress
   const handleResetProgress = () => {
-    const resetState = {
-      ...INITIAL_STUDENT_STATE,
-      name: studentState.name
-    };
-    setStudentState(resetState);
-    saveStudentState(resetState);
-    if (user) saveStudentToCloud(resetState);
+    setStudentState(INITIAL_STUDENT_STATE);
   };
 
-  // 1. Loading Screen
+  // 1. Loading State while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 text-white" dir="rtl">
-        <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4 shadow-xl shadow-indigo-500/20">
-          <GraduationCap className="w-8 h-8 text-white animate-pulse" />
+      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center space-y-4" dir="rtl">
+        <div className="w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center animate-pulse">
+          <GraduationCap className="w-8 h-8 text-indigo-400" />
         </div>
-        <div className="flex items-center gap-2 font-black text-lg text-white mb-2">
-          <Loader2 className="w-5 h-5 animate-spin text-amber-300" />
+        <div className="flex items-center gap-2 text-indigo-300 font-bold text-sm">
+          <Loader2 className="w-4 h-4 animate-spin" />
           <span>جاري فتح منصة النموذجية السحابية...</span>
         </div>
-        <p className="text-xs text-indigo-200">إشراف الأستاذ مصطفى تركي • 2027</p>
+        <p className="text-xs text-indigo-200">إشراف الأستاذ مصطفى تركي • OMEGA V3</p>
       </div>
     );
   }
@@ -273,12 +307,13 @@ function MainAppContent() {
       {/* Top Navigation */}
       <Navbar
         currentTab={currentTab}
-        setCurrentTab={setCurrentTab}
+        setCurrentTab={handleNavigateTab}
         studentState={studentState}
         selectedGrade={selectedGrade}
         onSelectGrade={handleSelectGrade}
         onOpenProfile={() => setIsProfileOpen(true)}
         onOpenAuth={() => setIsProfileOpen(true)}
+        onOpenSearch={() => setIsSearchOpen(true)}
       />
 
       {/* Main Interactive Views */}
@@ -291,10 +326,16 @@ function MainAppContent() {
             onSelectGrade={handleSelectGrade}
             onSelectUnit={handleSelectUnit}
             onSelectLesson={handleSelectLesson}
-            onNavigateTab={(tab) => {
-              setCurrentTab(tab);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onNavigateTab={handleNavigateTab}
+          />
+        )}
+
+        {currentTab === 'review' && (
+          <SmartReviewSection
+            studentState={studentState}
+            currentUnits={currentUnits}
+            onSelectLesson={handleSelectLesson}
+            onNavigateToTab={handleNavigateTab}
           />
         )}
 
@@ -302,7 +343,7 @@ function MainAppContent() {
           <LessonViewer
             unit={activeUnit}
             lesson={activeLesson}
-            onBackToDashboard={() => setCurrentTab('dashboard')}
+            onBackToDashboard={() => handleNavigateTab('dashboard')}
             onSelectLesson={handleSelectLesson}
             isCompleted={studentState.completedLessonIds.includes(activeLesson.id)}
             onToggleComplete={handleToggleCompleteLesson}
@@ -323,7 +364,7 @@ function MainAppContent() {
             <MinisterialMockSimulator
               studentName={studentState.name}
               grade={selectedGrade}
-              onClose={() => setCurrentTab('dashboard')}
+              onClose={() => handleNavigateTab('dashboard')}
               onRecordScore={(score) => {
                 handleRecordQuestionAnswer('mock-exam-complete', score >= 50);
               }}
@@ -341,21 +382,15 @@ function MainAppContent() {
 
         {currentTab === 'malzama' && (
           <MalzamaUploadLab 
-            onNavigateToUnits={() => {
-              setCurrentTab('dashboard');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onNavigateToMock={() => {
-              setCurrentTab('mock');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onNavigateToUnits={() => handleNavigateTab('dashboard')}
+            onNavigateToMock={() => handleNavigateTab('mock')}
             onSelectGrade={handleSelectGrade}
           />
         )}
 
         {currentTab === 'verbs' && (
           <IrregularVerbsLab
-            onRecordAnswer={(isCorrect) => handleRecordQuestionAnswer(isCorrect)}
+            onRecordAnswer={(isCorrect) => handleRecordQuestionAnswer('verb-answer', isCorrect)}
           />
         )}
 
@@ -364,6 +399,14 @@ function MainAppContent() {
         )}
       </main>
 
+      {/* Global Search & Command Palette Modal (Ctrl + K) */}
+      <GlobalSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onSelectLesson={handleSelectLesson}
+        onNavigateToTab={handleNavigateTab}
+      />
+
       {/* Footer */}
       <footer className="mt-auto border-t border-slate-200 bg-white/80 py-6 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 space-y-2">
@@ -371,7 +414,7 @@ function MainAppContent() {
             المنصة الرقمية المتكاملة لملزمة «النموذجية في اللغة الإنكليزية - {isThirdIntermediate ? 'الثالث المتوسط 2027' : 'السادس الإعدادي 2027'}»
           </p>
           <p>
-            إعداد وإشراف الأستاذ مصطفى تركي • صممت وبرمجت وفق أحدث المعايير الوزارية والتربوية
+            إعداد وإشراف الأستاذ مصطفى تركي • OMEGA V3 Architecture
           </p>
         </div>
       </footer>

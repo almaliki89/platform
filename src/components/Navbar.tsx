@@ -1,16 +1,28 @@
 import React from 'react';
-import { Sparkles, Trophy, Flame, GraduationCap, UploadCloud, User as UserIcon, CloudCheck, Cloud } from 'lucide-react';
+import { 
+  Sparkles, 
+  Trophy, 
+  Flame, 
+  GraduationCap, 
+  UploadCloud, 
+  User as UserIcon, 
+  Search,
+  CheckCircle2
+} from 'lucide-react';
 import { StudentState, EducationalGrade } from '../types';
 import { useAuth } from '../context/AuthContext';
 
+export type NavTabId = 'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama' | 'review';
+
 interface NavbarProps {
-  currentTab: 'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama';
-  setCurrentTab: (tab: 'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama') => void;
+  currentTab: NavTabId;
+  setCurrentTab: (tab: NavTabId) => void;
   studentState: StudentState;
   selectedGrade: EducationalGrade;
   onSelectGrade: (grade: EducationalGrade) => void;
   onOpenProfile: () => void;
   onOpenAuth: () => void;
+  onOpenSearch?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -21,13 +33,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectGrade,
   onOpenProfile,
   onOpenAuth,
+  onOpenSearch
 }) => {
-  const { user, syncStatus } = useAuth();
+  const { user } = useAuth();
   const isThirdIntermediate = selectedGrade === 'third-intermediate';
 
   const navItems = isThirdIntermediate ? [
     { id: 'dashboard', label: 'الرئيسية' },
     { id: 'malzama', label: 'رفع ومعالجة الملزمة', highlight: true, icon: UploadCloud },
+    { id: 'review', label: 'المراجعة المركزة' },
     { id: 'mock', label: 'محاكي الوزاري 100د' },
     { id: 'exam', label: 'الأسئلة الوزارية' },
     { id: 'literature', label: 'قصص الثالث (Story Time)' },
@@ -35,6 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'vocab', label: 'المفردات والتوصيل' },
   ] : [
     { id: 'dashboard', label: 'الرئيسية' },
+    { id: 'review', label: 'المراجعة المركزة' },
     { id: 'mock', label: 'محاكي الوزاري 100د', highlight: true },
     { id: 'exam', label: 'بنك الوزاريات' },
     { id: 'vocab', label: 'أطلس الرموز والمفردات' },
@@ -102,6 +117,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
+          {/* Quick Search Button */}
+          {onOpenSearch && (
+            <button
+              onClick={onOpenSearch}
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200/90 text-slate-600 hover:text-slate-900 rounded-xl text-xs font-medium border border-slate-200 transition-colors"
+            >
+              <Search className="w-3.5 h-3.5 text-slate-500" />
+              <span>بحث شامل...</span>
+              <kbd className="px-1.5 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-mono text-slate-500">
+                Ctrl K
+              </kbd>
+            </button>
+          )}
+
           {/* Navigation Links - Desktop Large Screens */}
           <nav className="hidden 2xl:flex items-center gap-1 shrink-0">
             {navItems.map((tab) => {
@@ -132,6 +161,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Action Hub (Auth + XP Badge + Profile) */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             
+            {/* Mobile Search Icon */}
+            {onOpenSearch && (
+              <button
+                onClick={onOpenSearch}
+                className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100"
+                title="بحث"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+            )}
+
             {/* Streak & XP Pill */}
             <div 
               id="student-stats-pill"
