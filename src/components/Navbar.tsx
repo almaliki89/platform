@@ -40,7 +40,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navItems = isThirdIntermediate ? [
     { id: 'dashboard', label: 'الرئيسية' },
-    { id: 'malzama', label: 'رفع ومعالجة الملزمة', highlight: true, icon: UploadCloud },
     { id: 'review', label: 'المراجعة المركزة' },
     { id: 'mock', label: 'محاكي الوزاري 100د' },
     { id: 'exam', label: 'الأسئلة الوزارية' },

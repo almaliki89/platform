@@ -10,14 +10,16 @@ import { IrregularVerbsLab } from './components/IrregularVerbsLab';
 import { MinisterialMockSimulator } from './components/MinisterialMockSimulator';
 import { VisualVocabAtlas } from './components/VisualVocabAtlas';
 import { StudentProfileModal } from './components/StudentProfileModal';
-import { MalzamaUploadLab } from './components/MalzamaUploadLab';
 import { SmartReviewSection } from './components/SmartReviewSection';
 import { GlobalSearchModal } from './components/GlobalSearchModal';
 import { AuthGate } from './components/AuthGate';
+import { SubjectDetailView } from './components/SubjectDetailView';
+import { SimulationsHub } from './components/SimulationsHub';
 
 import { CURRICULUM_UNITS } from './data/curriculumData';
 import { THIRD_INTERMEDIATE_UNITS } from './data/thirdIntermediateData';
 import { Unit, Lesson, StudentState, EducationalGrade } from './types';
+import { SubjectId } from './types/subject';
 import { 
   loadStudentState, 
   saveStudentState, 
@@ -34,12 +36,16 @@ function MainAppContent() {
     const hash = window.location.hash.replace('#', '') as NavTabId;
     const validTabs: NavTabId[] = [
       'dashboard', 'lesson', 'exam', 'mock', 'literature', 
-      'essays', 'verbs', 'vocab', 'malzama', 'review'
+      'essays', 'verbs', 'vocab', 'review'
     ];
     return validTabs.includes(hash) ? hash : 'dashboard';
   });
 
-  // Global Search Modal state (PHASE 14)
+  // OMEGA V4 Multi-subject & Simulation states
+  const [selectedSubjectId, setSelectedSubjectId] = useState<SubjectId | null>(null);
+  const [isSimulationsOpen, setIsSimulationsOpen] = useState(false);
+
+  // Global Search Modal state
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Student progress state
@@ -66,10 +72,12 @@ function MainAppContent() {
       const hash = window.location.hash.replace('#', '') as NavTabId;
       const validTabs: NavTabId[] = [
         'dashboard', 'lesson', 'exam', 'mock', 'literature', 
-        'essays', 'verbs', 'vocab', 'malzama', 'review'
+        'essays', 'verbs', 'vocab', 'review'
       ];
       if (validTabs.includes(hash) && hash !== currentTab) {
         setCurrentTab(hash);
+        setSelectedSubjectId(null);
+        setIsSimulationsOpen(false);
       }
     };
     window.addEventListener('hashchange', handleHashChange);
@@ -78,7 +86,21 @@ function MainAppContent() {
 
   const handleNavigateTab = (tab: NavTabId) => {
     setCurrentTab(tab);
+    setSelectedSubjectId(null);
+    setIsSimulationsOpen(false);
     window.location.hash = tab;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectSubject = (subjectId: SubjectId) => {
+    setSelectedSubjectId(subjectId);
+    setIsSimulationsOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenSimulations = (subjectId: SubjectId) => {
+    setSelectedSubjectId(subjectId);
+    setIsSimulationsOpen(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -94,7 +116,7 @@ function MainAppContent() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Sync with Firestore when user logs in (Structured Merge Strategy)
+  // Sync with Firestore when user logs in
   const prevUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -131,7 +153,6 @@ function MainAppContent() {
             return merged;
           });
         } else {
-          // Initial cloud save for new account
           const initialCloudState = {
             ...studentState,
             name: user.displayName || studentState.name,
@@ -146,52 +167,43 @@ function MainAppContent() {
     syncOnLogin();
   }, [user]);
 
-  // Handle grade change
   const handleSelectGrade = (newGrade: EducationalGrade) => {
     setSelectedGrade(newGrade);
+    const newUnitsList = newGrade === 'third-intermediate' ? THIRD_INTERMEDIATE_UNITS : CURRICULUM_UNITS;
+    setActiveUnit(newUnitsList[0]);
+    setActiveLesson(newUnitsList[0].lessons[0]);
     setStudentState(prev => {
       const updated = { ...prev, selectedGrade: newGrade };
+      saveStudentState(updated);
       if (user) saveStudentToCloud(updated);
       return updated;
     });
-    const units = newGrade === 'third-intermediate' ? THIRD_INTERMEDIATE_UNITS : CURRICULUM_UNITS;
-    setActiveUnit(units[0]);
-    setActiveLesson(units[0].lessons[0]);
-    handleNavigateTab('dashboard');
   };
 
-  // Persist student state changes locally & to cloud
-  useEffect(() => {
-    const fullState = {
-      ...studentState,
-      selectedGrade,
-    };
-    saveStudentState(fullState);
-    if (user) {
-      saveStudentToCloud(fullState);
-    }
-  }, [studentState, selectedGrade, user]);
+  const handleSelectLesson = (lesson: Lesson) => {
+    const unit = currentUnits.find(u => u.id === lesson.unitId) || currentUnits[0];
+    setActiveUnit(unit);
+    setActiveLesson(lesson);
+    setCurrentTab('lesson');
+    setSelectedSubjectId(null);
+    setIsSimulationsOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  // Handle selecting a unit from dashboard
+    setStudentState(prev => {
+      const updated = { ...prev, lastVisitedLessonId: lesson.id };
+      saveStudentState(updated);
+      if (user) saveStudentToCloud(updated);
+      return updated;
+    });
+  };
+
   const handleSelectUnit = (unit: Unit) => {
     setActiveUnit(unit);
     if (unit.lessons.length > 0) {
-      setActiveLesson(unit.lessons[0]);
-      setStudentState(prev => ({ ...prev, lastVisitedLessonId: unit.lessons[0].id }));
+      handleSelectLesson(unit.lessons[0]);
     }
-    handleNavigateTab('lesson');
   };
 
-  // Handle selecting a specific lesson
-  const handleSelectLesson = (lesson: Lesson) => {
-    const parentUnit = currentUnits.find(u => u.id === lesson.unitId) || currentUnits[0];
-    setActiveUnit(parentUnit);
-    setActiveLesson(lesson);
-    setStudentState(prev => ({ ...prev, lastVisitedLessonId: lesson.id }));
-    handleNavigateTab('lesson');
-  };
-
-  // Toggle complete lesson with progress percentage
   const handleToggleCompleteLesson = (lessonId: string) => {
     setStudentState(prev => {
       const isAlreadyCompleted = prev.completedLessonIds.includes(lessonId);
@@ -206,7 +218,6 @@ function MainAppContent() {
         triggerCelebration();
       }
 
-      // Check badge unlock
       const newBadges = [...prev.unlockedBadges];
       if (updated.length >= 1 && !newBadges.includes('first-step')) {
         newBadges.push('first-step');
@@ -215,16 +226,19 @@ function MainAppContent() {
         newBadges.push('grammar-master');
       }
 
-      return {
+      const nextState = {
         ...prev,
         completedLessonIds: updated,
         xp: Math.max(0, prev.xp + addedXp),
         unlockedBadges: newBadges
       };
+
+      saveStudentState(nextState);
+      if (user) saveStudentToCloud(nextState);
+      return nextState;
     });
   };
 
-  // Handle answering interactive exercises
   const handleAnswerExercise = (exerciseId: string, isCorrect: boolean) => {
     setStudentState(prev => {
       const wasAlreadyAnswered = prev.answeredExercises[exerciseId];
@@ -241,7 +255,7 @@ function MainAppContent() {
         newBadges.push('dedicated-scholar');
       }
 
-      return {
+      const nextState = {
         ...prev,
         xp: prev.xp + addedXp,
         answeredExercises: { ...prev.answeredExercises, [exerciseId]: isCorrect },
@@ -249,30 +263,42 @@ function MainAppContent() {
         totalQuestionsCorrect: totalCorrect,
         unlockedBadges: newBadges
       };
+
+      saveStudentState(nextState);
+      if (user) saveStudentToCloud(nextState);
+      return nextState;
     });
   };
 
-  // Handle ministerial question answers
   const handleRecordQuestionAnswer = (questionId: string, isCorrect: boolean) => {
-    setStudentState(prev => ({
-      ...prev,
-      xp: prev.xp + (isCorrect ? 25 : 5),
-      totalQuestionsAttempted: prev.totalQuestionsAttempted + 1,
-      totalQuestionsCorrect: prev.totalQuestionsCorrect + (isCorrect ? 1 : 0)
-    }));
+    setStudentState(prev => {
+      const nextState = {
+        ...prev,
+        xp: prev.xp + (isCorrect ? 25 : 5),
+        totalQuestionsAttempted: prev.totalQuestionsAttempted + 1,
+        totalQuestionsCorrect: prev.totalQuestionsCorrect + (isCorrect ? 1 : 0)
+      };
+      saveStudentState(nextState);
+      if (user) saveStudentToCloud(nextState);
+      return nextState;
+    });
   };
 
-  // Update Student Name
   const handleUpdateStudentName = (newName: string) => {
-    setStudentState(prev => ({ ...prev, name: newName }));
+    setStudentState(prev => {
+      const nextState = { ...prev, name: newName };
+      saveStudentState(nextState);
+      if (user) saveStudentToCloud(nextState);
+      return nextState;
+    });
   };
 
-  // Reset progress
   const handleResetProgress = () => {
     setStudentState(INITIAL_STUDENT_STATE);
+    saveStudentState(INITIAL_STUDENT_STATE);
+    if (user) saveStudentToCloud(INITIAL_STUDENT_STATE);
   };
 
-  // 1. Loading State while checking auth
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center space-y-4" dir="rtl">
@@ -283,12 +309,11 @@ function MainAppContent() {
           <Loader2 className="w-4 h-4 animate-spin" />
           <span>جاري فتح منصة النموذجية السحابية...</span>
         </div>
-        <p className="text-xs text-indigo-200">إشراف الأستاذ مصطفى تركي • OMEGA V3</p>
+        <p className="text-xs text-indigo-200">إشراف الأستاذ مصطفى تركي • OMEGA V4</p>
       </div>
     );
   }
 
-  // 2. Compulsory Authentication Gate (Blocks site until registered / logged in)
   if (!user) {
     return (
       <AuthGate
@@ -300,11 +325,9 @@ function MainAppContent() {
     );
   }
 
-  // 3. Authenticated Full Platform Experience
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-indigo-500 selection:text-white" dir="rtl">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white" dir="rtl">
       
-      {/* Top Navigation */}
       <Navbar
         currentTab={currentTab}
         setCurrentTab={handleNavigateTab}
@@ -316,10 +339,22 @@ function MainAppContent() {
         onOpenSearch={() => setIsSearchOpen(true)}
       />
 
-      {/* Main Interactive Views */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         
-        {currentTab === 'dashboard' && (
+        {selectedSubjectId && isSimulationsOpen ? (
+          <SimulationsHub
+            subjectId={selectedSubjectId}
+            onBack={() => setIsSimulationsOpen(false)}
+          />
+        ) : selectedSubjectId && !isSimulationsOpen ? (
+          <SubjectDetailView
+            subjectId={selectedSubjectId}
+            studentState={studentState}
+            onBack={() => setSelectedSubjectId(null)}
+            onSelectLesson={handleSelectLesson}
+            onOpenSimulations={handleOpenSimulations}
+          />
+        ) : currentTab === 'dashboard' ? (
           <Dashboard
             selectedGrade={selectedGrade}
             studentState={studentState}
@@ -327,19 +362,17 @@ function MainAppContent() {
             onSelectUnit={handleSelectUnit}
             onSelectLesson={handleSelectLesson}
             onNavigateTab={handleNavigateTab}
+            onSelectSubject={handleSelectSubject}
+            onOpenSimulations={handleOpenSimulations}
           />
-        )}
-
-        {currentTab === 'review' && (
+        ) : currentTab === 'review' ? (
           <SmartReviewSection
             studentState={studentState}
             currentUnits={currentUnits}
             onSelectLesson={handleSelectLesson}
             onNavigateToTab={handleNavigateTab}
           />
-        )}
-
-        {currentTab === 'lesson' && activeUnit && activeLesson && (
+        ) : currentTab === 'lesson' && activeUnit && activeLesson ? (
           <LessonViewer
             unit={activeUnit}
             lesson={activeLesson}
@@ -349,96 +382,72 @@ function MainAppContent() {
             onToggleComplete={handleToggleCompleteLesson}
             onAnswerExercise={handleAnswerExercise}
           />
-        )}
-
-        {currentTab === 'exam' && (
+        ) : currentTab === 'exam' ? (
           <ExamEngine
-            studentName={studentState.name}
+            onRecordAnswer={handleRecordQuestionAnswer}
             grade={selectedGrade}
-            onRecordAnswer={(qId, isCorrect) => handleRecordQuestionAnswer(qId, isCorrect)}
           />
-        )}
-
-        {currentTab === 'mock' && (
-          <div className="max-w-5xl mx-auto">
-            <MinisterialMockSimulator
-              studentName={studentState.name}
-              grade={selectedGrade}
-              onClose={() => handleNavigateTab('dashboard')}
-              onRecordScore={(score) => {
-                handleRecordQuestionAnswer('mock-exam-complete', score >= 50);
-              }}
-            />
-          </div>
-        )}
-
-        {currentTab === 'literature' && (
-          <LiteratureSection grade={selectedGrade} />
-        )}
-
-        {currentTab === 'essays' && (
-          <EssaysSection grade={selectedGrade} />
-        )}
-
-        {currentTab === 'malzama' && (
-          <MalzamaUploadLab 
-            onNavigateToUnits={() => handleNavigateTab('dashboard')}
-            onNavigateToMock={() => handleNavigateTab('mock')}
-            onSelectGrade={handleSelectGrade}
+        ) : currentTab === 'mock' ? (
+          <MinisterialMockSimulator
+            studentName={studentState.name}
+            onClose={() => handleNavigateTab('dashboard')}
+            grade={selectedGrade}
           />
-        )}
-
-        {currentTab === 'verbs' && (
+        ) : currentTab === 'literature' ? (
+          <LiteratureSection
+            grade={selectedGrade}
+          />
+        ) : currentTab === 'essays' ? (
+          <EssaysSection
+            grade={selectedGrade}
+          />
+        ) : currentTab === 'verbs' ? (
           <IrregularVerbsLab
-            onRecordAnswer={(isCorrect) => handleRecordQuestionAnswer('verb-answer', isCorrect)}
+            onRecordAnswer={(isCorrect) => handleRecordQuestionAnswer('verb', isCorrect)}
           />
-        )}
-
-        {currentTab === 'vocab' && (
+        ) : currentTab === 'vocab' ? (
           <VisualVocabAtlas />
-        )}
+        ) : null}
+
       </main>
 
-      {/* Global Search & Command Palette Modal (Ctrl + K) */}
-      <GlobalSearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        onSelectLesson={handleSelectLesson}
-        onNavigateToTab={handleNavigateTab}
-      />
+      {isProfileOpen && (
+        <StudentProfileModal
+          isOpen={isProfileOpen}
+          onClose={() => setIsProfileOpen(false)}
+          studentState={studentState}
+          onUpdateName={handleUpdateStudentName}
+          onResetProgress={handleResetProgress}
+          onOpenAuth={() => {}}
+        />
+      )}
 
-      {/* Footer */}
-      <footer className="mt-auto border-t border-slate-200 bg-white/80 py-6 text-center text-xs text-slate-500">
+      {isSearchOpen && (
+        <GlobalSearchModal
+          isOpen={isSearchOpen}
+          onClose={() => setIsSearchOpen(false)}
+          onSelectLesson={handleSelectLesson}
+          onNavigateToTab={handleNavigateTab}
+        />
+      )}
+
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-8 text-center text-xs text-slate-500 mt-auto">
         <div className="max-w-7xl mx-auto px-4 space-y-2">
-          <p className="font-bold text-slate-700">
-            المنصة الرقمية المتكاملة لملزمة «النموذجية في اللغة الإنكليزية - {isThirdIntermediate ? 'الثالث المتوسط 2027' : 'السادس الإعدادي 2027'}»
+          <p className="font-bold text-slate-700 dark:text-slate-300">
+            منصة النموذجية التعليمية العراقية • OMEGA V4 Multi-Subject Platform & 3D Science Engine
           </p>
-          <p>
-            إعداد وإشراف الأستاذ مصطفى تركي • OMEGA V3 Architecture
-          </p>
+          <p>إشراف الأستاذ مصطفى تركي • جميع الحقوق محفوظة © 2027</p>
         </div>
       </footer>
-
-      {/* Profile & Achievements Modal */}
-      <StudentProfileModal
-        isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
-        studentState={studentState}
-        onUpdateName={handleUpdateStudentName}
-        onResetProgress={handleResetProgress}
-        onOpenAuth={() => setIsProfileOpen(true)}
-      />
 
     </div>
   );
 }
 
-export function App() {
+export default function App() {
   return (
     <AuthProvider>
       <MainAppContent />
     </AuthProvider>
   );
 }
-
-export default App;

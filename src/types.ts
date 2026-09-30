@@ -1,6 +1,7 @@
 export * from './types/curriculum';
 export * from './types/student';
 export * from './types/ai';
+export * from './types/subject';
 
 import { StudentNote, BookmarkItem, ExamResultRecord, LessonProgressItem } from './types/student';
 
