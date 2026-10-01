@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Subject, SubjectId } from '../types/subject';
-import { Unit, Lesson, StudentState } from '../types';
+import { Lesson, StudentState } from '../types';
 import { SUBJECTS } from '../data/subjectsData';
-import { CURRICULUM_UNITS } from '../data/curriculumData';
 import { THIRD_INTERMEDIATE_UNITS } from '../data/thirdIntermediateData';
-import { SimulationsHub } from './SimulationsHub';
-import { 
-  BookOpen, ArrowRight, Zap, Calculator, FlaskConical, Sparkles, 
-  CheckCircle2, Clock, Award, ChevronLeft, Lock, FileText
+import { getSimulationsForSubject } from '../features/simulations';
+import {
+  BookOpen,
+  ArrowRight,
+  Zap,
+  Calculator,
+  FlaskConical,
+  Sparkles,
+  Clock,
+  ChevronLeft,
+  PlayCircle,
+  Eye,
 } from 'lucide-react';
 
 interface SubjectDetailViewProps {
@@ -15,7 +22,7 @@ interface SubjectDetailViewProps {
   studentState: StudentState;
   onBack: () => void;
   onSelectLesson: (lesson: Lesson) => void;
-  onOpenSimulations: (subjectId: SubjectId) => void;
+  onOpenSimulations: (subjectId: SubjectId, simulationId?: string) => void;
 }
 
 export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
@@ -31,16 +38,22 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
   const isPlaceholder = !subject.isAvailable;
 
   const unitsList = isEnglish ? THIRD_INTERMEDIATE_UNITS : [];
+  const subjectSimulations = isScience
+    ? getSimulationsForSubject(subjectId as 'physics' | 'mathematics' | 'chemistry')
+    : [];
 
   return (
     <div className="space-y-8 pb-20 max-w-7xl mx-auto w-full">
       {/* Subject Header Banner */}
-      <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${subject.theme.gradient} text-white p-6 sm:p-10 shadow-xl`}>
-        <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
-        
+      <div
+        className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${subject.theme.gradient} text-white p-6 sm:p-10 shadow-xl`}
+      >
+        <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3">
             <button
+              type="button"
               onClick={onBack}
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/20 hover:bg-black/30 backdrop-blur-md text-white text-xs font-semibold transition-all"
             >
@@ -48,7 +61,9 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
               <span>العودة لرئيسية المواد</span>
             </button>
             <div className="space-y-1">
-              <div className="text-xs uppercase tracking-wider text-white/85 font-medium">{subject.titleEn}</div>
+              <div className="text-xs uppercase tracking-wider text-white/85 font-medium">
+                {subject.titleEn}
+              </div>
               <h1 className="text-3xl sm:text-4xl font-black">{subject.titleAr}</h1>
             </div>
             <p className="text-white/90 text-sm max-w-2xl leading-relaxed">
@@ -56,10 +71,11 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
             </p>
           </div>
 
-          {/* Quick Action Buttons for Science / English */}
+          {/* Quick Action Buttons for Science */}
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             {subject.hasSimulations && (
               <button
+                type="button"
                 onClick={() => onOpenSimulations(subjectId)}
                 className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 font-bold text-sm shadow-lg transition-all transform hover:scale-105"
               >
@@ -89,30 +105,70 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
         </div>
       ) : isScience ? (
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-8 rounded-2xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2">
-              <span className="bg-amber-500/20 text-amber-300 text-xs px-3 py-1 rounded-full font-semibold">محاكاة ثلاثية و ثنائية الأبعاد</span>
-              <h2 className="text-2xl font-bold">التجارب التفاعلية المتاحة للمادة</h2>
-              <p className="text-slate-300 text-sm">شاهد القوانين الفيزيائية، المعادلات الرياضية، والنماذج الكيميائية تعمل بصورة حية.</p>
-            </div>
-            <button
-              onClick={() => onOpenSimulations(subjectId)}
-              className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg transition-all"
-            >
-              بدء المحاكاة الآن
-            </button>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <span>التجارب والمختبرات التفاعلية المتاحة</span>
+            </h2>
+            <span className="text-xs text-slate-500 font-medium font-mono">
+              {subjectSimulations.length} مختبرات جاهزة
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {subjectSimulations.map((sim) => (
+              <div
+                key={sim.id}
+                className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
+                      {sim.topic}
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded uppercase font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                      {sim.mode}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                      {sim.titleAr}
+                    </h3>
+                    <p className="text-xs font-mono text-slate-400 mt-0.5">{sim.titleEn}</p>
+                  </div>
+
+                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                    {sim.description}
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => onOpenSimulations(subjectId, sim.id)}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs shadow-sm transition-all transform group-hover:scale-[1.02]"
+                  >
+                    <PlayCircle className="w-4 h-4 text-emerald-400" />
+                    <span>تشغيل التجربة الآن</span>
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       ) : isEnglish ? (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">وحدات ومفردات منهج اللغة الإنكليزية</h2>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+              وحدات ومفردات منهج اللغة الإنكليزية
+            </h2>
             <span className="text-xs text-slate-500 font-medium">8 وحدات دراسية كاملة</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {unitsList.map((unit) => (
-              <div 
+              <div
                 key={unit.id}
                 className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all space-y-4"
               >
@@ -120,16 +176,21 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
                   <span className="px-3 py-1 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 font-black text-xs">
                     الوحدة {unit.number}
                   </span>
-                  <span className="text-xs text-slate-500 font-medium">{unit.lessons.length} دروس</span>
+                  <span className="text-xs text-slate-500 font-medium">
+                    {unit.lessons.length} دروس
+                  </span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{unit.titleAr}</h3>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                    {unit.titleAr}
+                  </h3>
                   <p className="text-xs text-slate-500 font-medium">{unit.titleEn}</p>
                 </div>
                 <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                   {unit.lessons.slice(0, 3).map((lesson) => (
                     <button
                       key={lesson.id}
+                      type="button"
                       onClick={() => onSelectLesson(lesson)}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-right text-xs font-semibold text-slate-700 dark:text-slate-300 transition-all group"
                     >

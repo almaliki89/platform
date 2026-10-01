@@ -43,6 +43,7 @@ function MainAppContent() {
 
   // OMEGA V4 Multi-subject & Simulation states
   const [selectedSubjectId, setSelectedSubjectId] = useState<SubjectId | null>(null);
+  const [selectedSimulationId, setSelectedSimulationId] = useState<string | undefined>(undefined);
   const [isSimulationsOpen, setIsSimulationsOpen] = useState(false);
 
   // Global Search Modal state
@@ -94,12 +95,14 @@ function MainAppContent() {
 
   const handleSelectSubject = (subjectId: SubjectId) => {
     setSelectedSubjectId(subjectId);
+    setSelectedSimulationId(undefined);
     setIsSimulationsOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleOpenSimulations = (subjectId: SubjectId) => {
+  const handleOpenSimulations = (subjectId: SubjectId, simulationId?: string) => {
     setSelectedSubjectId(subjectId);
+    setSelectedSimulationId(simulationId);
     setIsSimulationsOpen(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -344,6 +347,7 @@ function MainAppContent() {
         {selectedSubjectId && isSimulationsOpen ? (
           <SimulationsHub
             subjectId={selectedSubjectId}
+            initialSimulationId={selectedSimulationId}
             onBack={() => setIsSimulationsOpen(false)}
           />
         ) : selectedSubjectId && !isSimulationsOpen ? (

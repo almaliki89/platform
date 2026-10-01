@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { Calculator, Sliders, RotateCcw, Info, TrendingUp } from 'lucide-react';
+import { SimulationShell } from '../../core/SimulationShell';
+import { SimulationControls } from '../../core/SimulationControls';
+import { SimulationHUD, HUDMetric } from '../../core/SimulationHUD';
+import { analyzeQuadratic } from './calculations';
+import { createCoordinateMapper, generateCurvePoints, DEFAULT_GRAPH_BOUNDS } from './graph';
+import { Calculator, Sliders, RotateCcw, Info, TrendingUp, AlertTriangle } from 'lucide-react';
 
 export const QuadraticGraphSimulation: React.FC = () => {
   const [a, setA] = useState<number>(1);
   const [b, setB] = useState<number>(0);
   const [c, setC] = useState<number>(-4);
+  const [showGrid, setShowGrid] = useState<boolean>(true);
+  const [showVertex, setShowVertex] = useState<boolean>(true);
+  const [showRoots, setShowRoots] = useState<boolean>(true);
 
-  // Vertex calculation: x = -b / (2a)
-  const vertexX = a !== 0 ? Number((-b / (2 * a)).toFixed(2)) : 0;
-  const vertexY = Number((a * vertexX * vertexX + b * vertexX + c).toFixed(2));
-  const discriminant = Number((b * b - 4 * a * c).toFixed(2));
+  const analysis = analyzeQuadratic(a, b, c);
 
   const handleReset = () => {
     setA(1);
@@ -17,191 +22,432 @@ export const QuadraticGraphSimulation: React.FC = () => {
     setC(-4);
   };
 
-  // Generate SVG path points for parabola from x = -10 to 10
-  const width = 400;
-  const height = 400;
-  const scaleX = 20; // pixels per unit
-  const scaleY = 20;
-  const originX = width / 2;
-  const originY = height / 2;
+  const svgWidth = 600;
+  const svgHeight = 420;
+  const bounds = DEFAULT_GRAPH_BOUNDS;
+  const { toSvgX, toSvgY } = createCoordinateMapper(svgWidth, svgHeight, bounds);
 
-  const points: string[] = [];
-  for (let px = 0; px <= width; px += 2) {
-    const mathX = (px - originX) / scaleX;
-    const mathY = a * mathX * mathX + b * mathX + c;
-    const py = originY - mathY * scaleY;
-    points.push(`${px},${py}`);
-  }
+  // Generate curve path
+  const curvePoints = generateCurvePoints(a, b, c, bounds, 180);
+  const pathD = curvePoints
+    .map((pt, idx) => {
+      const sx = toSvgX(pt.x);
+      const sy = toSvgY(pt.y);
+      return `${idx === 0 ? 'M' : 'L'} ${sx.toFixed(1)} ${sy.toFixed(1)}`;
+    })
+    .join(' ');
+
+  // Grid tick numbers
+  const xTicks = [-6, -4, -2, 2, 4, 6];
+  const yTicks = [-8, -4, 4, 8, 12];
+
+  const metrics: HUDMetric[] = [
+    {
+      label: 'المميز العام (Δ)',
+      value: analysis.rootsResult.discriminant.toFixed(1),
+      unit: '',
+      color:
+        analysis.rootsResult.discriminant > 0
+          ? 'text-emerald-500 dark:text-emerald-400'
+          : analysis.rootsResult.discriminant === 0
+          ? 'text-amber-500 dark:text-amber-400'
+          : 'text-rose-500 dark:text-rose-400',
+      formula: 'Δ = b² - 4ac',
+    },
+    {
+      label: 'رأس المنحنى (Vertex)',
+      value: analysis.vertex
+        ? `(${analysis.vertex.x.toFixed(2)}, ${analysis.vertex.y.toFixed(2)})`
+        : 'غير متوفر',
+      color: 'text-violet-500 dark:text-violet-400',
+      formula: '(-b/2a, f(h))',
+    },
+    {
+      label: 'محور التناظر',
+      value: analysis.axisOfSymmetry !== null ? `x = ${analysis.axisOfSymmetry.toFixed(2)}` : 'غير متوفر',
+      color: 'text-cyan-500 dark:text-cyan-400',
+      formula: 'x = -b/2a',
+    },
+    {
+      label: 'اتجاه فتحة المنحنى',
+      value:
+        analysis.direction === 'upward'
+          ? 'للأعلى ∪ (a > 0)'
+          : analysis.direction === 'downward'
+          ? 'للأسفل ∩ (a < 0)'
+          : 'مستقيم خطي (a = 0)',
+      color: 'text-blue-500 dark:text-blue-400',
+    },
+  ];
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 md:p-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
-        <div>
-          <div className="flex items-center gap-2 text-violet-600 dark:text-violet-400 font-semibold text-sm mb-1">
-            <Calculator className="w-4 h-4" />
-            <span>محاكاة رياضية تفاعلية • الرياضيات للمرحلة المتوسطة</span>
+    <SimulationShell
+      title="منحنى الدالة التربيعية ودراسة المميز"
+      subjectTitle="الرياضيات • الجبر والهندسة الإحداثية"
+      topic="الدوال التربيعية وحل المعادلات بالدستور"
+      grade="الصف الثالث المتوسط والصف الرابع العلمي"
+      description="مختبر رياضي تفاعلي لتحليل معادلة القطع المكافئ y = ax² + bx + c واستكشاف علاقة المعاملات بإحداثيات الرأس، محور التناظر، والمميز Δ."
+      learningObjectives={[
+        'استيعاب تأثير إشارة المعامل (a) على اتجاه فتحة المنحنى وتمدده',
+        'ربط قيمة المميز (Δ) بعدد وطبيعة جذور المعادلة بيانيا وجبرياً',
+        'تحديد نقطة رأس المنحنى (القيمة الصغرى أو العظمى للدالة)',
+        'استنتاج معادلة محور التناظر ونقاط التقاطع مع المحاور',
+      ]}
+      educationalNote={
+        <div className="space-y-2.5">
+          <div className="bg-white/80 dark:bg-slate-900/80 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900 text-center space-y-1">
+            <span className="text-xs text-slate-500">الصيغة العامة للدالة التربيعية:</span>
+            <div className="font-mono font-bold text-sm text-indigo-600 dark:text-indigo-400">
+              f(x) = ax² + bx + c
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">الدالة التربيعية والقطع المكافئ (y = ax² + bx + c)</h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
-            تحكم بمعاملات الدالة التربيعية وشاهد تأثيرها اللحظي على شكل الرسم البياني وإحداثيات رأس القطع.
-          </p>
+          <div className="space-y-1 text-slate-700 dark:text-slate-300">
+            <p className="font-bold">قانون المميز الوزاري (Δ):</p>
+            <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-600 dark:text-slate-400">
+              <li><strong className="text-emerald-600 dark:text-emerald-400">Δ &gt; 0:</strong> جذران حقيقيان نسبيان أو غير نسبيين (يقطع محور x مرتين).</li>
+              <li><strong className="text-amber-600 dark:text-amber-400">Δ = 0:</strong> جذر حقيقي واحد مكرر (يمس محور x في نقطة الرأس).</li>
+              <li><strong className="text-rose-600 dark:text-rose-400">Δ &lt; 0:</strong> جذران غير حقيقيين مركبين (لا يمس ولا يقطع محور x).</li>
+            </ul>
+          </div>
         </div>
-        <button
-          onClick={handleReset}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all self-start md:self-auto"
-        >
-          <RotateCcw className="w-4 h-4" />
-          <span>إعادة ضبط</span>
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Controls */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200/60 dark:border-slate-700/60 space-y-6">
-          <div className="flex items-center gap-2 text-slate-900 dark:text-white font-semibold">
-            <Sliders className="w-5 h-5 text-violet-500" />
-            <span>معاملات الدالة (Coefficients)</span>
+      }
+      visualization={
+        <div className="space-y-3">
+          {/* Equation & Status Banner */}
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900 text-white p-3.5 rounded-xl">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-400">المعادلة الحالية:</span>
+              <span className="font-mono text-base font-bold text-amber-400" dir="ltr">
+                {analysis.equationString}
+              </span>
+            </div>
+            {!analysis.isQuadratic && (
+              <div className="flex items-center gap-1.5 text-xs text-amber-400 bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-800">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>ليست دالة تربيعية لأن a = 0 (معادلة خطية)</span>
+              </div>
+            )}
           </div>
 
-          {/* Parameter a */}
+          {/* SVG Graph */}
+          <div className="relative w-full bg-slate-950 border border-slate-800 rounded-2xl p-2 sm:p-4 overflow-hidden">
+            <svg
+              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+              className="w-full h-auto max-h-[420px] select-none"
+              style={{ minHeight: '260px' }}
+            >
+              <defs>
+                <clipPath id="graph-clip">
+                  <rect x="0" y="0" width={svgWidth} height={svgHeight} rx="12" />
+                </clipPath>
+              </defs>
+
+              <g clipPath="url(#graph-clip)">
+                {/* Background Grid */}
+                {showGrid && (
+                  <g stroke="#1e293b" strokeWidth="1">
+                    {xTicks.map((x) => (
+                      <line
+                        key={`gx-${x}`}
+                        x1={toSvgX(x)}
+                        y1={0}
+                        x2={toSvgX(x)}
+                        y2={svgHeight}
+                        strokeDasharray="3 3"
+                      />
+                    ))}
+                    {yTicks.map((y) => (
+                      <line
+                        key={`gy-${y}`}
+                        x1={0}
+                        y1={toSvgY(y)}
+                        x2={svgWidth}
+                        y2={toSvgY(y)}
+                        strokeDasharray="3 3"
+                      />
+                    ))}
+                  </g>
+                )}
+
+                {/* X & Y Axes */}
+                <line
+                  x1={0}
+                  y1={toSvgY(0)}
+                  x2={svgWidth}
+                  y2={toSvgY(0)}
+                  stroke="#475569"
+                  strokeWidth="2"
+                />
+                <line
+                  x1={toSvgX(0)}
+                  y1={0}
+                  x2={toSvgX(0)}
+                  y2={svgHeight}
+                  stroke="#475569"
+                  strokeWidth="2"
+                />
+
+                {/* Axis Labels & Ticks */}
+                {xTicks.map((x) => (
+                  <g key={`tx-${x}`}>
+                    <line
+                      x1={toSvgX(x)}
+                      y1={toSvgY(0) - 4}
+                      x2={toSvgX(x)}
+                      y2={toSvgY(0) + 4}
+                      stroke="#64748b"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x={toSvgX(x)}
+                      y={toSvgY(0) + 16}
+                      fill="#94a3b8"
+                      fontSize="10"
+                      textAnchor="middle"
+                      fontFamily="monospace"
+                    >
+                      {x}
+                    </text>
+                  </g>
+                ))}
+
+                {yTicks.map((y) => (
+                  <g key={`ty-${y}`}>
+                    <line
+                      x1={toSvgX(0) - 4}
+                      y1={toSvgY(y)}
+                      x2={toSvgX(0) + 4}
+                      y2={toSvgY(y)}
+                      stroke="#64748b"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x={toSvgX(0) - 8}
+                      y={toSvgY(y) + 3}
+                      fill="#94a3b8"
+                      fontSize="10"
+                      textAnchor="end"
+                      fontFamily="monospace"
+                    >
+                      {y}
+                    </text>
+                  </g>
+                ))}
+
+                {/* Axis of Symmetry (Dashed Line) */}
+                {analysis.axisOfSymmetry !== null && (
+                  <line
+                    x1={toSvgX(analysis.axisOfSymmetry)}
+                    y1={0}
+                    x2={toSvgX(analysis.axisOfSymmetry)}
+                    y2={svgHeight}
+                    stroke="#06b6d4"
+                    strokeWidth="1.5"
+                    strokeDasharray="6 4"
+                  />
+                )}
+
+                {/* Main Parabola Curve */}
+                <path
+                  d={pathD}
+                  fill="none"
+                  stroke="#8b5cf6"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+
+                {/* Vertex Point */}
+                {showVertex && analysis.vertex && (
+                  <g>
+                    <circle
+                      cx={toSvgX(analysis.vertex.x)}
+                      cy={toSvgY(analysis.vertex.y)}
+                      r="6"
+                      fill="#ec4899"
+                      stroke="#ffffff"
+                      strokeWidth="2"
+                    />
+                    <text
+                      x={toSvgX(analysis.vertex.x) + 10}
+                      y={toSvgY(analysis.vertex.y) - 8}
+                      fill="#f472b6"
+                      fontSize="11"
+                      fontWeight="bold"
+                      fontFamily="monospace"
+                    >
+                      رأس ({analysis.vertex.x.toFixed(1)}, {analysis.vertex.y.toFixed(1)})
+                    </text>
+                  </g>
+                )}
+
+                {/* Real Roots Points (X-intercepts) */}
+                {showRoots &&
+                  analysis.rootsResult.roots.map((root, i) => (
+                    <g key={`root-${i}`}>
+                      <circle
+                        cx={toSvgX(root)}
+                        cy={toSvgY(0)}
+                        r="5"
+                        fill="#10b981"
+                        stroke="#ffffff"
+                        strokeWidth="2"
+                      />
+                      <text
+                        x={toSvgX(root)}
+                        y={toSvgY(0) - 10}
+                        fill="#34d399"
+                        fontSize="10"
+                        fontWeight="bold"
+                        textAnchor="middle"
+                        fontFamily="monospace"
+                      >
+                        x{i + 1} = {root.toFixed(2)}
+                      </text>
+                    </g>
+                  ))}
+
+                {/* Y-intercept Point */}
+                <g>
+                  <circle
+                    cx={toSvgX(0)}
+                    cy={toSvgY(c)}
+                    r="4"
+                    fill="#f59e0b"
+                    stroke="#ffffff"
+                    strokeWidth="1.5"
+                  />
+                </g>
+              </g>
+            </svg>
+          </div>
+        </div>
+      }
+      controls={
+        <SimulationControls onReset={handleReset}>
+          {/* Coefficient a */}
           <div className="space-y-2">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-700 dark:text-slate-300 font-medium">المعامل (a)</span>
-              <span className="bg-violet-100 dark:bg-violet-950 text-violet-800 dark:text-violet-300 font-bold px-2.5 py-0.5 rounded-lg text-xs font-mono">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+              <label htmlFor="coeff-a">معامل x² (المعامل a):</label>
+              <span className="font-mono text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/60 px-2 py-0.5 rounded text-sm font-black">
                 {a}
               </span>
             </div>
             <input
+              id="coeff-a"
               type="range"
-              min="-4"
-              max="4"
+              min="-5"
+              max="5"
               step="0.5"
               value={a}
-              onChange={(e) => setA(Number(e.target.value))}
-              className="w-full accent-violet-600 cursor-pointer"
+              onChange={(e) => setA(parseFloat(e.target.value))}
+              className="w-full accent-violet-600 cursor-pointer h-2 bg-slate-200 dark:bg-slate-700 rounded-lg"
             />
-            <div className="text-xs text-slate-400">إذا كان a موجباً فالفتحة نحو الأعلى، وإذا سالباً نحو الأسفل.</div>
+            <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+              <span>-5 (مقلوب للأسفل)</span>
+              <span>0 (خطي)</span>
+              <span>+5 (للأعلى)</span>
+            </div>
           </div>
 
-          {/* Parameter b */}
+          {/* Coefficient b */}
           <div className="space-y-2">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-700 dark:text-slate-300 font-medium">المعامل (b)</span>
-              <span className="bg-violet-100 dark:bg-violet-950 text-violet-800 dark:text-violet-300 font-bold px-2.5 py-0.5 rounded-lg text-xs font-mono">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+              <label htmlFor="coeff-b">معامل x (المعامل b):</label>
+              <span className="font-mono text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/60 px-2 py-0.5 rounded text-sm font-black">
                 {b}
               </span>
             </div>
             <input
+              id="coeff-b"
               type="range"
               min="-10"
               max="10"
               step="1"
               value={b}
-              onChange={(e) => setB(Number(e.target.value))}
-              className="w-full accent-violet-600 cursor-pointer"
+              onChange={(e) => setB(parseFloat(e.target.value))}
+              className="w-full accent-cyan-600 cursor-pointer h-2 bg-slate-200 dark:bg-slate-700 rounded-lg"
             />
+            <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+              <span>-10</span>
+              <span>0</span>
+              <span>+10</span>
+            </div>
           </div>
 
-          {/* Parameter c */}
+          {/* Coefficient c */}
           <div className="space-y-2">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-700 dark:text-slate-300 font-medium">الحد المطلق (c)</span>
-              <span className="bg-violet-100 dark:bg-violet-950 text-violet-800 dark:text-violet-300 font-bold px-2.5 py-0.5 rounded-lg text-xs font-mono">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+              <label htmlFor="coeff-c">الحد المطلق (المعامل c):</label>
+              <span className="font-mono text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded text-sm font-black">
                 {c}
               </span>
             </div>
             <input
+              id="coeff-c"
               type="range"
               min="-10"
               max="10"
               step="1"
               value={c}
-              onChange={(e) => setC(Number(e.target.value))}
-              className="w-full accent-violet-600 cursor-pointer"
+              onChange={(e) => setC(parseFloat(e.target.value))}
+              className="w-full accent-amber-500 cursor-pointer h-2 bg-slate-200 dark:bg-slate-700 rounded-lg"
             />
-            <div className="text-xs text-slate-400">المقطع الصادي للرسم البياني عند (0, c).</div>
-          </div>
-
-          {/* Calculated Properties */}
-          <div className="bg-violet-950/10 dark:bg-violet-900/20 p-4 rounded-xl border border-violet-200 dark:border-violet-800/50 space-y-2">
-            <div className="text-xs text-violet-700 dark:text-violet-400 font-semibold">خصائص القطع المكافئ:</div>
-            <div className="text-sm font-mono text-slate-800 dark:text-slate-200 flex justify-between">
-              <span>رأس القطع (Vertex):</span>
-              <span className="font-bold">({vertexX}, {vertexY})</span>
-            </div>
-            <div className="text-sm font-mono text-slate-800 dark:text-slate-200 flex justify-between">
-              <span>المميز (Δ = b² - 4ac):</span>
-              <span className="font-bold">{discriminant}</span>
+            <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+              <span>-10</span>
+              <span>0</span>
+              <span>+10</span>
             </div>
           </div>
+
+          {/* Visibility Toggles */}
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap gap-2 text-xs">
+            <button
+              onClick={() => setShowGrid(!showGrid)}
+              className={`px-3 py-1.5 rounded-lg border font-medium transition-all ${
+                showGrid
+                  ? 'bg-slate-800 text-white border-slate-700'
+                  : 'bg-slate-100 dark:bg-slate-800/40 text-slate-500 border-slate-200 dark:border-slate-700'
+              }`}
+            >
+              {showGrid ? '✓ الشبكة مفعلة' : 'إخفاء الشبكة'}
+            </button>
+            <button
+              onClick={() => setShowVertex(!showVertex)}
+              className={`px-3 py-1.5 rounded-lg border font-medium transition-all ${
+                showVertex
+                  ? 'bg-pink-600 text-white border-pink-500'
+                  : 'bg-slate-100 dark:bg-slate-800/40 text-slate-500 border-slate-200 dark:border-slate-700'
+              }`}
+            >
+              {showVertex ? '✓ نقطة الرأس' : 'إخفاء الرأس'}
+            </button>
+            <button
+              onClick={() => setShowRoots(!showRoots)}
+              className={`px-3 py-1.5 rounded-lg border font-medium transition-all ${
+                showRoots
+                  ? 'bg-emerald-600 text-white border-emerald-500'
+                  : 'bg-slate-100 dark:bg-slate-800/40 text-slate-500 border-slate-200 dark:border-slate-700'
+              }`}
+            >
+              {showRoots ? '✓ الجذور (التقاطعات)' : 'إخفاء الجذور'}
+            </button>
+          </div>
+        </SimulationControls>
+      }
+      outputs={<SimulationHUD metrics={metrics} />}
+      extraPanels={
+        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl text-xs space-y-2">
+          <div className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Info className="w-4 h-4 text-indigo-500" />
+            <span>التحليل الجبري وحالة الجذور:</span>
+          </div>
+          <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+            {analysis.rootsResult.explanationAr}
+          </p>
         </div>
-
-        {/* Graph Stage */}
-        <div className="lg:col-span-2 flex flex-col items-center justify-center bg-slate-950 rounded-2xl p-6 relative overflow-hidden min-h-[380px]">
-          {/* Equation Header Badge */}
-          <div className="absolute top-4 right-4 z-10 bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-800 text-white font-mono text-sm">
-            y = {a}x² {b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`}x {c >= 0 ? `+ ${c}` : `- ${Math.abs(c)}`}
-          </div>
-
-          {/* SVG Cartesian Coordinate System */}
-          <div className="w-full flex items-center justify-center py-4">
-            <svg viewBox={`0 0 ${width} ${height}`} className="w-full max-w-[380px] h-[320px] bg-slate-900/40 rounded-xl border border-slate-800">
-              {/* Grid Lines */}
-              {[-6, -4, -2, 2, 4, 6].map((n) => (
-                <g key={n}>
-                  <line
-                    x1={originX + n * scaleX}
-                    y1={0}
-                    x2={originX + n * scaleX}
-                    y2={height}
-                    stroke="#334155"
-                    strokeWidth="1"
-                    strokeDasharray="4 4"
-                  />
-                  <line
-                    x1={0}
-                    y1={originY + n * scaleY}
-                    x2={width}
-                    y2={originY + n * scaleY}
-                    stroke="#334155"
-                    strokeWidth="1"
-                    strokeDasharray="4 4"
-                  />
-                </g>
-              ))}
-
-              {/* Axes */}
-              <line x1={0} y1={originY} x2={width} y2={originY} stroke="#64748b" strokeWidth="2" />
-              <line x1={originX} y1={0} x2={originX} y2={height} stroke="#64748b" strokeWidth="2" />
-
-              {/* Parabola Curve */}
-              {a !== 0 && (
-                <polyline
-                  fill="none"
-                  stroke="#a78bfa"
-                  strokeWidth="3"
-                  points={points.join(' ')}
-                />
-              )}
-
-              {/* Vertex Point */}
-              <circle
-                cx={originX + vertexX * scaleX}
-                cy={originY - vertexY * scaleY}
-                r="6"
-                fill="#f43f5e"
-                stroke="#fff"
-                strokeWidth="2"
-              />
-            </svg>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs text-slate-400 bg-slate-900/60 p-3 rounded-xl border border-slate-800 w-full mt-2">
-            <Info className="w-4 h-4 text-violet-400 shrink-0" />
-            <span>النقطة الحمراء تمثل رأس القطع المكافئ (Vertex). تظهر تقاطع الدالة مع المحاور الإحداثية.</span>
-          </div>
-        </div>
-      </div>
-    </div>
+      }
+      onReset={handleReset}
+    />
   );
 };

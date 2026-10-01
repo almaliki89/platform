@@ -1,218 +1,371 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Zap, Sliders, Info, ArrowLeft } from 'lucide-react';
+import { SimulationShell } from '../../core/SimulationShell';
+import { SimulationControls } from '../../core/SimulationControls';
+import { SimulationHUD, HUDMetric } from '../../core/SimulationHUD';
+import { NewtonScene } from './NewtonScene';
+import {
+  calculateAcceleration,
+  calculateNextVelocity,
+  calculateNextPosition,
+  calculateKineticEnergy,
+  calculateMomentum,
+} from './calculations';
+import { NEWTON_CONSTANTS } from './constants';
+import { KinematicsHistoryPoint } from './types';
+import { Zap, Activity, Sliders, RotateCcw, TrendingUp } from 'lucide-react';
 
 export const NewtonSecondLawSimulation: React.FC = () => {
-  const [mass, setMass] = useState<number>(5); // kg
-  const [force, setForce] = useState<number>(25); // N
+  const [mass, setMass] = useState<number>(NEWTON_CONSTANTS.DEFAULT_MASS);
+  const [force, setForce] = useState<number>(NEWTON_CONSTANTS.DEFAULT_FORCE);
+  const [frictionCoeff, setFrictionCoeff] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [cartPosition, setCartPosition] = useState<number>(0); // percentage 0 to 80
+  const [time, setTime] = useState<number>(0);
+  const [position, setPosition] = useState<number>(0);
+  const [velocity, setVelocity] = useState<number>(0);
+  const [history, setHistory] = useState<KinematicsHistoryPoint[]>([]);
+  const [graphMode, setGraphMode] = useState<'velocity' | 'position'>('velocity');
 
-  const animationRef = useRef<number | null>(null);
-  const lastTimeRef = useRef<number | null>(null);
+  const animRef = useRef<number | null>(null);
+  const lastTimeRef = useRef<number>(performance.now());
 
-  // Calculated acceleration: a = F / m
-  const acceleration = Number((force / mass).toFixed(2));
+  // Instant calculated acceleration
+  const acceleration = calculateAcceleration(force, mass, frictionCoeff);
+  const kineticEnergy = calculateKineticEnergy(mass, velocity);
+  const momentum = calculateMomentum(mass, velocity);
 
+  // Time-based Kinematics Integration Loop
   useEffect(() => {
     if (!isPlaying) {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
       return;
     }
 
-    const animate = (time: number) => {
-      if (!lastTimeRef.current) lastTimeRef.current = time;
-      const deltaTime = (time - lastTimeRef.current) / 1000;
-      lastTimeRef.current = time;
+    lastTimeRef.current = performance.now();
 
-      setCartPosition((prev) => {
-        // position moves based on acceleration
-        const next = prev + acceleration * deltaTime * 3;
-        if (next > 85) {
-          return 5; // loop back to start
-        }
-        return next;
+    const loop = (currentTime: number) => {
+      const deltaSec = Math.min((currentTime - lastTimeRef.current) / 1000, 0.1);
+      lastTimeRef.current = currentTime;
+
+      setTime((prevT) => {
+        const nextT = prevT + deltaSec;
+
+        setVelocity((prevV) => {
+          const nextV = calculateNextVelocity(prevV, acceleration, deltaSec);
+
+          setPosition((prevX) => {
+            const nextX = calculateNextPosition(prevX, prevV, acceleration, deltaSec);
+
+            // Record history point for graph (throttled)
+            setHistory((prevHist) => {
+              const lastPoint = prevHist[prevHist.length - 1];
+              if (!lastPoint || nextT - lastPoint.time >= 0.1) {
+                const newPoint: KinematicsHistoryPoint = {
+                  time: Number(nextT.toFixed(2)),
+                  velocity: Number(nextV.toFixed(2)),
+                  position: Number(nextX.toFixed(2)),
+                  acceleration: Number(acceleration.toFixed(2)),
+                };
+                return [...prevHist.slice(-NEWTON_CONSTANTS.MAX_RECORD_POINTS + 1), newPoint];
+              }
+              return prevHist;
+            });
+
+            return nextX;
+          });
+
+          return nextV;
+        });
+
+        return nextT;
       });
 
-      animationRef.current = requestAnimationFrame(animate);
+      animRef.current = requestAnimationFrame(loop);
     };
 
-    animationRef.current = requestAnimationFrame(animate);
+    animRef.current = requestAnimationFrame(loop);
 
     return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-      lastTimeRef.current = null;
+      if (animRef.current) cancelAnimationFrame(animRef.current);
     };
   }, [isPlaying, acceleration]);
 
   const handleReset = () => {
     setIsPlaying(false);
-    setCartPosition(0);
-    setMass(5);
-    setForce(25);
+    setTime(0);
+    setPosition(0);
+    setVelocity(0);
+    setHistory([]);
+  };
+
+  const metrics: HUDMetric[] = [
+    {
+      label: 'التعجيل الخطي',
+      value: acceleration.toFixed(2),
+      unit: 'm/s²',
+      color: 'text-amber-500 dark:text-amber-400',
+      formula: 'a = F / m',
+    },
+    {
+      label: 'السرعة الآنية',
+      value: velocity.toFixed(2),
+      unit: 'm/s',
+      color: 'text-cyan-500 dark:text-cyan-400',
+      formula: 'v = v₀ + a·t',
+    },
+    {
+      label: 'المسافة المقطوعة',
+      value: position.toFixed(2),
+      unit: 'm',
+      color: 'text-emerald-500 dark:text-emerald-400',
+      formula: 'x = ½ a·t²',
+    },
+    {
+      label: 'الزمن المستغرق',
+      value: time.toFixed(2),
+      unit: 's',
+      color: 'text-violet-500 dark:text-violet-400',
+      formula: 't',
+    },
+    {
+      label: 'الطاقة الحركية',
+      value: kineticEnergy.toFixed(1),
+      unit: 'J',
+      color: 'text-rose-500 dark:text-rose-400',
+      formula: 'Ek = ½ m·v²',
+    },
+    {
+      label: 'الزخم الخطي',
+      value: momentum.toFixed(1),
+      unit: 'kg·m/s',
+      color: 'text-blue-500 dark:text-blue-400',
+      formula: 'p = m·v',
+    },
+  ];
+
+  // SVG Kinematics Graph
+  const renderGraph = () => {
+    const width = 500;
+    const height = 180;
+    const padding = { top: 20, right: 30, bottom: 30, left: 40 };
+
+    const maxTime = Math.max(10, time);
+    const maxVal = Math.max(
+      10,
+      ...history.map((h) => (graphMode === 'velocity' ? h.velocity : h.position))
+    );
+
+    const getX = (t: number) =>
+      padding.left + (t / maxTime) * (width - padding.left - padding.right);
+    const getY = (v: number) =>
+      height - padding.bottom - (v / maxVal) * (height - padding.top - padding.bottom);
+
+    const points = history.map(
+      (h) => `${getX(h.time)},${getY(graphMode === 'velocity' ? h.velocity : h.position)}`
+    );
+
+    return (
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-bold">
+            <TrendingUp className="w-4 h-4 text-cyan-400" />
+            <span>
+              {graphMode === 'velocity'
+                ? 'الرسم البياني: السرعة بدلالة الزمن (v - t)'
+                : 'الرسم البياني: الإزاحة بدلالة الزمن (x - t)'}
+            </span>
+          </div>
+          <div className="flex gap-1.5 bg-slate-800 p-1 rounded-lg text-xs">
+            <button
+              onClick={() => setGraphMode('velocity')}
+              className={`px-2.5 py-1 rounded-md transition-all ${
+                graphMode === 'velocity' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400'
+              }`}
+            >
+              السرعة v(t)
+            </button>
+            <button
+              onClick={() => setGraphMode('position')}
+              className={`px-2.5 py-1 rounded-md transition-all ${
+                graphMode === 'position' ? 'bg-emerald-600 text-white font-bold' : 'text-slate-400'
+              }`}
+            >
+              المسافة x(t)
+            </button>
+          </div>
+        </div>
+
+        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-36 overflow-visible">
+          {/* Axes */}
+          <line
+            x1={padding.left}
+            y1={padding.top}
+            x2={padding.left}
+            y2={height - padding.bottom}
+            stroke="#475569"
+            strokeWidth="1.5"
+          />
+          <line
+            x1={padding.left}
+            y1={height - padding.bottom}
+            x2={width - padding.right}
+            y2={height - padding.bottom}
+            stroke="#475569"
+            strokeWidth="1.5"
+          />
+
+          {/* Grid lines */}
+          <line
+            x1={padding.left}
+            y1={getY(maxVal / 2)}
+            x2={width - padding.right}
+            y2={getY(maxVal / 2)}
+            stroke="#334155"
+            strokeDasharray="4 4"
+          />
+
+          {/* Axis Labels */}
+          <text x={padding.left - 8} y={padding.top + 8} fill="#94a3b8" fontSize="10" textAnchor="end">
+            {maxVal.toFixed(0)} {graphMode === 'velocity' ? 'm/s' : 'm'}
+          </text>
+          <text
+            x={width - padding.right}
+            y={height - padding.bottom + 16}
+            fill="#94a3b8"
+            fontSize="10"
+            textAnchor="end"
+          >
+            {maxTime.toFixed(0)} s
+          </text>
+
+          {/* Data Path */}
+          {points.length > 1 && (
+            <polyline
+              fill="none"
+              stroke={graphMode === 'velocity' ? '#38bdf8' : '#34d399'}
+              strokeWidth="2.5"
+              points={points.join(' ')}
+            />
+          )}
+        </svg>
+      </div>
+    );
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 md:p-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
-        <div>
-          <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 font-semibold text-sm mb-1">
-            <Zap className="w-4 h-4" />
-            <span>محاكاة فيزيائية تفاعلية • الفيزياء للثالث المتوسط</span>
+    <SimulationShell
+      title="قانون نيوتن الثاني في الحركة (F = m · a)"
+      subjectTitle="الفيزياء • الميكانيكا الحركية"
+      topic="قوانين الحركة لنيوتن"
+      grade="الصف الثالث المتوسط والصف الخامس العلمي"
+      description="مختبر حركي تفاعلي يوضح العلاقة الطردية بين القوة المحصلة والتعجيل، والعلاقة العكسية بين الكتلة والتعجيل مع نمذجة فيزيائية ثلاثية الأبعاد."
+      learningObjectives={[
+        'استيعاب نص قانون نيوتن الثاني رياضياً وفيزيائياً',
+        'ملاحظة تأثير زيادة القوة المؤثرة على مقدار التعجيل وسرعة الجسم',
+        'دراسة أثر زيادة كتلة الجسم (القصور الذاتي) على مقاومته للتسارع',
+        'ربط المعادلات النظرية بالتمثيل البياني المباشر للسرعة والإزاحة',
+      ]}
+      educationalNote={
+        <div className="space-y-2 font-sans">
+          <p className="font-bold text-indigo-900 dark:text-indigo-200">
+            «إذا أثرت قوة محصلة في جسم ما، أكسبته تعجيلاً يتناسب طردياً معها ويكون باتجاهها وعكسياً مع كتلته».
+          </p>
+          <div className="bg-white/80 dark:bg-slate-900/80 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900 font-mono text-center font-bold text-sm text-indigo-600 dark:text-indigo-400">
+            F = m × a &nbsp; ⟺ &nbsp; a = F / m
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">قانون نيوتن الثاني (F = ma)</h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
-            استكشف العلاقة الطردية بين القوة والتعجيل، والعلاقة العكسية بين الكتلة والتعجيل.
+          <p className="text-[11px] text-slate-600 dark:text-slate-300">
+            سؤال وزاري متكرر: ما الذي يحصل لتعجيل الجسم عند مضاعفة القوة المؤثرة وثبوت الكتلة؟ الجواب: يتضاعف التعجيل إلى المثلين (تناسب طردي).
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsPlaying(!isPlaying)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-white transition-all shadow-md ${
-              isPlaying ? 'bg-amber-600 hover:bg-amber-700' : 'bg-cyan-600 hover:bg-cyan-700'
-            }`}
-          >
-            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            <span>{isPlaying ? 'إيقاف مؤقت' : 'بدء الحركة'}</span>
-          </button>
-          <button
-            onClick={handleReset}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span>إعادة ضبط</span>
-          </button>
+      }
+      visualization={
+        <div className="space-y-4">
+          <NewtonScene
+            position={position}
+            force={force}
+            mass={mass}
+            acceleration={acceleration}
+            velocity={velocity}
+          />
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Controls Panel */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200/60 dark:border-slate-700/60 space-y-6">
-          <div className="flex items-center gap-2 text-slate-900 dark:text-white font-semibold">
-            <Sliders className="w-5 h-5 text-cyan-500" />
-            <span>لوحة التحكم والمتغيرات</span>
-          </div>
-
+      }
+      controls={
+        <SimulationControls
+          isPlaying={isPlaying}
+          onTogglePlay={() => setIsPlaying(!isPlaying)}
+          onReset={handleReset}
+        >
           {/* Mass Slider */}
           <div className="space-y-2">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-700 dark:text-slate-300 font-medium">الكتلة (m)</span>
-              <span className="bg-cyan-100 dark:bg-cyan-950 text-cyan-800 dark:text-cyan-300 font-bold px-2.5 py-0.5 rounded-lg text-xs">
-                {mass} كغم
+            <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+              <label htmlFor="mass-slider">كتلة الجسم (Mass - m):</label>
+              <span className="font-mono text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/60 px-2 py-0.5 rounded text-sm font-black">
+                {mass} kg
               </span>
             </div>
             <input
+              id="mass-slider"
               type="range"
-              min="1"
-              max="50"
-              step="1"
+              min={NEWTON_CONSTANTS.MIN_MASS}
+              max={NEWTON_CONSTANTS.MAX_MASS}
+              step={NEWTON_CONSTANTS.STEP_MASS}
               value={mass}
-              onChange={(e) => setMass(Number(e.target.value))}
-              className="w-full accent-cyan-600 cursor-pointer"
+              onChange={(e) => setMass(parseFloat(e.target.value))}
+              className="w-full accent-cyan-600 cursor-pointer h-2 bg-slate-200 dark:bg-slate-700 rounded-lg"
             />
-            <div className="flex justify-between text-xs text-slate-400">
-              <span>1 كغم</span>
-              <span>25 كغم</span>
-              <span>50 كغم</span>
+            <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+              <span>{NEWTON_CONSTANTS.MIN_MASS} kg</span>
+              <span>{NEWTON_CONSTANTS.MAX_MASS} kg</span>
             </div>
           </div>
 
           {/* Force Slider */}
           <div className="space-y-2">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-700 dark:text-slate-300 font-medium">القوة المؤثرة (F)</span>
-              <span className="bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 font-bold px-2.5 py-0.5 rounded-lg text-xs">
-                {force} نيوتن
+            <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+              <label htmlFor="force-slider">القوة المؤثرة (Force - F):</label>
+              <span className="font-mono text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded text-sm font-black">
+                {force} N
               </span>
             </div>
             <input
+              id="force-slider"
               type="range"
-              min="5"
-              max="200"
-              step="5"
+              min={NEWTON_CONSTANTS.MIN_FORCE}
+              max={NEWTON_CONSTANTS.MAX_FORCE}
+              step={NEWTON_CONSTANTS.STEP_FORCE}
               value={force}
-              onChange={(e) => setForce(Number(e.target.value))}
-              className="w-full accent-blue-600 cursor-pointer"
+              onChange={(e) => setForce(parseFloat(e.target.value))}
+              className="w-full accent-amber-500 cursor-pointer h-2 bg-slate-200 dark:bg-slate-700 rounded-lg"
             />
-            <div className="flex justify-between text-xs text-slate-400">
-              <span>5 N</span>
-              <span>100 N</span>
-              <span>200 N</span>
+            <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+              <span>{NEWTON_CONSTANTS.MIN_FORCE} N</span>
+              <span>{NEWTON_CONSTANTS.MAX_FORCE} N</span>
             </div>
           </div>
 
-          {/* Equation Box */}
-          <div className="bg-cyan-950/10 dark:bg-cyan-900/20 p-4 rounded-xl border border-cyan-200 dark:border-cyan-800/50 text-center space-y-1">
-            <div className="text-xs text-cyan-700 dark:text-cyan-400 font-medium">معادلة نيوتن الثانية</div>
-            <div className="text-xl font-extrabold text-slate-900 dark:text-white font-mono dir-ltr">
-              a = F / m
-            </div>
-            <div className="text-lg font-bold text-cyan-600 dark:text-cyan-400 font-mono">
-              {force} / {mass} = {acceleration} م/ثا²
-            </div>
-          </div>
-        </div>
-
-        {/* Visual Simulation Stage */}
-        <div className="lg:col-span-2 flex flex-col justify-between bg-slate-950 rounded-2xl p-6 relative overflow-hidden min-h-[320px]">
-          {/* Background Grid Pattern */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30"></div>
-
-          {/* Top HUD */}
-          <div className="relative z-10 flex justify-between items-center bg-slate-900/80 backdrop-blur-md px-4 py-2.5 rounded-xl border border-slate-800 text-white text-sm">
-            <div className="flex items-center gap-3">
-              <span className="text-slate-400">التعجيل (a):</span>
-              <span className="font-mono font-bold text-cyan-400 text-base">{acceleration} m/s²</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-slate-400">الحالة:</span>
-              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${isPlaying ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                {isPlaying ? 'قيد الحركة' : 'متوقف'}
+          {/* Friction Slider */}
+          <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+              <label htmlFor="friction-slider">معامل الاحتكاك السطحي (μ):</label>
+              <span className="font-mono text-slate-600 dark:text-slate-300 text-xs">
+                {frictionCoeff === 0 ? 'سطح أملس (مهمل)' : frictionCoeff.toFixed(2)}
               </span>
             </div>
+            <input
+              id="friction-slider"
+              type="range"
+              min="0"
+              max="0.5"
+              step="0.05"
+              value={frictionCoeff}
+              onChange={(e) => setFrictionCoeff(parseFloat(e.target.value))}
+              className="w-full accent-indigo-600 cursor-pointer h-2 bg-slate-200 dark:bg-slate-700 rounded-lg"
+            />
           </div>
-
-          {/* Simulation Track & Object */}
-          <div className="relative z-10 my-auto py-12">
-            {/* Force Vector Arrow */}
-            <div
-              className="absolute transition-all duration-75 flex items-center"
-              style={{ left: `${cartPosition + 12}%`, bottom: '85px' }}
-            >
-              <div className="text-xs font-bold text-amber-400 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-800 mb-1">
-                {force} N
-              </div>
-              <div className="h-1 bg-amber-400 w-16 relative">
-                <div className="absolute right-0 -top-1.5 w-0 h-0 border-t-4 border-t-transparent border-b-4 border-b-transparent border-l-8 border-l-amber-400"></div>
-              </div>
-            </div>
-
-            {/* Cart Object */}
-            <div
-              className="absolute transition-all duration-75 flex flex-col items-center"
-              style={{ left: `${cartPosition}%`, bottom: '20px' }}
-            >
-              <div className="bg-gradient-to-t from-cyan-600 to-blue-500 text-white font-bold text-sm px-4 py-3 rounded-xl shadow-2xl border border-cyan-400/40 flex flex-col items-center min-w-[90px]">
-                <span>{mass} كغم</span>
-                <span className="text-[10px] text-cyan-200 font-normal">كتلة الجسم</span>
-              </div>
-              {/* Wheels */}
-              <div className="flex gap-8 -mt-2">
-                <div className="w-5 h-5 rounded-full bg-slate-700 border-2 border-slate-400 animate-spin"></div>
-                <div className="w-5 h-5 rounded-full bg-slate-700 border-2 border-slate-400 animate-spin"></div>
-              </div>
-            </div>
-
-            {/* Ground Track Line */}
-            <div className="w-full h-2 bg-slate-800 rounded-full border-t border-slate-700 mt-16"></div>
-          </div>
-
-          {/* Bottom Info Footer */}
-          <div className="relative z-10 flex items-center gap-2 text-xs text-slate-400 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-            <Info className="w-4 h-4 text-cyan-400 shrink-0" />
-            <span>لاحظ: كلما زادت القوة (Force) زاد التعجيل، وكلما زادت الكتلة (Mass) قل التعجيل بثبوت القوة.</span>
-          </div>
-        </div>
-      </div>
-    </div>
+        </SimulationControls>
+      }
+      outputs={<SimulationHUD metrics={metrics} />}
+      extraPanels={renderGraph()}
+      onReset={handleReset}
+    />
   );
 };
