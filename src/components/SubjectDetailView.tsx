@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Subject, SubjectId } from '../types/subject';
 import { Lesson, StudentState } from '../types';
 import { SUBJECTS } from '../data/subjectsData';
 import { THIRD_INTERMEDIATE_UNITS } from '../data/thirdIntermediateData';
-import { IRAQI_PHYSICS_CURRICULUM, TOTAL_IRAQI_PHYSICS_CHAPTERS } from '../data/physicsCurriculum';
-import { getSimulationsForSubject } from '../features/simulations';
+import { IRAQI_PHYSICS_CURRICULUM, PhysicsGradeCurriculum } from '../data/physicsCurriculum';
+import { getSimulationsForSubject, getSimulationById } from '../features/simulations';
 import {
   BookOpen,
   ArrowRight,
@@ -16,6 +17,9 @@ import {
   ChevronLeft,
   PlayCircle,
   Eye,
+  Layers,
+  GraduationCap,
+  Atom,
 } from 'lucide-react';
 
 interface SubjectDetailViewProps {
@@ -33,15 +37,18 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
   onSelectLesson,
   onOpenSimulations,
 }) => {
-  const subject = SUBJECTS.find((s) => s.id === subjectId) || SUBJECTS[2]; // default English
+  const navigate = useNavigate();
+  const subject = SUBJECTS.find((s) => s.id === subjectId) || SUBJECTS[2];
   const isEnglish = subjectId === 'english';
-  const isScience = ['physics', 'mathematics', 'chemistry'].includes(subjectId);
   const isPhysics = subjectId === 'physics';
+  const isOtherScience = ['mathematics', 'chemistry'].includes(subjectId);
   const isPlaceholder = !subject.isAvailable;
 
+  const [activePhysicsGrade, setActivePhysicsGrade] = useState<string>('first-intermediate');
+
   const unitsList = isEnglish ? THIRD_INTERMEDIATE_UNITS : [];
-  const subjectSimulations = isScience
-    ? getSimulationsForSubject(subjectId as 'physics' | 'mathematics' | 'chemistry')
+  const otherScienceSims = isOtherScience
+    ? getSimulationsForSubject(subjectId as 'mathematics' | 'chemistry')
     : [];
 
   return (
@@ -57,7 +64,7 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
             <button
               type="button"
               onClick={onBack}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/20 hover:bg-black/30 backdrop-blur-md text-white text-xs font-semibold transition-all"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/20 hover:bg-black/30 backdrop-blur-md text-white text-xs font-semibold transition-all cursor-pointer"
             >
               <ArrowRight className="w-4 h-4" />
               <span>العودة لرئيسية المواد</span>
@@ -79,7 +86,7 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenSimulations(subjectId)}
-                className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 font-bold text-sm shadow-lg transition-all transform hover:scale-105"
+                className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 font-bold text-sm shadow-lg transition-all transform hover:scale-105 cursor-pointer"
               >
                 {subjectId === 'physics' && <Zap className="w-5 h-5 text-cyan-600" />}
                 {subjectId === 'mathematics' && <Calculator className="w-5 h-5 text-violet-600" />}
@@ -91,101 +98,151 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
         </div>
       </div>
 
-      {/* Content Area based on Subject Status */}
-      {isPlaceholder ? (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-12 text-center border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
-          <div className="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto shadow-sm">
-            <Clock className="w-8 h-8" />
+      {/* Physics Specialized Curriculum Map with Simulation Links */}
+      {isPhysics ? (
+        <div className="space-y-6">
+          {/* Grade Selector Tabs */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <span>خريطة منهج الفيزياء والمختبرات التفاعلية (المراحل الدراسية)</span>
+            </h2>
+            <span className="text-xs text-slate-500 font-mono">11 تجربة تفاعلية نشطة</span>
           </div>
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white">قريباً جداً</h3>
-          <p className="text-lg text-slate-600 dark:text-slate-400 font-medium">
-            سيتم إضافة محتوى هذه المادة قريباً.
-          </p>
-          <p className="text-sm text-slate-400 max-w-md mx-auto">
-            نعمل حالياً على إعداد المحتوى الرسمي المعتمد وفق المناهج الوزارية العراقية مع نخبة من الأساتذة المميزين.
-          </p>
-        </div>
-      ) : isScience ? (
-        <div className="space-y-8">
-          {isPhysics && (
-            <section className="space-y-5">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-                <div>
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-cyan-500" />
-                    <span>خارطة منهج الفيزياء العراقي</span>
-                  </h2>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    من الأول المتوسط إلى السادس العلمي، مرتبة حسب الفصول المعتمدة في الكتب المنهجية.
+
+          <div className="flex overflow-x-auto pb-2 gap-2 border-b border-slate-200 dark:border-slate-800 no-scrollbar">
+            {IRAQI_PHYSICS_CURRICULUM.map((grade) => {
+              const isSelected = activePhysicsGrade === grade.gradeId;
+              const hasActiveSims = ['first-intermediate', 'second-intermediate'].includes(grade.gradeId);
+              return (
+                <button
+                  key={grade.gradeId}
+                  onClick={() => setActivePhysicsGrade(grade.gradeId)}
+                  className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+                    isSelected
+                      ? 'bg-cyan-600 text-white shadow-md'
+                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
+                  }`}
+                >
+                  <GraduationCap className="w-4 h-4" />
+                  <span>{grade.gradeTitleAr}</span>
+                  {hasActiveSims && (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                        isSelected ? 'bg-white/20 text-white' : 'bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300'
+                      }`}
+                    >
+                      {grade.chapters.filter((c) => c.hasSimulation).length} تجارب
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active Grade Content & Chapters */}
+          {(() => {
+            const currentGrade =
+              IRAQI_PHYSICS_CURRICULUM.find((g) => g.gradeId === activePhysicsGrade) ||
+              IRAQI_PHYSICS_CURRICULUM[0];
+
+            return (
+              <div className="space-y-4">
+                <div className="bg-slate-100 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300">
+                  <p className="font-bold text-slate-900 dark:text-white mb-1">
+                    {currentGrade.gradeTitleAr} • {currentGrade.gradeTitleEn}
                   </p>
+                  <p>{currentGrade.description}</p>
                 </div>
-                <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">
-                  {TOTAL_IRAQI_PHYSICS_CHAPTERS} فصلًا • 6 مراحل
-                </span>
-              </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                {IRAQI_PHYSICS_CURRICULUM.map((grade) => (
-                  <div
-                    key={grade.id}
-                    className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
-                  >
-                    <div className="px-5 py-4 bg-gradient-to-l from-cyan-50 to-blue-50 dark:from-cyan-950/40 dark:to-blue-950/30 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                      <div>
-                        <h3 className="font-black text-slate-900 dark:text-white">{grade.titleAr}</h3>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                          {grade.stage === 'intermediate' ? 'المرحلة المتوسطة' : 'المرحلة الإعدادية العلمية'}
-                        </p>
-                      </div>
-                      <span className="text-xs font-mono font-bold text-cyan-700 dark:text-cyan-300">
-                        {grade.chapters.length} فصول
-                      </span>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {currentGrade.chapters.map((chapter) => {
+                    const simEntry = chapter.simulationId ? getSimulationById(chapter.simulationId) : null;
 
-                    <div className="p-4 space-y-2">
-                      {grade.chapters.map((chapter) => (
-                        <div
-                          key={chapter.id}
-                          className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <span className="w-8 h-8 shrink-0 rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 flex items-center justify-center text-xs font-black">
-                              {chapter.number}
+                    return (
+                      <div
+                        key={chapter.id}
+                        className={`bg-white dark:bg-slate-900 p-5 rounded-2xl border shadow-sm flex flex-col justify-between space-y-4 transition-all ${
+                          chapter.hasSimulation
+                            ? 'border-cyan-500/30 hover:shadow-md hover:border-cyan-500'
+                            : 'border-slate-200 dark:border-slate-800 opacity-75'
+                        }`}
+                      >
+                        <div className="space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              الفصل {chapter.chapterNumber}
                             </span>
-                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                              {chapter.titleAr}
-                            </span>
+                            {chapter.hasSimulation ? (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                                محاكاة نشطة ✓
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">
+                                قيد الإعداد
+                              </span>
+                            )}
                           </div>
-                          {chapter.simulationHint && chapter.simulationHint !== 'none' && (
-                            <span className="shrink-0 text-[10px] font-black uppercase px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300">
-                              {chapter.simulationHint === 'both' ? '2D + 3D' : chapter.simulationHint.toUpperCase()}
-                            </span>
+
+                          <div>
+                            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                              {chapter.titleAr}
+                            </h3>
+                            <p className="text-[11px] font-mono text-slate-400">{chapter.titleEn}</p>
+                          </div>
+
+                          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                            {chapter.description}
+                          </p>
+
+                          {chapter.keyFormulas && chapter.keyFormulas.length > 0 && (
+                            <div className="bg-slate-50 dark:bg-slate-800/80 p-2 rounded-xl text-[11px] font-mono text-cyan-600 dark:text-cyan-400">
+                              {chapter.keyFormulas.join(' • ')}
+                            </div>
                           )}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
 
-              <div className="rounded-2xl border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/30 p-4 text-xs leading-relaxed text-amber-900 dark:text-amber-200">
-                تم تثبيت عناوين الفصول كخارطة محتوى للمنصة. المحاكيات التفصيلية والدروس والأسئلة ستُربط تدريجيًا بكل فصل دون اختلاق محتوى منهجي غير موجود في المصدر.
+                        <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                          {chapter.hasSimulation && chapter.simulationId ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                navigate(`/subject/physics/simulations/${chapter.simulationId}`)
+                              }
+                              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
+                            >
+                              <PlayCircle className="w-4 h-4" />
+                              <span>تشغيل المحاكاة ({simEntry?.titleAr || 'المختبر'})</span>
+                            </button>
+                          ) : (
+                            <div className="flex items-center justify-center gap-1.5 py-2 text-xs text-slate-400 font-medium">
+                              <Clock className="w-3.5 h-3.5" />
+                              <span>المحاكاة ستتوفر في التحديث القادم</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </section>
-          )}
-
+            );
+          })()}
+        </div>
+      ) : isOtherScience ? (
+        <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-500" />
               <span>التجارب والمختبرات التفاعلية المتاحة</span>
             </h2>
             <span className="text-xs text-slate-500 font-medium font-mono">
-              {subjectSimulations.length} مختبرات جاهزة
+              {otherScienceSims.length} مختبرات جاهزة
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {subjectSimulations.map((sim) => (
+            {otherScienceSims.map((sim) => (
               <div
                 key={sim.id}
                 className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
@@ -216,7 +273,7 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onOpenSimulations(subjectId, sim.id)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs shadow-sm transition-all transform group-hover:scale-[1.02]"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs shadow-sm transition-all transform group-hover:scale-[1.02] cursor-pointer"
                   >
                     <PlayCircle className="w-4 h-4 text-emerald-400" />
                     <span>تشغيل التجربة الآن</span>
@@ -261,7 +318,7 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
                       key={lesson.id}
                       type="button"
                       onClick={() => onSelectLesson(lesson)}
-                      className="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-right text-xs font-semibold text-slate-700 dark:text-slate-300 transition-all group"
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-right text-xs font-semibold text-slate-700 dark:text-slate-300 transition-all group cursor-pointer"
                     >
                       <span className="truncate">{lesson.titleAr}</span>
                       <ChevronLeft className="w-4 h-4 text-indigo-500 group-hover:-translate-x-1 transition-transform shrink-0" />
@@ -271,6 +328,19 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
               </div>
             ))}
           </div>
+        </div>
+      ) : isPlaceholder ? (
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-12 text-center border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+          <div className="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto shadow-sm">
+            <Clock className="w-8 h-8" />
+          </div>
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-white">قريباً جداً</h3>
+          <p className="text-lg text-slate-600 dark:text-slate-400 font-medium">
+            سيتم إضافة محتوى هذه المادة قريباً.
+          </p>
+          <p className="text-sm text-slate-400 max-w-md mx-auto">
+            نعمل حالياً على إعداد المحتوى الرسمي المعتمد وفق المناهج الوزارية العراقية مع نخبة من الأساتذة المميزين.
+          </p>
         </div>
       ) : null}
     </div>

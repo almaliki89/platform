@@ -1,8 +1,17 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SubjectId } from '../types/subject';
 import { SIMULATION_REGISTRY, getSimulationsForSubject, SimulationRegistryEntry } from '../features/simulations';
 import { SimulationErrorBoundary } from '../features/simulations/core/SimulationErrorBoundary';
-import { Zap, Calculator, FlaskConical, PlayCircle, ArrowLeft, Loader2, Sparkles, Layers } from 'lucide-react';
+import {
+  Zap,
+  Calculator,
+  FlaskConical,
+  ArrowLeft,
+  Loader2,
+  Layers,
+  GraduationCap,
+} from 'lucide-react';
 
 interface SimulationsHubProps {
   subjectId: SubjectId;
@@ -15,11 +24,13 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
   onBack,
   initialSimulationId,
 }) => {
+  const navigate = useNavigate();
   const isSpecificScience = ['physics', 'mathematics', 'chemistry'].includes(subjectId);
   const subjectSimulations: SimulationRegistryEntry[] = isSpecificScience
     ? getSimulationsForSubject(subjectId as 'physics' | 'mathematics' | 'chemistry')
     : SIMULATION_REGISTRY;
 
+  const [activeGradeFilter, setActiveGradeFilter] = useState<string>('all');
   const [activeSimId, setActiveSimId] = useState<string>(() => {
     if (initialSimulationId && subjectSimulations.some((s) => s.id === initialSimulationId)) {
       return initialSimulationId;
@@ -27,8 +38,25 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
     return subjectSimulations[0]?.id || SIMULATION_REGISTRY[0].id;
   });
 
+  // Synchronize when initialSimulationId changes from URL
+  useEffect(() => {
+    if (initialSimulationId && subjectSimulations.some((s) => s.id === initialSimulationId)) {
+      setActiveSimId(initialSimulationId);
+    }
+  }, [initialSimulationId, subjectSimulations]);
+
+  const filteredSimulations =
+    activeGradeFilter === 'all'
+      ? subjectSimulations
+      : subjectSimulations.filter((sim) => sim.gradeId === activeGradeFilter);
+
   const activeEntry =
     subjectSimulations.find((s) => s.id === activeSimId) || subjectSimulations[0] || SIMULATION_REGISTRY[0];
+
+  const handleSelectSim = (simId: string) => {
+    setActiveSimId(simId);
+    navigate(`/subject/${subjectId}/simulations/${simId}`);
+  };
 
   const getSubjectBadge = (sId: string) => {
     switch (sId) {
@@ -43,66 +71,94 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
     }
   };
 
-  const getSubjectIcon = (sId: string) => {
-    switch (sId) {
-      case 'physics':
-        return <Zap className="w-4 h-4 text-cyan-500" />;
-      case 'mathematics':
-        return <Calculator className="w-4 h-4 text-violet-500" />;
-      case 'chemistry':
-        return <FlaskConical className="w-4 h-4 text-rose-500" />;
-      default:
-        return <Layers className="w-4 h-4" />;
-    }
-  };
-
   const ActiveComponent = activeEntry.component;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto w-full pb-16">
       {/* Top Navigation Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all font-semibold text-xs sm:text-sm shrink-0"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>العودة لقسم المادة</span>
-          </button>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${getSubjectBadge(subjectId).color}`}>
-                {getSubjectBadge(subjectId).label}
-              </span>
-              <span className="text-xs text-slate-400 font-medium">OMEGA V4.1 Science Engine</span>
+      <div className="flex flex-col gap-4 bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all font-semibold text-xs sm:text-sm shrink-0 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>العودة لقسم المادة</span>
+            </button>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${getSubjectBadge(subjectId).color}`}>
+                  {getSubjectBadge(subjectId).label}
+                </span>
+                <span className="text-xs text-slate-400 font-medium">OMEGA V4.2 Science Simulation System</span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">
+                المختبر التفاعلي والمحاكاة العلمية
+              </h1>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">
-              المختبر التفاعلي والمحاكاة العلمية
-            </h1>
           </div>
+
+          {/* Grade Filtering for Physics if multiple grades exist */}
+          {subjectId === 'physics' && (
+            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-bold shrink-0">
+              <button
+                onClick={() => setActiveGradeFilter('all')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  activeGradeFilter === 'all'
+                    ? 'bg-cyan-600 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                جميع التجارب (11)
+              </button>
+              <button
+                onClick={() => setActiveGradeFilter('first-intermediate')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  activeGradeFilter === 'first-intermediate'
+                    ? 'bg-cyan-600 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                الأول المتوسط (5)
+              </button>
+              <button
+                onClick={() => setActiveGradeFilter('second-intermediate')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  activeGradeFilter === 'second-intermediate'
+                    ? 'bg-cyan-600 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                الثاني المتوسط (6)
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Subject-Specific Simulation Selector Tabs */}
+        {/* Horizontal Simulation Tab Selector */}
         {subjectSimulations.length > 1 && (
-          <div className="flex flex-wrap gap-2 bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
-            {subjectSimulations.map((sim) => {
+          <div className="flex overflow-x-auto pb-1 gap-2 border-t border-slate-100 dark:border-slate-800 pt-3 no-scrollbar">
+            {filteredSimulations.map((sim) => {
               const isSelected = activeSimId === sim.id;
               return (
                 <button
                   key={sim.id}
                   type="button"
-                  onClick={() => setActiveSimId(sim.id)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all ${
+                  onClick={() => handleSelectSim(sim.id)}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                     isSelected
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-md'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md'
+                      : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
                   }`}
                 >
-                  {getSubjectIcon(sim.subjectId)}
+                  {sim.chapterNumber && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/10 dark:bg-black/20 font-mono">
+                      فصل {sim.chapterNumber}
+                    </span>
+                  )}
                   <span>{sim.titleAr}</span>
-                  <span className="text-[10px] font-mono opacity-60 uppercase">({sim.mode})</span>
                 </button>
               );
             })}
@@ -113,19 +169,19 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
       {/* Active Lazy-Loaded Simulation Render with Error Boundary and Suspense */}
       <SimulationErrorBoundary
         fallbackTitle="تعذر تشغيل المحاكاة على هذا الجهاز"
-        onReset={() => setActiveSimId(activeEntry.id)}
+        onReset={() => handleSelectSim(activeEntry.id)}
       >
         <Suspense
           fallback={
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-16 text-center space-y-4 shadow-sm">
-              <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto animate-pulse">
+              <div className="w-16 h-16 rounded-2xl bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center mx-auto animate-pulse">
                 <Loader2 className="w-8 h-8 animate-spin" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                جاري تحميل بيئة المحاكاة العلمية...
+                جاري تحميل بيئة المحاكاة الفيزيائية...
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-                يتم تحميل الموارد الحسابية وثلاثية الأبعاد بدقة متوافقة مع جهازك.
+                يتم تهيئة المحرك الفيزيائي والمعادلات الرياضية الخاصة بـ {activeEntry.titleAr}.
               </p>
             </div>
           }
