@@ -1,22 +1,18 @@
 import React from 'react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { 
   Sparkles, 
   Trophy, 
   Flame, 
   GraduationCap, 
-  UploadCloud, 
   User as UserIcon, 
   Search,
-  CheckCircle2
 } from 'lucide-react';
 import { StudentState, EducationalGrade } from '../types';
 import { useAuth } from '../context/AuthContext';
-
-export type NavTabId = 'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama' | 'review';
+import { APP_ROUTES } from '../routes';
 
 interface NavbarProps {
-  currentTab: NavTabId;
-  setCurrentTab: (tab: NavTabId) => void;
   studentState: StudentState;
   selectedGrade: EducationalGrade;
   onSelectGrade: (grade: EducationalGrade) => void;
@@ -25,9 +21,14 @@ interface NavbarProps {
   onOpenSearch?: () => void;
 }
 
+interface NavItem {
+  id: string;
+  path: string;
+  label: string;
+  highlight?: boolean;
+}
+
 export const Navbar: React.FC<NavbarProps> = ({
-  currentTab,
-  setCurrentTab,
   studentState,
   selectedGrade,
   onSelectGrade,
@@ -36,26 +37,35 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSearch
 }) => {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const isThirdIntermediate = selectedGrade === 'third-intermediate';
 
-  const navItems = isThirdIntermediate ? [
-    { id: 'dashboard', label: 'الرئيسية' },
-    { id: 'review', label: 'المراجعة المركزة' },
-    { id: 'mock', label: 'محاكي الوزاري 100د' },
-    { id: 'exam', label: 'الأسئلة الوزارية' },
-    { id: 'literature', label: 'قصص الثالث (Story Time)' },
-    { id: 'essays', label: 'الإنشاءات' },
-    { id: 'vocab', label: 'المفردات والتوصيل' },
+  const navItems: NavItem[] = isThirdIntermediate ? [
+    { id: 'dashboard', path: APP_ROUTES.home, label: 'الرئيسية' },
+    { id: 'review', path: APP_ROUTES.review, label: 'المراجعة المركزة' },
+    { id: 'mock', path: APP_ROUTES.mock, label: 'محاكي الوزاري 100د' },
+    { id: 'exam', path: APP_ROUTES.exam, label: 'الأسئلة الوزارية' },
+    { id: 'literature', path: APP_ROUTES.literature, label: 'قصص الثالث (Story Time)' },
+    { id: 'essays', path: APP_ROUTES.essays, label: 'الإنشاءات' },
+    { id: 'vocab', path: APP_ROUTES.vocab, label: 'المفردات والتوصيل' },
   ] : [
-    { id: 'dashboard', label: 'الرئيسية' },
-    { id: 'review', label: 'المراجعة المركزة' },
-    { id: 'mock', label: 'محاكي الوزاري 100د', highlight: true },
-    { id: 'exam', label: 'بنك الوزاريات' },
-    { id: 'vocab', label: 'أطلس الرموز والمفردات' },
-    { id: 'literature', label: 'الأدب الوزاري' },
-    { id: 'essays', label: 'الإنشاءات' },
-    { id: 'verbs', label: 'الأفعال الشاذة' },
+    { id: 'dashboard', path: APP_ROUTES.home, label: 'الرئيسية' },
+    { id: 'review', path: APP_ROUTES.review, label: 'المراجعة المركزة' },
+    { id: 'mock', path: APP_ROUTES.mock, label: 'محاكي الوزاري 100د', highlight: true },
+    { id: 'exam', path: APP_ROUTES.exam, label: 'بنك الوزاريات' },
+    { id: 'vocab', path: APP_ROUTES.vocab, label: 'أطلس الرموز والمفردات' },
+    { id: 'literature', path: APP_ROUTES.literature, label: 'الأدب الوزاري' },
+    { id: 'essays', path: APP_ROUTES.essays, label: 'الإنشاءات' },
+    { id: 'verbs', path: APP_ROUTES.verbs, label: 'الأفعال الشاذة' },
   ];
+
+  const isItemActive = (item: NavItem) => {
+    if (item.path === '/') {
+      return location.pathname === '/' || location.pathname === '/subjects';
+    }
+    return location.pathname.startsWith(item.path);
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
@@ -65,9 +75,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           
           {/* Logo & Grade Identity */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0 select-none">
-            <div 
+            <Link 
               id="brand-logo"
-              onClick={() => setCurrentTab('dashboard')}
+              to="/"
               className="flex items-center gap-2 sm:gap-2.5 cursor-pointer group shrink-0"
             >
               <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform duration-200 shrink-0 ${
@@ -87,7 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {isThirdIntermediate ? 'المنهج الوزاري 2025' : 'إشراف الأستاذ مصطفى تركي'}
                 </p>
               </div>
-            </div>
+            </Link>
 
             {/* Grade Switcher Segmented Control */}
             <div className="flex items-center p-1 bg-slate-100/90 rounded-xl border border-slate-200/90 shrink-0">
@@ -120,7 +130,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {onOpenSearch && (
             <button
               onClick={onOpenSearch}
-              className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200/90 text-slate-600 hover:text-slate-900 rounded-xl text-xs font-medium border border-slate-200 transition-colors"
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200/90 text-slate-600 hover:text-slate-900 rounded-xl text-xs font-medium border border-slate-200 transition-colors cursor-pointer"
             >
               <Search className="w-3.5 h-3.5 text-slate-500" />
               <span>بحث شامل...</span>
@@ -132,26 +142,24 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Navigation Links - Desktop Large Screens */}
           <nav className="hidden 2xl:flex items-center gap-1 shrink-0">
-            {navItems.map((tab) => {
-              const isActive = currentTab === tab.id;
-              const Icon = (tab as any).icon;
+            {navItems.map((item) => {
+              const active = isItemActive(item);
               return (
                 <button
-                  key={tab.id}
-                  id={`nav-${tab.id}-btn`}
-                  onClick={() => setCurrentTab(tab.id as any)}
+                  key={item.id}
+                  id={`nav-${item.id}-btn`}
+                  onClick={() => navigate(item.path)}
                   className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all relative flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
-                    isActive
-                      ? tab.highlight 
+                    active
+                      ? item.highlight 
                         ? 'bg-amber-400 text-slate-950 shadow-xs font-black' 
                         : isThirdIntermediate ? 'bg-teal-600 text-white shadow-xs font-black' : 'bg-indigo-600 text-white shadow-xs font-black'
-                      : tab.highlight
+                      : item.highlight
                         ? 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 font-bold'
                         : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100'
                   }`}
                 >
-                  {Icon && <Icon className="w-3.5 h-3.5" />}
-                  <span>{tab.label}</span>
+                  <span>{item.label}</span>
                 </button>
               );
             })}
@@ -164,7 +172,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {onOpenSearch && (
               <button
                 onClick={onOpenSearch}
-                className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100"
+                className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 cursor-pointer"
                 title="بحث"
               >
                 <Search className="w-5 h-5" />
@@ -182,7 +190,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                 <span>{studentState.streakDays}د</span>
               </div>
-              <div className="w-px h-3.5 bg-slate-300"></div>
+              <div className="w-px h-3.5 bg-slate-300" />
               <div className="flex items-center gap-1 text-indigo-600 font-bold text-xs whitespace-nowrap">
                 <Sparkles className="w-3 h-3" />
                 <span>{studentState.xp} XP</span>
@@ -197,7 +205,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
                 title={`حساب متزامن سحابياً: ${user.phoneNumber || user.email || user.displayName}`}
               >
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="max-w-[90px] sm:max-w-[120px] truncate">{user.displayName || studentState.name || 'حسابي'}</span>
               </button>
             ) : (
@@ -227,25 +235,23 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Dedicated Navigation Bar for screens under 2xl */}
         <div className="flex 2xl:hidden items-center overflow-x-auto py-2 border-t border-slate-100 no-scrollbar gap-1.5 text-xs scroll-smooth">
-          {navItems.map((tab) => {
-            const isActive = currentTab === tab.id;
-            const Icon = (tab as any).icon;
+          {navItems.map((item) => {
+            const active = isItemActive(item);
             return (
               <button
-                key={tab.id}
-                onClick={() => setCurrentTab(tab.id as any)}
+                key={item.id}
+                onClick={() => navigate(item.path)}
                 className={`px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
-                  isActive
-                    ? tab.highlight
+                  active
+                    ? item.highlight
                       ? 'bg-amber-400 text-slate-950 shadow-xs font-black'
                       : isThirdIntermediate ? 'bg-teal-600 text-white shadow-xs font-black' : 'bg-indigo-600 text-white shadow-xs font-black'
-                    : tab.highlight
+                    : item.highlight
                       ? 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200'
                       : 'text-slate-600 bg-slate-100/90 hover:bg-slate-200/90'
                 }`}
               >
-                {Icon && <Icon className="w-3.5 h-3.5" />}
-                <span>{tab.label}</span>
+                <span>{item.label}</span>
               </button>
             );
           })}
