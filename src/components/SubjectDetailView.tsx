@@ -3,6 +3,7 @@ import { Subject, SubjectId } from '../types/subject';
 import { Lesson, StudentState } from '../types';
 import { SUBJECTS } from '../data/subjectsData';
 import { THIRD_INTERMEDIATE_UNITS } from '../data/thirdIntermediateData';
+import { IRAQI_PHYSICS_CURRICULUM, TOTAL_IRAQI_PHYSICS_CHAPTERS } from '../data/physicsCurriculum';
 import { getSimulationsForSubject } from '../features/simulations';
 import {
   BookOpen,
@@ -35,6 +36,7 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
   const subject = SUBJECTS.find((s) => s.id === subjectId) || SUBJECTS[2]; // default English
   const isEnglish = subjectId === 'english';
   const isScience = ['physics', 'mathematics', 'chemistry'].includes(subjectId);
+  const isPhysics = subjectId === 'physics';
   const isPlaceholder = !subject.isAvailable;
 
   const unitsList = isEnglish ? THIRD_INTERMEDIATE_UNITS : [];
@@ -104,7 +106,74 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
           </p>
         </div>
       ) : isScience ? (
-        <div className="space-y-6">
+        <div className="space-y-8">
+          {isPhysics && (
+            <section className="space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-cyan-500" />
+                    <span>خارطة منهج الفيزياء العراقي</span>
+                  </h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    من الأول المتوسط إلى السادس العلمي، مرتبة حسب الفصول المعتمدة في الكتب المنهجية.
+                  </p>
+                </div>
+                <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">
+                  {TOTAL_IRAQI_PHYSICS_CHAPTERS} فصلًا • 6 مراحل
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                {IRAQI_PHYSICS_CURRICULUM.map((grade) => (
+                  <div
+                    key={grade.id}
+                    className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
+                  >
+                    <div className="px-5 py-4 bg-gradient-to-l from-cyan-50 to-blue-50 dark:from-cyan-950/40 dark:to-blue-950/30 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                      <div>
+                        <h3 className="font-black text-slate-900 dark:text-white">{grade.titleAr}</h3>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          {grade.stage === 'intermediate' ? 'المرحلة المتوسطة' : 'المرحلة الإعدادية العلمية'}
+                        </p>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-cyan-700 dark:text-cyan-300">
+                        {grade.chapters.length} فصول
+                      </span>
+                    </div>
+
+                    <div className="p-4 space-y-2">
+                      {grade.chapters.map((chapter) => (
+                        <div
+                          key={chapter.id}
+                          className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="w-8 h-8 shrink-0 rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 flex items-center justify-center text-xs font-black">
+                              {chapter.number}
+                            </span>
+                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                              {chapter.titleAr}
+                            </span>
+                          </div>
+                          {chapter.simulationHint && chapter.simulationHint !== 'none' && (
+                            <span className="shrink-0 text-[10px] font-black uppercase px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300">
+                              {chapter.simulationHint === 'both' ? '2D + 3D' : chapter.simulationHint.toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-2xl border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/30 p-4 text-xs leading-relaxed text-amber-900 dark:text-amber-200">
+                تم تثبيت عناوين الفصول كخارطة محتوى للمنصة. المحاكيات التفصيلية والدروس والأسئلة ستُربط تدريجيًا بكل فصل دون اختلاق محتوى منهجي غير موجود في المصدر.
+              </div>
+            </section>
+          )}
+
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-500" />
