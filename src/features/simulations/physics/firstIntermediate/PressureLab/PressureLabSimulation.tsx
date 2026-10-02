@@ -106,7 +106,7 @@ export const PressureLabSimulation: React.FC = () => {
           </div>
 
           {/* Interactive Visual Press Canvas */}
-          <div className="relative w-full h-72 bg-slate-950 border border-slate-800 rounded-2xl p-4 overflow-hidden flex flex-col justify-between select-none">
+          <div className="relative w-full h-72 bg-slate-950 border border-slate-800 rounded-2xl p-4 overflow-x-hidden flex flex-col justify-between select-none">
             <div className="flex justify-between items-center z-10 text-xs">
               <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
                 سطح مرن قابل للانضغاط (رمل / إسفنج)

@@ -6,16 +6,21 @@
   --font-mono: "Plus Jakarta Sans", ui-monospace, monospace;
 }
 
+html, body, #root {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+  position: relative;
+}
+
 html {
-  max-width: 100vw;
-  overflow-x: hidden;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
   font-family: var(--font-sans);
   color: #0f172a;
   background-color: #f8fafc;
@@ -24,8 +29,6 @@ body {
 }
 
 #root {
-  max-width: 100vw;
-  overflow-x: hidden;
   min-height: 100vh;
 }
 

@@ -25,7 +25,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'VITE_E2E_MODE=true npm run dev',
+    command: 'VITE_E2E_MODE=true npx tsx server.ts',
     url: 'http://127.0.0.1:3000/api/health',
     reuseExistingServer: true,
     timeout: 60000,

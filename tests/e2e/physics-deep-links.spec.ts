@@ -146,12 +146,28 @@ test.describe('Physics Deep Links & Navigation Suite', () => {
   // Test 4: Invalid simulation route fallback
   test('gracefully redirects or renders fallback on invalid simulation ID', async ({ page }) => {
     const pageErrors: string[] = [];
+    const fatalErrors: string[] = [];
+    
     page.on('pageerror', (err) => pageErrors.push(err.message));
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') {
+        const text = msg.text();
+        if (
+          text.includes('favicon.ico') || 
+          text.includes('chrome-extension') ||
+          text.includes('Download the React DevTools')
+        ) {
+          return;
+        }
+        fatalErrors.push(text);
+      }
+    });
 
     await page.goto('/subject/physics/simulations/physics-invalid-simulation', { waitUntil: 'domcontentloaded' });
 
     // Should not crash and should fall back safely to simulations hub
-    expect(pageErrors).toHaveLength(0);
+    expect(pageErrors, `Page errors found on invalid route: ${pageErrors.join(', ')}`).toHaveLength(0);
+    expect(fatalErrors, `Fatal console errors found on invalid route: ${fatalErrors.join(', ')}`).toHaveLength(0);
     expect(page.url()).toContain('/subject/physics/simulations');
     await expect(page.locator('body')).toBeVisible();
   });

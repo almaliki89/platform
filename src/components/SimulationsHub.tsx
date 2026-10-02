@@ -119,7 +119,7 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
 
           {/* Grade Filtering for Physics if multiple grades exist */}
           {subjectId === 'physics' && (
-            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-bold shrink-0 flex-wrap">
+            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-bold flex-wrap">
               <button
                 onClick={() => setActiveGradeFilter('all')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${

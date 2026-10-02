@@ -349,7 +349,7 @@ export const EquilibriumTorquesSimulation: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left Column: Visual Canvas & HUD */}
         <div className="lg:col-span-3 space-y-4">
-          <div className="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl p-2">
+          <div className="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-x-hidden shadow-2xl p-2">
             <canvas
               ref={canvasRef}
               width={820}

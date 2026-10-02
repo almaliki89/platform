@@ -17,6 +17,10 @@ const REPRESENTATIVE_SIMS = [
 ];
 
 test.describe('Physics Responsive Matrix (24 Viewport Checks)', () => {
+  test.beforeEach(async ({ page }) => {
+    page.on('console', msg => console.log(`BROWSER CONSOLE [${msg.type()}]: ${msg.text()}`));
+  });
+
   for (const simId of REPRESENTATIVE_SIMS) {
     for (const vp of VIEWPORTS) {
       test(`${simId} on ${vp.name}`, async ({ page }) => {
@@ -26,6 +30,9 @@ test.describe('Physics Responsive Matrix (24 Viewport Checks)', () => {
         // Ensure page is rendered
         const heading = page.locator('h1, h2, h3').first();
         await expect(heading).toBeVisible({ timeout: 10000 });
+
+        // Wait for debug script in index.html to run
+        await page.waitForTimeout(2500);
 
         // Check horizontal overflow: scrollWidth should not exceed viewport width by more than 2px
         const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);

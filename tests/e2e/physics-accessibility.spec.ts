@@ -10,6 +10,10 @@ const REPRESENTATIVE_SIMS = [
 ];
 
 test.describe('Physics Accessibility, Error Boundary & Control Interactions', () => {
+  test.beforeEach(async ({ page }) => {
+    page.on('console', msg => console.log(`BROWSER CONSOLE [${msg.type()}]: ${msg.text()}`));
+  });
+
   // Test 1: Accessibility assertions on representative simulations (6/6)
   for (const simId of REPRESENTATIVE_SIMS) {
     test(`accessibility standards for ${simId}`, async ({ page }) => {

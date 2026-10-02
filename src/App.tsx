@@ -458,7 +458,7 @@ function MainAppContent() {
         onOpenSearch={() => setIsSearchOpen(true)}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 overflow-x-hidden">
         <Routes>
           {/* Dashboard / Subject Hub */}
           <Route
@@ -592,7 +592,7 @@ function MainAppContent() {
         />
       )}
 
-      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-8 text-center text-xs text-slate-500 mt-auto">
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-8 text-center text-xs text-slate-500 mt-auto overflow-x-hidden">
         <div className="max-w-7xl mx-auto px-4 space-y-2">
           <p className="font-bold text-slate-700 dark:text-slate-300">
             منصة النموذجية التعليمية العراقية • OMEGA V4.1 Multi-Subject Platform & 3D Science Engine

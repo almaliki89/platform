@@ -15,6 +15,24 @@
   </head>
   <body class="bg-slate-50 text-slate-900 antialiased font-sans selection:bg-indigo-500 selection:text-white">
     <div id="root"></div>
+    <script>
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const docWidth = document.documentElement.offsetWidth;
+          const scrollWidth = document.documentElement.scrollWidth;
+          if (scrollWidth > docWidth) {
+            console.log('--- OVERFLOW DEBUG ---');
+            console.log('Doc Width:', docWidth, 'Scroll Width:', scrollWidth);
+            const all = document.getElementsByTagName("*");
+            for (let el of all) {
+              if (el.offsetWidth > docWidth) {
+                console.log('Overflowing Element:', el.tagName, el.className, 'Width:', el.offsetWidth);
+              }
+            }
+          }
+        }, 2000);
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
