@@ -49,12 +49,23 @@ export type PhysicsFifthScientificSimId =
   | 'physics-fifth-electric-current'
   | 'physics-fifth-magnetism';
 
+export type PhysicsSixthScientificSimId =
+  | 'physics-sixth-capacitors'
+  | 'physics-sixth-electromagnetic-induction'
+  | 'physics-sixth-alternating-current'
+  | 'physics-sixth-physical-optics'
+  | 'physics-sixth-modern-physics'
+  | 'physics-sixth-solid-state-electronics'
+  | 'physics-sixth-atomic-spectra-laser'
+  | 'physics-sixth-nuclear-physics';
+
 export type SimulationId =
   | PhysicsFirstIntermediateSimId
   | PhysicsSecondIntermediateSimId
   | PhysicsThirdIntermediateSimId
   | PhysicsFourthScientificSimId
   | PhysicsFifthScientificSimId
+  | PhysicsSixthScientificSimId
   | 'physics-newton-second-law'
   | 'math-quadratic-graph'
   | 'chemistry-molecule-viewer';

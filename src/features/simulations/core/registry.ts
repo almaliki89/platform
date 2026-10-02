@@ -1112,6 +1112,246 @@ export const SIMULATION_REGISTRY: SimulationRegistryEntry[] = [
   },
 
   // ==========================================
+  // SIXTH SCIENTIFIC (8 Primary Simulations)
+  // ==========================================
+  {
+    id: 'physics-sixth-capacitors',
+    subjectId: 'physics',
+    gradeId: 'sixth-scientific',
+    chapterId: 'sixth-capacitors',
+    chapterNumber: 1,
+    curriculumTitle: 'المتسعات',
+    topic: 'المتسعة ذات الصفيحتين المتوازيتين، العازل الكهربائي، وربط التوالي والتوازي والطاقة المختزنة',
+    grade: 'الصف السادس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر المتسعات والعوازل ودوائر الربط',
+    titleEn: 'Capacitors, Dielectrics & Circuit Combinations Lab',
+    description: 'مختبر تفاعلي شامل لدراسة العوامل المؤثرة في سعة المتسعة (المساحة والبعد ونوع العازل)، حساب المجال الكهربائي، دوائر ربط المتسعات على التوالي والتوازي، وحساب الطاقة الكامنة الكهربائية المختزنة U = ½C(ΔV)²',
+    learningObjectives: [
+      'حساب سعة المتسعة ذات الصفيحتين المتوازيتين C = ε₀ A / d وتأثير إدخال العازل C_k = k C₀',
+      'فهم سلوك الشحنة وفرق الجهد عند إدخال عازل (المجموعة مفصولة مقابل متصلة بالمصدر)',
+      'حساب السعة المكافئة في ربط التوازي (Ceq = ΣCi) وربط التوالي (1/Ceq = Σ(1/Ci))',
+      'حساب الطاقة المختزنة في المجال الكهربائي للمتسعة U = ½Q(ΔV) = ½C(ΔV)² = Q²/(2C)',
+    ],
+    requiredConcepts: ['سعة المتسعة', 'ثابت العزل الكهربائي', 'قوة العزل الكهربائي', 'ربط التوالي والتوازي', 'الطاقة المختزنة'],
+    formulae: ['C = Q / ΔV', 'C = ε₀ · (A / d)', 'C_k = k · C₀', 'E_k = E / k', 'U = ½ · C · (ΔV)²', 'C_eq_par = C1 + C2', '1/C_eq_ser = 1/C1 + 1/C2'],
+    conceptTags: ['متسعات', 'صفيحتان متوازيتان', 'عازل', 'توالي وتوازي', 'طاقة مختزنة', 'سعة مكافئة'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/sixthScientific/Capacitors/CapacitorsSimulation').then((m) => ({
+        default: m.CapacitorsSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-sixth-electromagnetic-induction',
+    subjectId: 'physics',
+    gradeId: 'sixth-scientific',
+    chapterId: 'sixth-electromagnetic-induction',
+    chapterNumber: 2,
+    curriculumTitle: 'الحث الكهرومغناطيسي',
+    topic: 'قانون فرداي، قانون لنز، القوة الدافعة الحركية، الحث الذاتي، والحث المتبادل',
+    grade: 'الصف السادس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر الحث الكهرومغناطيسي وقانوني فرداي ولنز',
+    titleEn: 'Electromagnetic Induction & Faraday-Lenz Lab',
+    description: 'مختبر متقدم لمحاكاة الفيض المغناطيسي Φ_B = B A cos θ، قانون فرداي في الحث، قانون لنز لتحديد اتجاه التيار المحتث، القوة الدافعة الحركية (Motional EMF) لساق موصلة، والحث الذاتي في الملفات.',
+    learningObjectives: [
+      'حساب الفيض المغناطيسي وتغيره عبر مساحة الحلقة أو الملف',
+      'تطبيق قانون فرداي ε_ind = -N (ΔΦ_B / Δt) وحساب القوة الدافعة الكهربائية المحتثة',
+      'تطبيق قانون لنز لتحديد القطبية المعاكسة للمسبب الذي ولد التيار المحتث',
+      'حساب القوة الدافعة الكهربائية الحركية لساق تنزلق على سكة ε_mot = B L v',
+      'استكشاف ظاهرة الحث الذاتي ومعامل الحث الذاتي L = -ε / (ΔI/Δt) والطاقة المغناطيسية المختزنة',
+    ],
+    requiredConcepts: ['الفيض المغناطيسي', 'قانون فرداي', 'قانون لنز', 'القوة الدافعة الحركية', 'الحث الذاتي والمتبادل'],
+    formulae: ['Φ_B = B · A · cos θ', 'ε_ind = -N · (ΔΦ_B / Δt)', 'ε_mot = B · L · v', 'ε_L = -L · (ΔI / Δt)', 'U_B = ½ · L · I²'],
+    conceptTags: ['حث كهرومغناطيسي', 'فرداي', 'لنز', 'ساق موصلة', 'حث ذاتي', 'فيض مغناطيسي'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/sixthScientific/ElectromagneticInduction/ElectromagneticInductionSimulation').then((m) => ({
+        default: m.ElectromagneticInductionSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-sixth-alternating-current',
+    subjectId: 'physics',
+    gradeId: 'sixth-scientific',
+    chapterId: 'sixth-alternating-current',
+    chapterNumber: 3,
+    curriculumTitle: 'التيار المتناوب',
+    topic: 'دوائر التيار المتناوب (R-L-C)، الممانعة الكلية، الرنين الكهربائي، ومخطط الطور للجهد والتيار',
+    grade: 'الصف السادس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر دوائر التيار المتناوب والرنين الكهربائي (R-L-C)',
+    titleEn: 'AC Circuits, Impedance Phasors & Resonance Lab',
+    description: 'مختبر كهربائي متقدم لدراسة دوائر التيار المتناوب المتوالية والمتوازية، الرادة الحثية والرادة السعوية، مخطط المتجهات الطورية للجهد والممانعة، وحالة الرنين الكهربائي وعامل النوعية QF.',
+    learningObjectives: [
+      'حساب الرادة الحثية XL = 2πfL والرادة السعوية XC = 1/(2πfC) واعتمادهما على التردد',
+      'حساب الممانعة الكلية للدائرة Z = √(R² + (XL - XC)²) وزاوية فرق الطور φ',
+      'استكشاف خواص الدائرة (حثية أو سعوية أو أومية مقاومة صرفة)',
+      'التحقق من حالة الرنين الكهربائي عند XL = XC وتردد الرنين fr = 1 / (2π√(LC))',
+      'حساب عامل القدرة pf = cos φ والقدرة الحقيقية والظاهرية',
+    ],
+    requiredConcepts: ['المتجه الطوري', 'الرادة الحثية والسعوية', 'الممانعة الكلية', 'الرنين الكهربائي', 'عامل القدرة وعامل النوعية'],
+    formulae: ['XL = 2π · f · L', 'XC = 1 / (2π · f · C)', 'Z = √(R² + (XL - XC)²)', 'tan φ = (XL - XC) / R', 'fr = 1 / (2π · √(L · C))', 'pf = cos φ = R / Z'],
+    conceptTags: ['تيار متناوب', 'رادة حثية', 'رادة سعوية', 'ممانعة', 'رنين كهربائي', 'طور'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/sixthScientific/AlternatingCurrent/AlternatingCurrentSimulation').then((m) => ({
+        default: m.AlternatingCurrentSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-sixth-physical-optics',
+    subjectId: 'physics',
+    gradeId: 'sixth-scientific',
+    chapterId: 'sixth-physical-optics',
+    chapterNumber: 4,
+    curriculumTitle: 'البصريات الفيزيائية',
+    topic: 'تداخل الضوء، تجربة شقي يونك، حيود الضوء ومحزز الحيود، والاستقطاب بقانون بروستر',
+    grade: 'الصف السادس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر البصريات الفيزيائية وتجربة يونك والحيود',
+    titleEn: 'Physical Optics, Young Double Slit & Diffraction Lab',
+    description: 'مختبر بصري شامل لدراسة التداخل البناء والإتلاف في الضوء، قياس الطول الموجي بتجربة يونك y = (m λ L)/d، الحيود في الشق المفرد ومحزز الحيود، والاستقطاب بالانعكاس بزاوية بروستر.',
+    learningObjectives: [
+      'التمييز بين التداخل البناء (فرق المسار البصري δ = m λ) والتداخل الإتلافي (δ = (m + ½)λ)',
+      'حساب الطول الموجي للضوء والفاصلة بين الأهداب المتتالية Δy = (λ L) / d في تجربة يونك',
+      'استكشاف ظاهرة الحيود من شق مفرد وتأثير عرض الشق على اتساع الهدب المركزي المضيء',
+      'تطبيق معادلة محزز الحيود d sin θ = m λ لحساب زوايا التفريق الطيفي',
+      'فهم الاستقطاب بالانعكاس وزاوية بروستر tan θp = n',
+    ],
+    requiredConcepts: ['التداخل البناء والإتلافي', 'فرق المسار البصري', 'تجربة شقي يونك', 'محزز الحيود', 'الاستقطاب وزاوية بروستر'],
+    formulae: ['Δy = (λ · L) / d', 'y = (m · λ · L) / d', 'd · sin θ = m · λ', 'tan θp = n'],
+    conceptTags: ['بصريات فيزيائية', 'يونك', 'تداخل', 'حيود', 'محزز الحيود', 'استقطاب', 'بروستر'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/sixthScientific/PhysicalOptics/PhysicalOpticsSimulation').then((m) => ({
+        default: m.PhysicalOpticsSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-sixth-modern-physics',
+    subjectId: 'physics',
+    gradeId: 'sixth-scientific',
+    chapterId: 'sixth-modern-physics',
+    chapterNumber: 5,
+    curriculumTitle: 'الفيزياء الحديثة',
+    topic: 'إشعاع الجسم الأسود وفرضية بلانك، الظاهرة الكهروضوئية، فرضية دي برولي، ومبدأ اللادقة لهايزنبرغ',
+    grade: 'الصف السادس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر الفيزياء الحديثة والظاهرة الكهروضوئية',
+    titleEn: 'Modern Physics, Photoelectric Effect & Quantum Lab',
+    description: 'مختبر فيزيائي متقدم لتطبيق معادلة آينشتاين للظاهرة الكهروضوئية KE_max = hf - W0، جهد الإيقاف (القطع)، الطول الموجي لموجات المادة لدي برولي λ = h/p، ومبدأ اللادقة لهايزنبرغ.',
+    learningObjectives: [
+      'فهم فرضية بلانك لتكميم الطاقة E = hf ودراسة منحنى إشعاع الجسم الأسود وقانون فين',
+      'استقصاء الظاهرة الكهروضوئية واعتماد الطاقة الحركية العظمى على تردد الضوء الساقط وليس شدته',
+      'حساب جهد القطع (الإيقاف) Vs = KE_max / e وتردد العتبة وطول موجة العتبة لمعدن الهدف',
+      'حساب طول موجة دي برولي المرافقة للجسيمات المادية λ = h / (m · v)',
+      'تطبيق مبدأ اللادقة لهايزنبرغ في الموضع والزخم Δx · Δp ≥ h / 4π',
+    ],
+    requiredConcepts: ['تكميم الطاقة', 'الظاهرة الكهروضوئية', 'دالة العمل وتردد العتبة', 'موجات دي برولي', 'مبدأ اللادقة'],
+    formulae: ['E = h · f = h · c / λ', 'KE_max = h · f - W0', 'KE_max = e · Vs', 'λ_dB = h / (m · v)', 'Δx · Δp ≥ h / (4π)'],
+    conceptTags: ['فيزياء حديثة', 'بلانك', 'كهروضوئية', 'جهد القطع', 'دي برولي', 'هايزنبرغ', 'تكميم'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/sixthScientific/ModernPhysics/ModernPhysicsSimulation').then((m) => ({
+        default: m.ModernPhysicsSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-sixth-solid-state-electronics',
+    subjectId: 'physics',
+    gradeId: 'sixth-scientific',
+    chapterId: 'sixth-solid-state-electronics',
+    chapterNumber: 6,
+    curriculumTitle: 'إلكترونيات الحالة الصلبة',
+    topic: 'حزم الطاقة، أشباه الموصلات النقية والمشوبة، الثنائي البلوري (P-N)، وحاجز الجهد والانحياز',
+    grade: 'الصف السادس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر إلكترونيات الحالة الصلبة والثنائي البلوري P-N',
+    titleEn: 'Solid State Electronics & P-N Junction Diode Lab',
+    description: 'مختبر تفاعلي لاستكشاف حزم الطاقة في الموصلات وأشباه الموصلات والعوازل، عملية التطعيم لإنتاج بلورة نوع N ونوع P، تركيب الثنائي البلوري P-N وحاجز الجهد والانحياز الأمامي والعكسي.',
+    learningObjectives: [
+      'مقارنة حزم الطاقة (حزمة التكافؤ، حزمة التوصيل، وفجوة الطاقة المحظورة) بين المواد',
+      'فهم آلية التطعيم بالشوائب الخماسية (توليد إلكترونات حرة ومستوى مانح) والثلاثية (توليد فجوات ومستوى قابل)',
+      'استيعاب تكوّن منطقة الاستنزاف وحاجز الجهد في الثنائي البلوري P-N (0.7V للسيليكون و 0.3V للجرمانيوم)',
+      'دراسة سلوك الثنائي تحت الانحياز الأمامي (توصيل عالي) والانحياز العكسي (حجب التيار)',
+    ],
+    requiredConcepts: ['حزم الطاقة', 'فجوة الطاقة المحظورة', 'التطعيم والشوائب', 'بلورة نوع N و P', 'الثنائي البلوري P-N', 'حاجز الجهد والانحياز'],
+    formulae: ['Eg(Si) = 1.1 eV', 'Eg(Ge) = 0.72 eV', 'V0(Si) = 0.7 V', 'V0(Ge) = 0.3 V'],
+    conceptTags: ['إلكترونيات', 'حزم طاقة', 'سيليكون', 'تطعيم', 'ثنائي بلوري', 'انحياز أمامي', 'حاجز جهد'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/sixthScientific/SolidStateElectronics/SolidStateElectronicsSimulation').then((m) => ({
+        default: m.SolidStateElectronicsSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-sixth-atomic-spectra-laser',
+    subjectId: 'physics',
+    gradeId: 'sixth-scientific',
+    chapterId: 'sixth-atomic-spectra-laser',
+    chapterNumber: 7,
+    curriculumTitle: 'الأطياف الذرية والليزر',
+    topic: 'نموذج بور لذرة الهيدروجين، السلاسل الطيفية، طيف الأشعة السينية، ومنظومة الليزر والتوزيع المعكوس',
+    grade: 'الصف السادس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر الأطياف الذرية والأشعة السينية والليزر',
+    titleEn: 'Atomic Spectra, X-Rays & Laser Principles Lab',
+    description: 'مختبر علمي متقدم لدراسة نموذج بور لذرة الهيدروجين وانتقالات الإلكترونات بين المدارات، السلاسل الطيفية الخمس (لايمان، بالمر، باشن، براكت، فوند)، طيف الأشعة السينية المستمر والخطي، ومبدأ عمل الليزر والمجاوب البصري.',
+    learningObjectives: [
+      'حساب طاقة المستويات في ذرة الهيدروجين En = -13.6 / n² وتردد وطول موجة الفوتون المنبعث',
+      'استكشاف السلاسل الطيفية للهيدروجين والمناطق الطيفية المقابلة لكل منها',
+      'حساب أقصر طول موجي للأشعة السينية λ_min = hc / (eV) ودراسة طيف الأشعة المميز',
+      'فهم شروط توليد شعاع الليزر: الوسط الفعال، الضخ، التوزيع المعكوس، والمجاوب الرنيني',
+    ],
+    requiredConcepts: ['نموذج بور', 'طاقة المدارات', 'السلاسل الطيفية للهيدروجين', 'أشعة الكبح والأشعة السينية', 'الليزر والتوزيع المعكوس', 'المجاوب البصري'],
+    formulae: ['En = -13.6 / n² (eV)', 'ΔE = h · f = h · c / λ', 'λ_min = (h · c) / (e · V)', 'f_max = (e · V) / h'],
+    conceptTags: ['أطياف ذرية', 'بور', 'هيدروجين', 'بالمر', 'أشعة سينية', 'ليزر', 'توزيع معكوس', 'مجاوب'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/sixthScientific/AtomicSpectraLaser/AtomicSpectraLaserSimulation').then((m) => ({
+        default: m.AtomicSpectraLaserSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-sixth-nuclear-physics',
+    subjectId: 'physics',
+    gradeId: 'sixth-scientific',
+    chapterId: 'sixth-nuclear-physics',
+    chapterNumber: 8,
+    curriculumTitle: 'الفيزياء النووية',
+    topic: 'خواص وحجم النواة، طاقة الارتباط النووي والنقص الكتلي، وقانون الانحلال الإشعاعي وعمر النصف',
+    grade: 'الصف السادس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر الفيزياء النووية وطاقة الارتباط والانحلال الإشعاعي',
+    titleEn: 'Nuclear Physics, Binding Energy & Radioactive Decay Lab',
+    description: 'مختبر نووي تفاعلي لحساب نصف قطر النواة R = R₀ A^(1/3) وحجمها وشحنتها، حساب النقص الكتلي وطاقة الارتباط النووي Eb = Δm × 931.5 MeV ومنحنى طاقة الارتباط لكل نيوكليون، وتطبيق قانون الانحلال الإشعاعي وعمر النصف T½.',
+    learningObjectives: [
+      'حساب نصف القطر النووي وحجم وكثافة النواة والاعتماد على العدد الكتلي A',
+      'حساب النقص الكتلي Δm وطاقة الارتباط النووي Eb بوحدة MeV وطاقة الارتباط لكل نيوكليون Eb / A',
+      'تحديد قمة استقرار الأنوية حول نواة الحديد Fe-56 والتفريق بين مناطق الانشطار والاندماج النووي',
+      'تطبيق قانون الانحلال الإشعاعي N(t) = N₀ e^(-λt) وحساب ثابت الانحلال وعمر النصف T½ والنشاط الإشعاعي',
+    ],
+    requiredConcepts: ['نصف القطر النووي', 'النقص الكتلي', 'طاقة الارتباط النووي', 'استقرار النواة', 'الانحلال الإشعاعي', 'عمر النصف'],
+    formulae: ['R = R₀ · A^(1/3)', 'Q = Z · e', 'Δm = (Z·mH + N·mn) - M_nucleus', 'Eb = Δm · 931.5 MeV', 'N(t) = N₀ · e^(-λ · t)', 'λ = ln(2) / T½ ≈ 0.693 / T½'],
+    conceptTags: ['فيزياء نووية', 'نصف قطر نووي', 'نقص كتلي', 'طاقة ارتباط', 'انحلال إشعاعي', 'عمر نصف', 'نظائر'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/sixthScientific/NuclearPhysics/NuclearPhysicsSimulation').then((m) => ({
+        default: m.NuclearPhysicsSimulation,
+      }))
+    ),
+  },
+
+  // ==========================================
   // ADVANCED SIMULATIONS PRESERVED FROM V4.1
   // ==========================================
   {
