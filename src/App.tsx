@@ -221,67 +221,89 @@ function MainAppContent() {
   const prevUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
+    let isCancelled = false;
+
     async function syncOnLogin() {
       if (user && user.uid !== prevUserIdRef.current) {
         prevUserIdRef.current = user.uid;
         const cloudData = await loadStudentFromCloud(user.uid);
+        if (isCancelled) return;
+
         if (cloudData) {
-          setStudentState((prev) => {
-            const merged: StudentState = {
-              ...cloudData,
-              name: cloudData.name || user.displayName || prev.name,
-              xp: Math.max(cloudData.xp || 0, prev.xp || 0),
-              completedLessonIds: Array.from(
-                new Set([...(cloudData.completedLessonIds || []), ...(prev.completedLessonIds || [])])
-              ),
-              bookmarkedQuestionIds: Array.from(
-                new Set([...(cloudData.bookmarkedQuestionIds || []), ...(prev.bookmarkedQuestionIds || [])])
-              ),
-              totalQuestionsAttempted: Math.max(
-                cloudData.totalQuestionsAttempted || 0,
-                prev.totalQuestionsAttempted || 0
-              ),
-              totalQuestionsCorrect: Math.max(
-                cloudData.totalQuestionsCorrect || 0,
-                prev.totalQuestionsCorrect || 0
-              ),
-              unlockedBadges: Array.from(
-                new Set([...(cloudData.unlockedBadges || []), ...(prev.unlockedBadges || [])])
-              ),
-              selectedGrade: cloudData.selectedGrade || prev.selectedGrade || selectedGrade,
-              answeredExercises: {
-                ...(cloudData.answeredExercises || {}),
-                ...(prev.answeredExercises || {}),
-              },
-            };
-            if (cloudData.selectedGrade) {
-              setSelectedGrade(cloudData.selectedGrade);
-            }
-            saveStudentState(merged);
-            saveStudentToCloud(merged);
-            return merged;
-          });
+          const currentLocal = loadStudentState();
+          const merged: StudentState = {
+            ...cloudData,
+            name: cloudData.name || user.displayName || currentLocal.name,
+            xp: Math.max(cloudData.xp || 0, currentLocal.xp || 0),
+            completedLessonIds: Array.from(
+              new Set([...(cloudData.completedLessonIds || []), ...(currentLocal.completedLessonIds || [])])
+            ),
+            bookmarkedQuestionIds: Array.from(
+              new Set([...(cloudData.bookmarkedQuestionIds || []), ...(currentLocal.bookmarkedQuestionIds || [])])
+            ),
+            totalQuestionsAttempted: Math.max(
+              cloudData.totalQuestionsAttempted || 0,
+              currentLocal.totalQuestionsAttempted || 0
+            ),
+            totalQuestionsCorrect: Math.max(
+              cloudData.totalQuestionsCorrect || 0,
+              currentLocal.totalQuestionsCorrect || 0
+            ),
+            unlockedBadges: Array.from(
+              new Set([...(cloudData.unlockedBadges || []), ...(currentLocal.unlockedBadges || [])])
+            ),
+            selectedGrade: cloudData.selectedGrade || currentLocal.selectedGrade || selectedGrade,
+            answeredExercises: {
+              ...(cloudData.answeredExercises || {}),
+              ...(currentLocal.answeredExercises || {}),
+            },
+          };
+
+          if (cloudData.selectedGrade) {
+            setSelectedGrade(cloudData.selectedGrade);
+          }
+          setStudentState(merged);
+          saveStudentState(merged);
+          await saveStudentToCloud(merged);
         } else {
-          const initialCloudState = {
-            ...studentState,
-            name: user.displayName || studentState.name,
+          const currentLocal = loadStudentState();
+          const initialCloudState: StudentState = {
+            ...currentLocal,
+            name: user.displayName || currentLocal.name,
           };
           setStudentState(initialCloudState);
-          saveStudentToCloud(initialCloudState);
+          saveStudentState(initialCloudState);
+          await saveStudentToCloud(initialCloudState);
         }
       } else if (!user) {
         prevUserIdRef.current = null;
       }
     }
+
     syncOnLogin();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [user]);
+
+  // Synchronize studentState to cloud after state transitions (never during render)
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (user) {
+      saveStudentToCloud(studentState);
+    }
+  }, [studentState, user]);
 
   const handleSelectGrade = (newGrade: EducationalGrade) => {
     setSelectedGrade(newGrade);
     setStudentState((prev) => {
       const updated = { ...prev, selectedGrade: newGrade };
       saveStudentState(updated);
-      if (user) saveStudentToCloud(updated);
       return updated;
     });
   };
@@ -293,7 +315,6 @@ function MainAppContent() {
     setStudentState((prev) => {
       const updated = { ...prev, lastVisitedLessonId: lesson.id };
       saveStudentState(updated);
-      if (user) saveStudentToCloud(updated);
       return updated;
     });
   };
@@ -334,7 +355,6 @@ function MainAppContent() {
       };
 
       saveStudentState(nextState);
-      if (user) saveStudentToCloud(nextState);
       return nextState;
     });
   };
@@ -365,7 +385,6 @@ function MainAppContent() {
       };
 
       saveStudentState(nextState);
-      if (user) saveStudentToCloud(nextState);
       return nextState;
     });
   };
@@ -379,7 +398,6 @@ function MainAppContent() {
         totalQuestionsCorrect: prev.totalQuestionsCorrect + (isCorrect ? 1 : 0),
       };
       saveStudentState(nextState);
-      if (user) saveStudentToCloud(nextState);
       return nextState;
     });
   };
@@ -388,7 +406,6 @@ function MainAppContent() {
     setStudentState((prev) => {
       const nextState = { ...prev, name: newName };
       saveStudentState(nextState);
-      if (user) saveStudentToCloud(nextState);
       return nextState;
     });
   };
@@ -396,7 +413,6 @@ function MainAppContent() {
   const handleResetProgress = () => {
     setStudentState(INITIAL_STUDENT_STATE);
     saveStudentState(INITIAL_STUDENT_STATE);
-    if (user) saveStudentToCloud(INITIAL_STUDENT_STATE);
   };
 
   if (loading) {

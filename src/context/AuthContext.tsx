@@ -259,7 +259,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const saveStudentToCloud = async (state: StudentState) => {
     if (!user) return;
     try {
-      setSyncStatus('saving');
+      setTimeout(() => setSyncStatus('saving'), 0);
       const studentDocRef = doc(db, 'students', user.uid);
       await setDoc(studentDocRef, {
         uid: user.uid,
@@ -279,10 +279,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         lessonProgressMap: state.lessonProgressMap || {},
         updatedAt: new Date().toISOString()
       }, { merge: true });
-      setSyncStatus('synced');
+      setTimeout(() => setSyncStatus('synced'), 0);
     } catch (error: unknown) {
       console.error('Error saving student state to cloud:', getErrorMessage(error));
-      setSyncStatus('error');
+      setTimeout(() => setSyncStatus('error'), 0);
     }
   };
 

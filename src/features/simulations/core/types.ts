@@ -26,10 +26,22 @@ export type PhysicsThirdIntermediateSimId =
   | 'physics-third-energy-sources'
   | 'physics-third-atmospheric-communications';
 
+export type PhysicsFourthScientificSimId =
+  | 'physics-fourth-main-parameters'
+  | 'physics-fourth-mechanical-properties'
+  | 'physics-fourth-static-fluids'
+  | 'physics-fourth-thermal-properties'
+  | 'physics-fourth-light'
+  | 'physics-fourth-reflection-refraction'
+  | 'physics-fourth-mirrors'
+  | 'physics-fourth-thin-lenses'
+  | 'physics-fourth-electrostatics';
+
 export type SimulationId =
   | PhysicsFirstIntermediateSimId
   | PhysicsSecondIntermediateSimId
   | PhysicsThirdIntermediateSimId
+  | PhysicsFourthScientificSimId
   | 'physics-newton-second-law'
   | 'math-quadratic-graph'
   | 'chemistry-molecule-viewer';

@@ -102,7 +102,7 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
 
           {/* Grade Filtering for Physics if multiple grades exist */}
           {subjectId === 'physics' && (
-            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-bold shrink-0">
+            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-bold shrink-0 flex-wrap">
               <button
                 onClick={() => setActiveGradeFilter('all')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
@@ -111,7 +111,7 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
-                جميع التجارب (20)
+                جميع التجارب ({subjectSimulations.length})
               </button>
               <button
                 onClick={() => {
@@ -154,6 +154,20 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
                 }`}
               >
                 الثالث المتوسط (9)
+              </button>
+              <button
+                onClick={() => {
+                  setActiveGradeFilter('fourth-scientific');
+                  const firstSim = subjectSimulations.find((s) => s.gradeId === 'fourth-scientific');
+                  if (firstSim) handleSelectSim(firstSim.id);
+                }}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  activeGradeFilter === 'fourth-scientific'
+                    ? 'bg-cyan-600 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                الرابع العلمي (9)
               </button>
             </div>
           )}

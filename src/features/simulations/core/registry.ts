@@ -572,6 +572,262 @@ export const SIMULATION_REGISTRY: SimulationRegistryEntry[] = [
   },
 
   // ==========================================
+  // FOURTH SCIENTIFIC PHYSICS SIMULATIONS (9)
+  // ==========================================
+  {
+    id: 'physics-fourth-main-parameters',
+    subjectId: 'physics',
+    gradeId: 'fourth-scientific',
+    chapterId: 'fourth-main-parameters',
+    chapterNumber: 1,
+    curriculumTitle: 'معلمات رئيسة في الفيزياء',
+    topic: 'الوحدات الأساسية، معادلات الأبعاد، والخطأ التجريبي',
+    grade: 'الصف الرابع العلمي',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر القياس والمعلمات الفيزيائية ومعادلات الأبعاد',
+    titleEn: 'Physics Key Parameters & Error Analysis Lab',
+    description: 'مختبر تفاعلي لدراسة النظام الدولي للوحدات SI، التحليل البعدي ومطابقة صيغ الأبعاد، وحساب نسبة الخطأ المطلق والنسبي والمئوي.',
+    learningObjectives: [
+      'التعرف على الوحدات الأساسية السبع في النظام الدولي SI',
+      'تطبيق معادلات الأبعاد [M], [L], [T] والتحقق من صحة القوانين فيزيائياً',
+      'حساب الخطأ المطلق والنسبي والنسبي المئوي في القياسات المعملية',
+    ],
+    requiredConcepts: ['الوحدات الأساسية والمشتقة', 'صيغة الأبعاد', 'الخطأ المطلق والنسبي'],
+    formulae: ['Δx = |x_meas - x_true|', 'Relative Error = Δx / x_true', 'Percentage Error = Rel × 100%'],
+    conceptTags: ['وحدات SI', 'معادلة الأبعاد', 'خطأ القياس'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fourthScientific/MainParameters/MainParametersSimulation').then((m) => ({
+        default: m.MainParametersSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fourth-mechanical-properties',
+    subjectId: 'physics',
+    gradeId: 'fourth-scientific',
+    chapterId: 'fourth-mechanical-properties',
+    chapterNumber: 2,
+    curriculumTitle: 'الخصائص الميكانيكية للمادة',
+    topic: 'المرونة، قانون هوك، الإجهاد، المطاوعة، ومعامل يونك',
+    grade: 'الصف الرابع العلمي',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر الخصائص الميكانيكية للمادة ومعامل يونك',
+    titleEn: "Mechanical Properties & Young's Modulus Lab",
+    description: 'مختبر تفاعلي لاستكشاف قانون هوك لنوابض الشد والأسلاك المعدنية، وحساب الإجهاد الطولي والمطاوعة النسبية ومعامل يونك للمواد.',
+    learningObjectives: [
+      'تطبيق قانون هوك F = k · Δx والتحقق من حد المرونة',
+      'حساب الإجهاد الطولي (Stress = F / A) والمطاوعة الطولية (Strain = ΔL / L₀)',
+      'تحديد معامل يونك Y لمواد مختلفة ومقارنة صلابتها',
+    ],
+    requiredConcepts: ['المرونة وحد المرونة', 'قانون هوك', 'الإجهاد والمطاوعة', 'معامل يونك'],
+    formulae: ['F = k · Δx', 'Stress = F / A', 'Strain = ΔL / L₀', 'Y = (F · L₀) / (A · ΔL)'],
+    conceptTags: ['مرونة', 'هوك', 'إجهاد', 'مطاوعة', 'معامل يونك'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fourthScientific/MechanicalProperties/MechanicalPropertiesSimulation').then((m) => ({
+        default: m.MechanicalPropertiesSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fourth-static-fluids',
+    subjectId: 'physics',
+    gradeId: 'fourth-scientific',
+    chapterId: 'fourth-static-fluids',
+    chapterNumber: 3,
+    curriculumTitle: 'الموائع الساكنة',
+    topic: 'ضغط السائل، مبدأ باسكال، وقاعدة أرخميدس والطفو',
+    grade: 'الصف الرابع العلمي',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر الموائع الساكنة وقاعدة أرخميدس',
+    titleEn: 'Static Fluids & Archimedes Principle Lab',
+    description: 'مختبر تفاعلي لدراسة الضغط الهيدروستاتيكي في السوائل، مضاعفة القوة في المكبس الهيدروليكي لباسكال، وقوة الطفو وشروط طفو وغمر الأجسام.',
+    learningObjectives: [
+      'حساب ضغط السائل P = ρ · g · h عند أعماق مختلفة ولسوائل متعددة',
+      'استيعاب مبدأ باسكال ومضاعفة القوة في المكبس الهيدروليكي F₂ = F₁ · (A₂ / A₁)',
+      'تطبيق قاعدة أرخميدس وحساب قوة الطفو وتفسير طفو أو غوص الأجسام',
+    ],
+    requiredConcepts: ['ضغط السائل', 'مبدأ باسكال', 'قوة الطفو', 'قاعدة أرخميدس'],
+    formulae: ['P = ρ · g · h', 'F₁ / A₁ = F₂ / A₂', 'F_buoyant = ρ_fluid · g · V_sub'],
+    conceptTags: ['موائع ساكنة', 'باسكال', 'أرخميدس', 'طفو', 'ضغط هيدروستاتيكي'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fourthScientific/StaticFluids/StaticFluidsSimulation').then((m) => ({
+        default: m.StaticFluidsSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fourth-thermal-properties',
+    subjectId: 'physics',
+    gradeId: 'fourth-scientific',
+    chapterId: 'fourth-thermal-properties',
+    chapterNumber: 4,
+    curriculumTitle: 'الخصائص الحرارية للمادة',
+    topic: 'السعة الحرارية، الحرارة النوعية، التحولات الطورية، والغاز المثالي',
+    grade: 'الصف الرابع العلمي',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر الخصائص الحرارية للمادة والاتزان الحراري',
+    titleEn: 'Thermal Properties & Calorimetry Lab',
+    description: 'مختبر تفاعلي لدراسة التبادل الحراري والحرارة النوعية بالمسعر، منحنى التسخين والحرارة الكامنة للانصهار والتبخر، وقوانين الغاز المثالي.',
+    learningObjectives: [
+      'تطبيق قانون التبادل الحراري لحساب درجة حرارة الاتزان في المسعر الحراري',
+      'فهم ثبوت درجة الحرارة أثناء الانصهار والغليان وحساب الحرارة الكامنة (L_f, L_v)',
+      'استكشاف معادلة الحالة للغاز المثالي P · V = n · R · T',
+    ],
+    requiredConcepts: ['الحرارة النوعية', 'المسعر الحراري', 'الحرارة الكامنة', 'الغاز المثالي'],
+    formulae: ['Q = m · c · ΔT', 'Q_f = m · L_f', 'Q_v = m · L_v', 'P · V = n · R · T'],
+    conceptTags: ['حرارة نوعية', 'اتزان حراري', 'حرارة كامنة', 'غاز مثالي'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fourthScientific/ThermalProperties/ThermalPropertiesSimulation').then((m) => ({
+        default: m.ThermalPropertiesSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fourth-light',
+    subjectId: 'physics',
+    gradeId: 'fourth-scientific',
+    chapterId: 'fourth-light',
+    chapterNumber: 5,
+    curriculumTitle: 'الضوء',
+    topic: 'السيل الضوئي، شدة الإضاءة، وقانون التربيع العكسي للاستضاءة',
+    grade: 'الصف الرابع العلمي',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر الضوء وشدة الاستضاءة وقانون التربيع العكسي',
+    titleEn: 'Light & Photometry Lab',
+    description: 'مختبر تفاعلي لاستكشاف السيل الضوئي، شدة الإضاءة بالشمعة القياسية، قانون التربيع العكسي للاستضاءة E = I / r²، ومقارنة كفاءة المصابيح.',
+    learningObjectives: [
+      'التمييز بين شدة الإضاءة (I) والسيل الضوئي (Φ) وشدة الاستضاءة (E)',
+      'التحقق العملي من قانون التربيع العكسي: تناقص الاستضاءة مع مربع المسافة',
+      'مقارنة الكفاءة الضوئية (lm/W) لمصابيح التوهج والليد والهالوجين',
+    ],
+    requiredConcepts: ['السيل الضوئي', 'شدة الإضاءة', 'شدة الاستضاءة', 'قانون التربيع العكسي'],
+    formulae: ['Φ = 4π · I', 'E = I / r²', 'E = (I · cos θ) / r²'],
+    conceptTags: ['ضوء', 'استضاءة', 'تربيع عكسي', 'كانديلا', 'لومن', 'لوكس'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fourthScientific/Light/LightSimulation').then((m) => ({
+        default: m.LightSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fourth-reflection-refraction',
+    subjectId: 'physics',
+    gradeId: 'fourth-scientific',
+    chapterId: 'fourth-reflection-refraction',
+    chapterNumber: 6,
+    curriculumTitle: 'انعكاس وانكسار الضوء',
+    topic: 'قوانين الانكسار، قانون سنيل، والانعكاس الكلي الداخلي',
+    grade: 'الصف الرابع العلمي',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر انعكاس وانكسار الضوء وقانون سنيل',
+    titleEn: 'Reflection, Refraction & Snell Law Lab',
+    description: 'مختبر تفاعلي لتطبيق قانون سنيل n₁·sin θ₁ = n₂·sin θ₂، وحساب سرعة الضوء في الأوساط، واكتشاف الزاوية الحرجة وتطبيقات الألياف البصرية.',
+    learningObjectives: [
+      'تطبيق قانون سنيل لحساب زاوية الانكسار بين أوساط ضوئية مختلفة',
+      'استيعاب العلاقة بين معامل الانكسار وسرعة الضوء في الوسط v = c / n',
+      'تحديد الزاوية الحرجة θ_c وشروط حدوث الانعكاس الكلي الداخلي في الألياف البصرية',
+    ],
+    requiredConcepts: ['معامل الانكسار', 'قانون سنيل', 'الزاوية الحرجة', 'الانعكاس الكلي الداخلي'],
+    formulae: ['n₁ · sin θ₁ = n₂ · sin θ₂', 'n = c / v', 'sin θ_c = n₂ / n₁'],
+    conceptTags: ['انكسار', 'سنيل', 'زاوية حرجة', 'انعكاس كلي', 'ألياف بصرية'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fourthScientific/ReflectionRefraction/ReflectionRefractionSimulation').then((m) => ({
+        default: m.ReflectionRefractionSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fourth-mirrors',
+    subjectId: 'physics',
+    gradeId: 'fourth-scientific',
+    chapterId: 'fourth-mirrors',
+    chapterNumber: 7,
+    curriculumTitle: 'المرايا',
+    topic: 'المرايا المقعرة والمحدبة والمستوية، وتكون الصور وتكبيرها',
+    grade: 'الصف الرابع العلمي',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر المرايا الكروية والمستوية وتكون الصور',
+    titleEn: 'Spherical & Plane Mirrors Lab',
+    description: 'مختبر بصري تفاعلي لتتبع مسارات الأشعة الخاصة في المرايا المقعرة والمحدبة، وتطبيق معادلة المرايا العامة 1/f = 1/u + 1/v وحساب التكبير.',
+    learningObjectives: [
+      'رسم وتتبع الأشعة الضوئية الخاصة الساقطة على المرايا الكروية',
+      'تطبيق قانون المرايا العام وحساب موضع الصورة المتكونة وطولها',
+      'استنتاج صفات الصورة (حقيقية/خيالية، مقلوبة/معتدلة، مكبرة/مصغرة) حسب موضع الجسم',
+    ],
+    requiredConcepts: ['البؤرة والبعد البؤري', 'مركز التكور', 'معادلة المرايا', 'التكبير'],
+    formulae: ['1 / f = 1 / u + 1 / v', 'M = -v / u = h_i / h_o', 'R = 2 · f'],
+    conceptTags: ['مرايا', 'مرآة مقعرة', 'مرآة محدبة', 'بؤرة', 'تكبير'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fourthScientific/Mirrors/MirrorsSimulation').then((m) => ({
+        default: m.MirrorsSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fourth-thin-lenses',
+    subjectId: 'physics',
+    gradeId: 'fourth-scientific',
+    chapterId: 'fourth-thin-lenses',
+    chapterNumber: 8,
+    curriculumTitle: 'العدسات الرقيقة',
+    topic: 'العدسات المحدبة والمقعرة، قانون العدسات، والقدرة بالديوبتر',
+    grade: 'الصف الرابع العلمي',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر العدسات الرقيقة والمنظومات البصرية',
+    titleEn: 'Thin Lenses & Optical Systems Lab',
+    description: 'مختبر بصري تفاعلي لاستكشاف العدسات المحدبة المجمعة والمقعرة المفرقة، تطبيق قانون العدسات 1/f = 1/u + 1/v، وحساب القدرة بالديوبتر.',
+    learningObjectives: [
+      'تتبع مسارات الأشعة البصرية عبر المركز البصري والبؤرة في العدسات المحدبة والمقعرة',
+      'تطبيق معادلة العدسات العامة وحساب موضع وتكبير الصورة الناتجة',
+      'حساب قدرة العدسة بالديوبتر P = 1 / f(m) وتطبيقات تصحيح عيوب البصر',
+    ],
+    requiredConcepts: ['العدسة المحدبة والمقعرة', 'قانون العدسات', 'التكبير', 'قدرة العدسة بالديوبتر'],
+    formulae: ['1 / f = 1 / u + 1 / v', 'M = -v / u = h_i / h_o', 'P = 1 / f(m) (Diopter)'],
+    conceptTags: ['عدسات رقيقة', 'عدسة محدبة', 'عدسة مقعرة', 'ديوبتر', 'تكبير'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fourthScientific/ThinLenses/ThinLensesSimulation').then((m) => ({
+        default: m.ThinLensesSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fourth-electrostatics',
+    subjectId: 'physics',
+    gradeId: 'fourth-scientific',
+    chapterId: 'fourth-electrostatics',
+    chapterNumber: 9,
+    curriculumTitle: 'الكهرباء الساكنة',
+    topic: 'المجال الكهربائي المنتظم، الجهد الكهربائي، وتأثير المجال على حركة الشحنات',
+    grade: 'الصف الرابع العلمي',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر المجال والجهد الكهربائي وانحراف الشحنات',
+    titleEn: 'Electric Field & Charged Particle Deflection Lab',
+    description: 'مختبر تفاعلي لدراسة شدة المجال الكهربائي المنتظم بين لوحين متوازيين E = ΔV / d، انحراف الجسيمات المشحونة، وتوزيع الشحنات على الرؤوس المدببة.',
+    learningObjectives: [
+      'حساب شدة المجال الكهربائي المنتظم بين لوحين متوازيين E = ΔV / d',
+      'استكشاف مسار القذف القطعي المكافئ للإلكترونات والبروتونات داخل المجال المنتظم',
+      'استيعاب مفهوم سطوح تساوي الجهد وتوزيع الشحنات على سطوح الموصلات المعزولة',
+    ],
+    requiredConcepts: ['المجال الكهربائي المنتظم', 'فرق الجهد الكهربائي', 'انحراف الشحنات', 'سطوح تساوي الجهد'],
+    formulae: ['E = ΔV / d', 'F = q · E', 'a = (q · E) / m', 'y = ½ · a · t²'],
+    conceptTags: ['مجال كهربائي', 'جهد كهربائي', 'ألواح متوازية', 'انحراف شحنات'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fourthScientific/Electrostatics/ElectrostaticsSimulation').then((m) => ({
+        default: m.ElectrostaticsSimulation,
+      }))
+    ),
+  },
+
+  // ==========================================
   // ADVANCED SIMULATIONS PRESERVED FROM V4.1
   // ==========================================
   {
