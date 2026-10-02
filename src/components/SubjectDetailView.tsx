@@ -107,13 +107,15 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
               <Sparkles className="w-5 h-5 text-amber-500" />
               <span>خريطة منهج الفيزياء والمختبرات التفاعلية (المراحل الدراسية)</span>
             </h2>
-            <span className="text-xs text-slate-500 font-mono">11 تجربة تفاعلية نشطة</span>
+            <span className="text-xs text-slate-500 font-mono">
+              {IRAQI_PHYSICS_CURRICULUM.reduce((acc, g) => acc + g.chapters.filter((c) => c.hasSimulation).length, 0)} تجربة تفاعلية نشطة
+            </span>
           </div>
 
           <div className="flex overflow-x-auto pb-2 gap-2 border-b border-slate-200 dark:border-slate-800 no-scrollbar">
             {IRAQI_PHYSICS_CURRICULUM.map((grade) => {
               const isSelected = activePhysicsGrade === grade.gradeId;
-              const hasActiveSims = ['first-intermediate', 'second-intermediate'].includes(grade.gradeId);
+              const activeCount = grade.chapters.filter((c) => c.hasSimulation).length;
               return (
                 <button
                   key={grade.gradeId}
@@ -126,13 +128,13 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
                 >
                   <GraduationCap className="w-4 h-4" />
                   <span>{grade.gradeTitleAr}</span>
-                  {hasActiveSims && (
+                  {activeCount > 0 && (
                     <span
                       className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                         isSelected ? 'bg-white/20 text-white' : 'bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300'
                       }`}
                     >
-                      {grade.chapters.filter((c) => c.hasSimulation).length} تجارب
+                      {activeCount} تجارب
                     </span>
                   )}
                 </button>

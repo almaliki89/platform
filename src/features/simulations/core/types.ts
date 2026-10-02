@@ -15,9 +15,21 @@ export type PhysicsSecondIntermediateSimId =
   | 'physics-second-waves-sound'
   | 'physics-second-light';
 
+export type PhysicsThirdIntermediateSimId =
+  | 'physics-third-electrostatics'
+  | 'physics-third-magnetism'
+  | 'physics-third-electric-current'
+  | 'physics-third-battery-emf'
+  | 'physics-third-electric-energy-power'
+  | 'physics-third-electromagnetism'
+  | 'physics-third-transformer'
+  | 'physics-third-energy-sources'
+  | 'physics-third-atmospheric-communications';
+
 export type SimulationId =
   | PhysicsFirstIntermediateSimId
   | PhysicsSecondIntermediateSimId
+  | PhysicsThirdIntermediateSimId
   | 'physics-newton-second-law'
   | 'math-quadratic-graph'
   | 'chemistry-molecule-viewer';

@@ -319,6 +319,259 @@ export const SIMULATION_REGISTRY: SimulationRegistryEntry[] = [
   },
 
   // ==========================================
+  // THIRD INTERMEDIATE PHYSICS SIMULATIONS (9)
+  // ==========================================
+  {
+    id: 'physics-third-electrostatics',
+    subjectId: 'physics',
+    gradeId: 'third-intermediate',
+    chapterId: 'third-electrostatics',
+    chapterNumber: 1,
+    curriculumTitle: 'الكهربائية الساكنة',
+    topic: 'الكهربائية الساكنة وقانون كولوم',
+    grade: 'الصف الثالث المتوسط',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر الكهربائية الساكنة',
+    titleEn: 'Electrostatics Lab',
+    description: 'مختبر تفاعلي لاستكشاف تفاعل الشحنات الكهربائية، طرائق الشحن بالدلك والتماس والحث، وقانون كولوم.',
+    learningObjectives: [
+      'استيعاب أنواع الشحنات وقوى التجاذب والتنافر',
+      'فهم طرائق الشحن الكهربائي (الدلك، التماس، الحث)',
+      'حساب القوة المتبادلة بين الشحنات بقانون كولوم',
+    ],
+    requiredConcepts: ['الشحنات الكهربائية', 'قانون كولوم', 'المجال الكهربائي'],
+    formulae: ['F = k · |q₁ · q₂| / r²'],
+    conceptTags: ['شحنة', 'كولوم', 'تجاذب', 'تنافر', 'حث'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/thirdIntermediate/Electrostatics/ElectrostaticsSimulation').then((m) => ({
+        default: m.ElectrostaticsSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-third-magnetism',
+    subjectId: 'physics',
+    gradeId: 'third-intermediate',
+    chapterId: 'third-magnetism',
+    chapterNumber: 2,
+    curriculumTitle: 'المغناطيسية',
+    topic: 'المغناطيسية والمجال المغناطيسي',
+    grade: 'الصف الثالث المتوسط',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر المغناطيسية والمجال المغناطيسي',
+    titleEn: 'Magnetism & Magnetic Field Lab',
+    description: 'مختبر تفاعلي لدراسة أقطاب المغناطيس، قوى التجاذب والتنافر، خطوط المجال المغناطيسي، وسلوك إبرة البوصلة.',
+    learningObjectives: [
+      'التعرف على القطبين الشمالي والجنوبي وقانون الأقطاب',
+      'تتبع خطوط المجال المغناطيسي واتجاهها من N إلى S',
+      'ملاحظة استجابة إبرة البوصلة وتصنيف المواد المغناطيسية',
+    ],
+    requiredConcepts: ['الأقطاب المغناطيسية', 'خطوط المجال', 'المواد الفيرومغناطيسية'],
+    conceptTags: ['مغناطيس', 'مجال مغناطيسي', 'بوصلة', 'قطب شمالي'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/thirdIntermediate/Magnetism/MagnetismSimulation').then((m) => ({
+        default: m.MagnetismSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-third-electric-current',
+    subjectId: 'physics',
+    gradeId: 'third-intermediate',
+    chapterId: 'third-electric-current',
+    chapterNumber: 3,
+    curriculumTitle: 'التيار الكهربائي',
+    topic: 'التيار الكهربائي وقانون أوم',
+    grade: 'الصف الثالث المتوسط',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر التيار الكهربائي وقانون أوم',
+    titleEn: 'Electric Current & Ohm’s Law Lab',
+    description: 'مختبر الدوائر الكهربائية لدراسة ربط المقاومات على التوالي والتوازي، قانون أوم، ومنحنى الجهد والتيار.',
+    learningObjectives: [
+      'فهم قانون أوم والعلاقة بين الجهد والتيار والمقاومة',
+      'حساب المقاومة المكافئة لربط التوالي والتوازي',
+      'تحليل توزع التيارات وفروق الجهد في الدوائر',
+    ],
+    requiredConcepts: ['قانون أوم', 'ربط التوالي', 'ربط التوازي', 'المقاومة المكافئة'],
+    formulae: ['V = I · R', 'R_eq (توالي وتوازي)'],
+    conceptTags: ['تيار', 'جهد', 'مقاومة', 'أوم', 'توالي', 'توازي'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/thirdIntermediate/ElectricCurrent/ElectricCurrentSimulation').then((m) => ({
+        default: m.ElectricCurrentSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-third-battery-emf',
+    subjectId: 'physics',
+    gradeId: 'third-intermediate',
+    chapterId: 'third-battery-emf',
+    chapterNumber: 4,
+    curriculumTitle: 'البطارية والقوة الدافعة الكهربائية',
+    topic: 'البطارية والقوة الدافعة الكهربائية',
+    grade: 'الصف الثالث المتوسط',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر البطارية والقوة الدافعة الكهربائية',
+    titleEn: 'Battery & Electromotive Force (EMF) Lab',
+    description: 'مختبر تفاعلي لدراسة القوة الدافعة الكهربائية (emf)، المقاومة الداخلية للبطارية، وفرق الجهد بين طرفي البطارية.',
+    learningObjectives: [
+      'التمييز بين القوة الدافعة الكهربائية وفرق جهد القطبين',
+      'ملاحظة تأثير المقاومة الداخلية للبطارية على الجهد النهائي',
+      'فهم حالة الدائرة المفتوحة والمغلقة وقانون الدائرة الكاملة',
+    ],
+    requiredConcepts: ['القوة الدافعة الكهربائية', 'المقاومة الداخلية', 'فرق جهد القطبين'],
+    formulae: ['V_terminal = ε - I · r', 'I = ε / (R + r)'],
+    conceptTags: ['بطارية', 'emf', 'مقاومة داخلية', 'فولطميتر'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/thirdIntermediate/BatteryEmf/BatteryEmfSimulation').then((m) => ({
+        default: m.BatteryEmfSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-third-electric-energy-power',
+    subjectId: 'physics',
+    gradeId: 'third-intermediate',
+    chapterId: 'third-energy-power',
+    chapterNumber: 5,
+    curriculumTitle: 'الطاقة والقدرة الكهربائية',
+    topic: 'الطاقة والقدرة الكهربائية',
+    grade: 'الصف الثالث المتوسط',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر الطاقة والقدرة الكهربائية',
+    titleEn: 'Electrical Energy & Power Lab',
+    description: 'مختبر استهلاك الطاقة المنزلية وحساب القدرة الكهربائية وقراءة مقياس الكيلوواط.ساعة وتدابير السلامة والتأريض.',
+    learningObjectives: [
+      'تطبيق قوانين القدرة الكهربائية المختلفة',
+      'حساب استهلاك الطاقة بالجول وبالكيلوواط.ساعة',
+      'معرفة معايير اختيار فاصم الأمان المناسب للأجهزة',
+    ],
+    requiredConcepts: ['القدرة الكهربائية', 'الطاقة الكهربائية', 'فاصم الأمان', 'سلك التأريض'],
+    formulae: ['P = V · I', 'P = I² · R', 'E = P · t'],
+    conceptTags: ['قدرة', 'طاقة', 'واط', 'كيلوواط.ساعة', 'أمان كهربائي'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/thirdIntermediate/ElectricalEnergyPower/ElectricalEnergyPowerSimulation').then((m) => ({
+        default: m.ElectricalEnergyPowerSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-third-electromagnetism',
+    subjectId: 'physics',
+    gradeId: 'third-intermediate',
+    chapterId: 'third-electromagnetism',
+    chapterNumber: 6,
+    curriculumTitle: 'الكهربائية والمغناطيسية',
+    topic: 'الكهربائية والمغناطيسية',
+    grade: 'الصف الثالث المتوسط',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر الكهربائية والمغناطيسية',
+    titleEn: 'Electromagnetism & Oersted Lab',
+    description: 'مختبر تفاعلي لاستكشاف تجربة أورستد، المجال المغناطيسي المحيط بسلك مستقيم، والمغناطيس الكهربائي وتطبيقاته.',
+    learningObjectives: [
+      'استيعاب تجربة أورستد لتوليد المجال المغناطيسي من التيار',
+      'تطبيق قاعدة الكف اليمنى لتحديد اتجاه المجال والقطبية',
+      'معرفة العوامل المؤثرة على قوة المغناطيس الكهربائي',
+    ],
+    requiredConcepts: ['تجربة أورستد', 'المغناطيس الكهربائي', 'قاعدة الكف اليمنى', 'القلب الحديدي'],
+    formulae: ['B ∝ I', 'B ∝ N'],
+    conceptTags: ['أورستد', 'كهرومغناطيسية', 'ملف', 'قلب حديدي'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/thirdIntermediate/Electromagnetism/ElectromagnetismSimulation').then((m) => ({
+        default: m.ElectromagnetismSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-third-transformer',
+    subjectId: 'physics',
+    gradeId: 'third-intermediate',
+    chapterId: 'third-transformer',
+    chapterNumber: 7,
+    curriculumTitle: 'المحولة الكهربائية',
+    topic: 'المحولة الكهربائية والحث المتبادل',
+    grade: 'الصف الثالث المتوسط',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر المحولة الكهربائية',
+    titleEn: 'Electric Transformer Lab',
+    description: 'مختبر تفاعلي لدراسة مبدأ الحث المتبادل في المحولة الكهربائية، المحولة الخافضة والرافعة، وكفاءة نقل الطاقة.',
+    learningObjectives: [
+      'التمييز بين المحولة الرافعة والمحولة الخافضة للفولتية',
+      'حساب الفولتية والتيار في الملفين الابتدائي والثانوي',
+      'فهم كفاءة المحولة وأسباب ضياع الطاقة في القلب والملفات',
+    ],
+    requiredConcepts: ['الحث المتبادل', 'المحولة الرافعة', 'المحولة الخافضة', 'كفاءة المحولة'],
+    formulae: ['V₂ / V₁ = N₂ / N₁', 'η = (P₂ / P₁) × 100%'],
+    conceptTags: ['محولة', 'حث متبادل', 'قلب حديدي', 'فولتية ثانوية'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/thirdIntermediate/Transformer/TransformerSimulation').then((m) => ({
+        default: m.TransformerSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-third-energy-sources',
+    subjectId: 'physics',
+    gradeId: 'third-intermediate',
+    chapterId: 'third-energy-sources',
+    chapterNumber: 8,
+    curriculumTitle: 'تكنولوجيا مصادر الطاقة',
+    topic: 'تكنولوجيا مصادر الطاقة',
+    grade: 'الصف الثالث المتوسط',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر تكنولوجيا مصادر الطاقة',
+    titleEn: 'Energy Source Technology Lab',
+    description: 'مستكشف تفاعلي لسلاسل تحول الطاقة، مقارنة الطاقة المتجددة (الشمسية، الرياح، المائية) والوقود الأحفوري والأثر البيئي.',
+    learningObjectives: [
+      'التمييز بين مصادر الطاقة المتجددة وغير المتجددة',
+      'تتبع سلاسل تحولات الطاقة من المصدر الأولي إلى الكهرباء',
+      'تقييم الأثر البيئي لكل مصدر والجدوى المستدامة',
+    ],
+    requiredConcepts: ['الطاقة المتجددة', 'الخلايا الشمسية', 'توربينات الرياح', 'الطاقة الكهرومائية'],
+    conceptTags: ['طاقة متجددة', 'شمسية', 'رياح', 'وقود أحفوري', 'استدامة'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/thirdIntermediate/EnergySources/EnergySourcesSimulation').then((m) => ({
+        default: m.EnergySourcesSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-third-atmospheric-communications',
+    subjectId: 'physics',
+    gradeId: 'third-intermediate',
+    chapterId: 'third-atmospheric-physics',
+    chapterNumber: 9,
+    curriculumTitle: 'فيزياء الجو وتقنية الاتصالات الحديثة',
+    topic: 'فيزياء الجو وتقنيات الاتصالات الحديثة',
+    grade: 'الصف الثالث المتوسط',
+    difficulty: 'intermediate',
+    titleAr: 'مختبر فيزياء الجو وتقنيات الاتصالات الحديثة',
+    titleEn: 'Atmospheric Physics & Communications Lab',
+    description: 'مختبر تفاعلي لاستكشاف طبقات الغلاف الجوي الخمس، ومسارات انتشار الموجات اللاسلكية الأرضية والسماوية والفضائية.',
+    learningObjectives: [
+      'التعرف على طبقات الغلاف الجوي (تروبوسفير، ستراتوسفير، ميزوسفير، ثرموسفير، إكسوسفير)',
+      'فهم دور طبقة الأيونوسفير في عكس الموجات السماوية',
+      'استيعاب مسارات الاتصال عبر الأقمار الصناعية بالترددات العالية',
+    ],
+    requiredConcepts: ['طبقات الجو', 'الأيونوسفير', 'الموجات الأرضية', 'الموجات السماوية', 'الأقمار الصناعية'],
+    conceptTags: ['غلاف جوي', 'أيونوسفير', 'موجات لاسلكية', 'أقمار صناعية'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/thirdIntermediate/AtmosphericCommunications/AtmosphericCommunicationsSimulation').then((m) => ({
+        default: m.AtmosphericCommunicationsSimulation,
+      }))
+    ),
+  },
+
+  // ==========================================
   // ADVANCED SIMULATIONS PRESERVED FROM V4.1
   // ==========================================
   {

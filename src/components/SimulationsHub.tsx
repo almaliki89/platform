@@ -111,10 +111,14 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
-                جميع التجارب (11)
+                جميع التجارب (20)
               </button>
               <button
-                onClick={() => setActiveGradeFilter('first-intermediate')}
+                onClick={() => {
+                  setActiveGradeFilter('first-intermediate');
+                  const firstSim = subjectSimulations.find((s) => s.gradeId === 'first-intermediate');
+                  if (firstSim) handleSelectSim(firstSim.id);
+                }}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   activeGradeFilter === 'first-intermediate'
                     ? 'bg-cyan-600 text-white shadow-sm'
@@ -124,7 +128,11 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
                 الأول المتوسط (5)
               </button>
               <button
-                onClick={() => setActiveGradeFilter('second-intermediate')}
+                onClick={() => {
+                  setActiveGradeFilter('second-intermediate');
+                  const firstSim = subjectSimulations.find((s) => s.gradeId === 'second-intermediate');
+                  if (firstSim) handleSelectSim(firstSim.id);
+                }}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   activeGradeFilter === 'second-intermediate'
                     ? 'bg-cyan-600 text-white shadow-sm'
@@ -132,6 +140,20 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
                 }`}
               >
                 الثاني المتوسط (6)
+              </button>
+              <button
+                onClick={() => {
+                  setActiveGradeFilter('third-intermediate');
+                  const firstSim = subjectSimulations.find((s) => s.gradeId === 'third-intermediate');
+                  if (firstSim) handleSelectSim(firstSim.id);
+                }}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  activeGradeFilter === 'third-intermediate'
+                    ? 'bg-cyan-600 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                الثالث المتوسط (9)
               </button>
             </div>
           )}

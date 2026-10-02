@@ -2,24 +2,27 @@ import React, { ReactNode } from 'react';
 import { Sparkles, Info, BookOpen, Layers } from 'lucide-react';
 import { SimulationErrorBoundary } from './SimulationErrorBoundary';
 
-interface SimulationShellProps {
+export interface SimulationShellProps {
   title: string;
+  subtitle?: string;
   subjectTitle?: string;
   topic?: string;
   grade?: string;
-  description: string;
+  description?: string;
   learningObjectives?: string[];
   educationalNote?: ReactNode;
-  visualization: ReactNode;
-  controls: ReactNode;
+  visualization?: ReactNode;
+  controls?: ReactNode;
   outputs?: ReactNode;
   onReset?: () => void;
   badge?: ReactNode;
   extraPanels?: ReactNode;
+  children?: ReactNode;
 }
 
 export const SimulationShell: React.FC<SimulationShellProps> = ({
   title,
+  subtitle,
   subjectTitle,
   topic,
   grade,
@@ -32,7 +35,10 @@ export const SimulationShell: React.FC<SimulationShellProps> = ({
   onReset,
   badge,
   extraPanels,
+  children,
 }) => {
+  const displayDescription = description || subtitle;
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto w-full">
       {/* Simulation Header */}
@@ -54,14 +60,22 @@ export const SimulationShell: React.FC<SimulationShellProps> = ({
                 {grade}
               </span>
             )}
-            {badge}
+            {typeof badge === 'string' ? (
+              <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 border border-cyan-200/50 dark:border-cyan-800/50">
+                {badge}
+              </span>
+            ) : (
+              badge
+            )}
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
             {title}
           </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed">
-            {description}
-          </p>
+          {displayDescription && (
+            <p className="text-sm text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed">
+              {displayDescription}
+            </p>
+          )}
         </div>
 
         {learningObjectives && learningObjectives.length > 0 && (
@@ -79,36 +93,43 @@ export const SimulationShell: React.FC<SimulationShellProps> = ({
         )}
       </div>
 
-      {/* Main Interactive Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Visualization & Output Column (Left/Center in RTL) */}
-        <div className="lg:col-span-8 space-y-6">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
-            <SimulationErrorBoundary fallbackTitle="حدث خطأ في محرك العرض" onReset={onReset}>
-              {visualization}
-            </SimulationErrorBoundary>
+      {/* Children Layout if provided */}
+      {children ? (
+        <SimulationErrorBoundary fallbackTitle="حدث خطأ في بيئة المحاكاة" onReset={onReset}>
+          {children}
+        </SimulationErrorBoundary>
+      ) : (
+        /* Main Interactive Grid */
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Visualization & Output Column (Left/Center in RTL) */}
+          <div className="lg:col-span-8 space-y-6">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
+              <SimulationErrorBoundary fallbackTitle="حدث خطأ في محرك العرض" onReset={onReset}>
+                {visualization}
+              </SimulationErrorBoundary>
+            </div>
+
+            {outputs && <div>{outputs}</div>}
+
+            {extraPanels && <div>{extraPanels}</div>}
           </div>
 
-          {outputs && <div>{outputs}</div>}
+          {/* Controls & Educational Column (Right in RTL) */}
+          <div className="lg:col-span-4 space-y-6">
+            {controls}
 
-          {extraPanels && <div>{extraPanels}</div>}
-        </div>
-
-        {/* Controls & Educational Column (Right in RTL) */}
-        <div className="lg:col-span-4 space-y-6">
-          {controls}
-
-          {educationalNote && (
-            <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 p-4 sm:p-5 rounded-2xl space-y-2.5 text-xs text-blue-900 dark:text-blue-200 leading-relaxed shadow-sm">
-              <div className="font-bold flex items-center gap-2 text-blue-700 dark:text-blue-400">
-                <Info className="w-4 h-4 shrink-0" />
-                <span>المفهوم العلمي والقانون الوزاري</span>
+            {educationalNote && (
+              <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 p-4 sm:p-5 rounded-2xl space-y-2.5 text-xs text-blue-900 dark:text-blue-200 leading-relaxed shadow-sm">
+                <div className="font-bold flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                  <Info className="w-4 h-4 shrink-0" />
+                  <span>المفهوم العلمي والقانون الوزاري</span>
+                </div>
+                <div>{educationalNote}</div>
               </div>
-              <div>{educationalNote}</div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
