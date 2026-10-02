@@ -56,15 +56,17 @@ export function calculateRefraction(
   n2: number,
   thetaIncidentDeg: number
 ): RefractionResult {
+  const safeN1 = Math.max(1e-4, n1);
+  const safeN2 = Math.max(1e-4, n2);
   const theta1Clamped = Math.max(0, Math.min(89.9, thetaIncidentDeg));
   const theta1Rad = (theta1Clamped * Math.PI) / 180;
 
   const sinTheta1 = Math.sin(theta1Rad);
-  const sinTheta2 = (n1 / n2) * sinTheta1;
+  const sinTheta2 = (safeN1 / safeN2) * sinTheta1;
 
   let criticalAngleDeg: number | null = null;
-  if (n1 > n2) {
-    const criticalRad = Math.asin(n2 / n1);
+  if (safeN1 > safeN2) {
+    const criticalRad = Math.asin(Math.min(1.0, safeN2 / safeN1));
     criticalAngleDeg = (criticalRad * 180) / Math.PI;
   }
 
@@ -75,13 +77,13 @@ export function calculateRefraction(
     isTotalInternalReflection = true;
     thetaRefractedDeg = null;
   } else {
-    const theta2Rad = Math.asin(sinTheta2);
+    const theta2Rad = Math.asin(Math.max(-1.0, Math.min(1.0, sinTheta2)));
     thetaRefractedDeg = (theta2Rad * 180) / Math.PI;
   }
 
-  const speedMedium1Km_s = SPEED_OF_LIGHT_VACUUM_KM_S / n1;
-  const speedMedium2Km_s = SPEED_OF_LIGHT_VACUUM_KM_S / n2;
-  const wavelengthRatio = n1 / n2;
+  const speedMedium1Km_s = SPEED_OF_LIGHT_VACUUM_KM_S / safeN1;
+  const speedMedium2Km_s = SPEED_OF_LIGHT_VACUUM_KM_S / safeN2;
+  const wavelengthRatio = safeN1 / safeN2;
 
   return {
     thetaIncidentDeg: theta1Clamped,
