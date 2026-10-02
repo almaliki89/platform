@@ -1,7 +1,8 @@
 import { StudentState, Badge } from '../types';
 import confetti from 'canvas-confetti';
 
-const STORAGE_KEY = 'mustafa_turki_curriculum_student_state_2027';
+const LEGACY_STORAGE_KEY = 'mustafa_turki_curriculum_student_state_2027';
+const STORAGE_PREFIX = 'mustafa_turki_student_state_';
 
 export const INITIAL_BADGES: Badge[] = [
   {
@@ -65,9 +66,21 @@ export const INITIAL_STUDENT_STATE: StudentState = {
   unlockedBadges: []
 };
 
-export function loadStudentState(): StudentState {
+export function getStudentStorageKey(uid?: string | null): string {
+  if (!uid || uid === 'guest') {
+    return `${STORAGE_PREFIX}guest`;
+  }
+  return `${STORAGE_PREFIX}${uid}`;
+}
+
+export function loadStudentStateForUser(uid?: string | null): StudentState {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
+    const userKey = getStudentStorageKey(uid);
+    let data = localStorage.getItem(userKey);
+    // If not found in user-scoped key and uid is not provided or guest, check legacy key
+    if (!data && (!uid || uid === 'guest')) {
+      data = localStorage.getItem(LEGACY_STORAGE_KEY);
+    }
     if (data) {
       const parsed = JSON.parse(data);
       return { ...INITIAL_STUDENT_STATE, ...parsed };
@@ -78,12 +91,34 @@ export function loadStudentState(): StudentState {
   return INITIAL_STUDENT_STATE;
 }
 
-export function saveStudentState(state: StudentState): void {
+export function saveStudentStateForUser(state: StudentState, uid?: string | null): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const userKey = getStudentStorageKey(uid);
+    localStorage.setItem(userKey, JSON.stringify(state));
+    // Also keep legacy key synced if guest
+    if (!uid || uid === 'guest') {
+      localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(state));
+    }
   } catch (e) {
     console.error("Failed to save student state to localStorage", e);
   }
+}
+
+export function clearStudentStateForUser(uid?: string | null): void {
+  try {
+    const userKey = getStudentStorageKey(uid);
+    localStorage.removeItem(userKey);
+  } catch (e) {
+    console.error("Failed to clear student state", e);
+  }
+}
+
+export function loadStudentState(): StudentState {
+  return loadStudentStateForUser(null);
+}
+
+export function saveStudentState(state: StudentState): void {
+  saveStudentStateForUser(state, null);
 }
 
 export function triggerCelebration() {

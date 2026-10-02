@@ -1,10 +1,3 @@
-export * from './types/curriculum';
-export * from './types/student';
-export * from './types/ai';
-export * from './types/subject';
-
-import { StudentNote, BookmarkItem, ExamResultRecord, LessonProgressItem } from './types/student';
-
 export type LessonCategory = 'grammar' | 'vocabulary' | 'reading' | 'spelling';
 
 export interface Example {
@@ -186,10 +179,6 @@ export interface StudentState {
   lastVisitedLessonId?: string;
   unlockedBadges: string[];
   uploadedMalzamas?: UploadedMalzama[];
-  notes?: StudentNote[];
-  bookmarks?: BookmarkItem[];
-  examResults?: ExamResultRecord[];
-  lessonProgressMap?: Record<string, LessonProgressItem>;
 }
 
 export interface AiChatMessage {

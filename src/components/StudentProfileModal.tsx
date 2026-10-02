@@ -26,6 +26,7 @@ interface StudentProfileModalProps {
   onUpdateName: (newName: string) => void;
   onResetProgress: () => void;
   onOpenAuth: () => void;
+  onSwitchAccount?: () => void;
 }
 
 export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
@@ -34,9 +35,10 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
   studentState,
   onUpdateName,
   onResetProgress,
-  onOpenAuth
+  onOpenAuth,
+  onSwitchAccount
 }) => {
-  const { user, logout, syncStatus } = useAuth();
+  const { user, logout, switchAccount, syncStatus } = useAuth();
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(studentState.name);
 
@@ -112,15 +114,35 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
             </div>
 
             {user ? (
-              <button
-                onClick={async () => {
-                  await logout();
-                }}
-                className="px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>تسجيل الخروج</span>
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => {
+                    onClose();
+                    if (onSwitchAccount) {
+                      onSwitchAccount();
+                    } else {
+                      onOpenAuth();
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-xl border border-indigo-200 bg-white hover:bg-indigo-50 text-indigo-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                  title="تسجيل الدخول بحساب Google أو بريد آخر"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>تبديل الحساب</span>
+                </button>
+
+                <button
+                  onClick={async () => {
+                    await logout();
+                    onClose();
+                  }}
+                  className="px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="تسجيل الخروج من الحساب الحالي"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>تسجيل الخروج</span>
+                </button>
+              </div>
             ) : (
               <button
                 onClick={() => {
