@@ -828,6 +828,290 @@ export const SIMULATION_REGISTRY: SimulationRegistryEntry[] = [
   },
 
   // ==========================================
+  // FIFTH SCIENTIFIC (10 Primary Simulations)
+  // ==========================================
+  {
+    id: 'physics-fifth-vectors',
+    subjectId: 'physics',
+    gradeId: 'fifth-scientific',
+    chapterId: 'fifth-vectors',
+    chapterNumber: 1,
+    curriculumTitle: 'المتجهات',
+    topic: 'جمع وطرح المتجهات، تحليل المتجهات، والضرب القياسي والاتجاهي',
+    grade: 'الصف الخامس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر المتجهات والعمليات الاتجاهية',
+    titleEn: 'Vectors & Vector Operations Lab',
+    description: 'مختبر متقدم لدراسة تحليل المتجهات في المستوي الديكارتي، حساب المحصلة جبرياً وهندسياً، والضرب النقطي (القياسي) والضرب الاتجاهي.',
+    learningObjectives: [
+      'تحليل المتجه إلى مركبتين متعامدتين Ax = A cos θ و Ay = A sin θ',
+      'حساب محصلة متجهين أو أكثر بالجمع الجبري للمركبات R = √(Rx² + Ry²)',
+      'تطبيق الضرب القياسي A · B = |A||B| cos θ والضرب الاتجاهي |A × B| = |A||B| sin θ',
+    ],
+    requiredConcepts: ['المتجهات والكميات القياسية', 'تحليل المتجهات', 'محصلة المتجهات', 'الضرب القياسي والاتجاهي'],
+    formulae: ['Ax = A cos θ', 'Ay = A sin θ', 'R = √(Rx² + Ry²)', 'A · B = |A||B| cos θ', '|A × B| = |A||B| sin θ'],
+    conceptTags: ['متجهات', 'تحليل مركبات', 'محصلة', 'ضرب نقطي', 'ضرب اتجاهي'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fifthScientific/Vectors/VectorsSimulation').then((m) => ({
+        default: m.VectorsSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fifth-linear-motion',
+    subjectId: 'physics',
+    gradeId: 'fifth-scientific',
+    chapterId: 'fifth-linear-motion',
+    chapterNumber: 2,
+    curriculumTitle: 'الحركة الخطية',
+    topic: 'معادلات الحركة بتعجيل منتظم، السقوط الحر، وحركة المقذوفات',
+    grade: 'الصف الخامس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر الحركة الخطية والمقذوفات في بعدين',
+    titleEn: 'Linear Motion & Projectiles Lab',
+    description: 'مختبر تفاعلي لتطبيق معادلات الحركة الخطية بتعجيل منتظم، السقوط الحر تحت تأثير الجاذبية، وحركة المقذوفات في بعدين ورسم المخططات البيانية (x-t, v-t).',
+    learningObjectives: [
+      'تطبيق معادلات الحركة الأربعة بتعجيل منتظم v = v0 + at و Δx = v0 t + ½at²',
+      'دراسة حركة السقوط الحر للأجسام بتعجيل الجاذبية الأرضية g = 9.8 m/s²',
+      'تحليل حركة المقذوفات بزاوية وحساب المدى الأفقي وأقصى ارتفاع وزمن التحليق',
+    ],
+    requiredConcepts: ['الإزاحة والسرعة والتعجيل', 'التعجيل المنتظم', 'السقوط الحر', 'المقذوفات في بعدين'],
+    formulae: ['v = v0 + at', 'Δx = v0 t + ½at²', 'v² = v0² + 2aΔx', 'R = (v0² sin 2θ) / g', 'H = (v0 sin θ)² / 2g'],
+    conceptTags: ['حركة خطية', 'تعجيل منتظم', 'سقوط حر', 'مقذوفات', 'مخططات بيانية'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fifthScientific/LinearMotion/LinearMotionSimulation').then((m) => ({
+        default: m.LinearMotionSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fifth-laws-of-motion',
+    subjectId: 'physics',
+    gradeId: 'fifth-scientific',
+    chapterId: 'fifth-laws-of-motion',
+    chapterNumber: 3,
+    curriculumTitle: 'قوانين الحركة',
+    topic: 'تطبيقات قوانين نيوتن، الاحتكاك السكوني والانزلاقي، ومخطط الجسم الحر على السطح المائل',
+    grade: 'الصف الخامس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر قوانين الحركة وقوى الاحتكاك والسطح المائل',
+    titleEn: "Newton's Laws & Friction on Inclined Plane Lab",
+    description: 'مختبر متقدم لمخطط الجسم الحر (Free Body Diagram)، حساب القوة العمودية وقوى الاحتكاك السكوني والحركي وحركة الكتل على السطح المائل.',
+    learningObjectives: [
+      'رسم وتحليل مخطط الجسم الحر وتحديد مركبات الوزن موازية وعمودية على السطح',
+      'التمييز بين قوة الاحتكاك السكوني العظمى fs = μs N والاحتكاك الحركي fk = μk N',
+      'حساب التعجيل الصافي للكتلة بتطبيق قانون نيوتن الثاني ΣF = m · a',
+    ],
+    requiredConcepts: ['قانون نيوتن الثاني', 'الاحتكاك السكوني والحركي', 'السطح المائل', 'مخطط الجسم الحر'],
+    formulae: ['ΣF = m · a', 'N = m · g · cos θ', 'Fg_parallel = m · g · sin θ', 'fs ≤ μs · N', 'fk = μk · N'],
+    conceptTags: ['نيوتن', 'احتكاك', 'سطح مائل', 'قوة عمودية', 'مخطط حر'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fifthScientific/LawsOfMotion/LawsOfMotionSimulation').then((m) => ({
+        default: m.LawsOfMotionSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fifth-equilibrium-torques',
+    subjectId: 'physics',
+    gradeId: 'fifth-scientific',
+    chapterId: 'fifth-equilibrium-torques',
+    chapterNumber: 4,
+    curriculumTitle: 'الاتزان والعزوم',
+    topic: 'شرطا الاتزان السكوني، عزم القوة τ = r F sinθ، وذراع الرافعة والازدواج',
+    grade: 'الصف الخامس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر الاتزان والعزوم والازدواج',
+    titleEn: 'Mechanical Equilibrium & Torques Lab',
+    description: 'مختبر تفاعلي لاستكشاف شرطي الاتزان الانتقالي (ΣF = 0) والدوراني (Στ = 0)، حساب عزم القوة حول نقطة الارتكاز، ودراسة الازدواج.',
+    learningObjectives: [
+      'التحقق من شرطي الاتزان السكوني الميكانيكي (ΣF = 0 و Στ = 0)',
+      'حساب عزم القوة τ = r F sin θ وتحديد اتجاه الدوران (عكس عقارب الساعة موجب)',
+      'فهم مفهوم الازدواج (Couple) وعزم الازدواج الناتج عن قوتين متساويتين ومتعاكستين',
+    ],
+    requiredConcepts: ['الاتزان الانتقالي', 'الاتزان الدوراني', 'عزم القوة', 'ذراع القوة', 'الازدواج'],
+    formulae: ['ΣF = 0', 'Στ = 0', 'τ = r · F · sin θ', 'τ_couple = F · d'],
+    conceptTags: ['اتزان', 'عزوم', 'نقطة ارتكاز', 'ازدواج', 'ذراع رافعة'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fifthScientific/EquilibriumTorques/EquilibriumTorquesSimulation').then((m) => ({
+        default: m.EquilibriumTorquesSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fifth-work-energy-momentum',
+    subjectId: 'physics',
+    gradeId: 'fifth-scientific',
+    chapterId: 'fifth-work-power-energy-momentum',
+    chapterNumber: 5,
+    curriculumTitle: 'الشغل والقدرة والطاقة والزخم',
+    topic: 'مبرهنة الشغل والطاقة، الزخم الخطي والدفع، والتصادمات المرنة وغير المرنة',
+    grade: 'الصف الخامس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر الشغل والطاقة والزخم والتصادمات',
+    titleEn: 'Work, Energy, Momentum & Collisions Lab',
+    description: 'مختبر فيزيائي لدراسة مبرهنة الشغل والطاقة W = ΔKE، الدفع والزخم الخطي J = Δp، ومحاكاة التصادمات المرنة وغير المرنة في بعد واحد.',
+    learningObjectives: [
+      'تطبيق مبرهنة الشغل والطاقة W_net = ΔKE لحساب التغير في السرعة',
+      'استكشاف علاقة الدفع بالتغير في الزخم الخطي J = F · Δt = Δp',
+      'التحقق من حفظ الزخم الخطي ومقارنة فقدان الطاقة الحركية في التصادم غير المرن',
+    ],
+    requiredConcepts: ['الشغل الميكانيكي', 'مبرهنة الشغل والطاقة', 'الزخم الخطي', 'الدفع', 'التصادم المرن وغير المرن'],
+    formulae: ['W = F · d · cos θ', 'W_net = ΔKE', 'p = m · v', 'J = F · Δt = Δp', 'Σp_before = Σp_after'],
+    conceptTags: ['شغل', 'طاقة حركية', 'زخم', 'دفع', 'تصادمات', 'حفظ زخم'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fifthScientific/WorkEnergyMomentum/WorkEnergyMomentumSimulation').then((m) => ({
+        default: m.WorkEnergyMomentumSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fifth-thermodynamics',
+    subjectId: 'physics',
+    gradeId: 'fifth-scientific',
+    chapterId: 'fifth-thermodynamics',
+    chapterNumber: 6,
+    curriculumTitle: 'الديناميكا الحرارية',
+    topic: 'القانون الأول في الثرموداينمك، العمليات الغازية في مخطط P-V، وكفاءة المحركات الحرارية',
+    grade: 'الصف الخامس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر الديناميكا الحرارية ومخطط P-V',
+    titleEn: 'Thermodynamics & PV Diagram Lab',
+    description: 'مختبر تفاعلي لتطبيق القانون الأول للثرموداينمك ΔU = Q - W، استكشاف العمليات الآيزوباريكية والآيزوكوركية والآيزوثيرمية والأديباتية، وحساب كفاءة كارنو.',
+    learningObjectives: [
+      'تطبيق القانون الأول في الديناميكا الحرارية مع مراعاة الاصطلاح الإشاري للشغل والحرارة',
+      'حساب الشغل الميكانيكي من المساحة تحت المنحنى في مخطط الضغط-الحجم P-V',
+      'حساب أقصى كفاءة نظرية للمحرك الحراري (كفاءة كارنو) η = 1 - (Tc / Th)',
+    ],
+    requiredConcepts: ['الطاقة الداخلية', 'القانون الأول في الثرموداينمك', 'مخطط P-V', 'العمليات الغازية', 'كفاءة كارنو'],
+    formulae: ['ΔU = Q - W', 'W = P · ΔV (آيزوباريك)', 'W = nRT ln(V2/V1) (آيزوثيرمال)', 'η = 1 - (Tc / Th)'],
+    conceptTags: ['ديناميكا حرارية', 'طاقة داخلية', 'مخطط PV', 'محرك حراري', 'كارنو', 'أديباتي'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fifthScientific/Thermodynamics/ThermodynamicsSimulation').then((m) => ({
+        default: m.ThermodynamicsSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fifth-circular-rotational-motion',
+    subjectId: 'physics',
+    gradeId: 'fifth-scientific',
+    chapterId: 'fifth-circular-rotational-motion',
+    chapterNumber: 7,
+    curriculumTitle: 'الحركة الدائرية والدورانية',
+    topic: 'السرعة المماسية، التعجيل المركزي، القوة المركزية، وعزم القصور الذاتي والزخم الزاوي',
+    grade: 'الصف الخامس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر الحركة الدائرية والدورانية',
+    titleEn: 'Circular & Rotational Motion Lab',
+    description: 'مختبر متقدم لدراسة الحركة الدائرية المنتظمة، متجهات السرعة المماسية والقوة المركزية، وعزم القصور الذاتي للأجسام الجاسئة والزخم الزاوي.',
+    learningObjectives: [
+      'الربط بين الكميات الخطية والزاوية: v = ω · r و ac = ω² · r',
+      'استيعاب اتجاه القوة المركزية نحو مركز الدوران ودورها في المنعطفات',
+      'حساب عزم القصور الذاتي I للأشكال الهندسية وتطبيق معادلة التحريك الدوراني τ = I · α',
+    ],
+    requiredConcepts: ['السرعة الزاوية', 'التعجيل المركزي', 'القوة المركزية', 'عزم القصور الذاتي', 'الزخم الزاوي'],
+    formulae: ['v = ω · r', 'ac = v² / r = ω² · r', 'Fc = m · v² / r', 'τ = I · α', 'L = I · ω'],
+    conceptTags: ['حركة دائرية', 'سرعة مماسية', 'قوة مركزية', 'قصور ذاتي', 'زخم زاوي'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fifthScientific/CircularRotationalMotion/CircularRotationalMotionSimulation').then((m) => ({
+        default: m.CircularRotationalMotionSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fifth-oscillations-waves-sound',
+    subjectId: 'physics',
+    gradeId: 'fifth-scientific',
+    chapterId: 'fifth-vibrational-wave-sound',
+    chapterNumber: 8,
+    curriculumTitle: 'الحركة الاهتزازية والموجية والصوت',
+    topic: 'الحركة التوافقية البسيطة، البندول والنابض، الموجات الموقوفة، وتأثير دوبلر الصوتي',
+    grade: 'الصف الخامس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر الاهتزازات والأمواج والصوت وظاهرة دوبلر',
+    titleEn: 'Oscillations, Waves, Sound & Doppler Lab',
+    description: 'مختبر تفاعلي شامل لدراسة زمن دورة النابض والبندول البسيط، خصائص انتشار الأمواج والموجات الموقوفة والعقد والبطون، وظاهرة دوبلر الصوتية.',
+    learningObjectives: [
+      'حساب زمن دورة النابض T = 2π√(m/k) والبندول البسيط T = 2π√(L/g)',
+      'استكشاف معادلة سرعة الموجة v = f · λ والشروط الحدية للموجات الموقوفة',
+      'فهم الانزياح الترددي في ظاهرة دوبلر الصوتية عند اقتراب أو ابتعاد المصدر والمراقب',
+    ],
+    requiredConcepts: ['الحركة التوافقية البسيطة', 'البندول البسيط', 'الموجات المستعرضة', 'الموجات الموقوفة', 'تأثير دوبلر'],
+    formulae: ['T = 2π √(m / k)', 'T = 2π √(L / g)', 'v = f · λ', "f' = f (v ± vo) / (v ∓ vs)"],
+    conceptTags: ['اهتزاز', 'بندول', 'نابض', 'موجات موقوفة', 'عقد وبطون', 'دوبلر', 'صوت'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fifthScientific/OscillationsWavesSound/OscillationsWavesSoundSimulation').then((m) => ({
+        default: m.OscillationsWavesSoundSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fifth-electric-current',
+    subjectId: 'physics',
+    gradeId: 'fifth-scientific',
+    chapterId: 'fifth-electric-current',
+    chapterNumber: 9,
+    curriculumTitle: 'التيار الكهربائي',
+    topic: 'المقاومة النوعية وأبعاد السلك، قاعدتا كيرشوف للتيار والجهد، وقنطرة وتستون',
+    grade: 'الصف الخامس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر دوائر التيار وقوانين كيرشوف وقنطرة وتستون',
+    titleEn: "Electric Circuits, Kirchhoff's Laws & Wheatstone Bridge Lab",
+    description: 'مختبر كهربائي متقدم لدراسة المقاومة النوعية R = ρL/A، حل الدوائر متعددة الحلقات بقاعدتي كيرشوف (KCL & KVL)، وقياس المقاومات بقنطرة وتستون.',
+    learningObjectives: [
+      'استيعاب اعتماد مقاومة السلك على طوله ومساحة مقطعه والمقاومة النوعية للمادة',
+      'تطبيق قاعدة كيرشوف الأولى (حفظ الشحنة) وقاعدة كيرشوف الثانية (حفظ الطاقة)',
+      'استخدام قنطرة وتستون لإيجاد قيمة مقاومة مجهولة عند تصفير تيار الجلفانومتر',
+    ],
+    requiredConcepts: ['المقاومة النوعية', 'قاعدة كيرشوف الأولى (KCL)', 'قاعدة كيرشوف الثانية (KVL)', 'قنطرة وتستون'],
+    formulae: ['R = ρ · (L / A)', 'ΣI_in = ΣI_out', 'ΣV = 0 (حول مسار مغلق)', 'R1 / R2 = R3 / Rx'],
+    conceptTags: ['تيار كهربائي', 'مقاومة نوعية', 'كيرشوف', 'حلقات', 'قنطرة وتستون', 'جلفانومتر'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fifthScientific/ElectricCurrent/ElectricCurrentSimulation').then((m) => ({
+        default: m.ElectricCurrentSimulation,
+      }))
+    ),
+  },
+  {
+    id: 'physics-fifth-magnetism',
+    subjectId: 'physics',
+    gradeId: 'fifth-scientific',
+    chapterId: 'fifth-magnetism',
+    chapterNumber: 10,
+    curriculumTitle: 'المغناطيسية',
+    topic: 'قوة لورنتز على الشحنة المتحركة، القوة على سلك حامل للتيار، والقوة المتبادلة بين تيارين',
+    grade: 'الصف الخامس العلمي',
+    difficulty: 'advanced',
+    titleAr: 'مختبر المغناطيسية وقوة لورنتز والقوى الكهرومغناطيسية',
+    titleEn: 'Magnetism, Lorentz Force & Ampere Law Lab',
+    description: 'مختبر تفاعلي لاستكشاف القوة المغناطيسية المؤثرة في الشحنات المتحركة F = qvB sinθ والمسار الدائري، القوة على موصل مستقيم، والقوة المتبادلة بين تيارين.',
+    learningObjectives: [
+      'تطبيق قاعدة الكف اليمنى لتحديد اتجاه القوة المغناطيسية على الشحنات الموجبة والسالبة',
+      'حساب نصف قطر المسار الدائري للشحنة داخل المجال المغناطيسي المنتظم r = mv / qB',
+      'استكشاف القوة المغناطيسية على سلك يحمل تياراً والتجاذب والتنافر بين التيارات المتوازية',
+    ],
+    requiredConcepts: ['قوة لورنتز المغناطيسية', 'قاعدة الكف اليمنى', 'المسار الدائري للشحنة', 'القوة المتبادلة بين تيارين'],
+    formulae: ['F_B = q · v · B · sin θ', 'r = (m · v) / (|q| · B)', 'F = I · L · B · sin θ', 'F/L = (μ0 · I1 · I2) / (2π · d)'],
+    conceptTags: ['مغناطيسية', 'لورنتز', 'شحنة متحركة', 'كف يمنى', 'تيارات متوازية', 'أمبير'],
+    mode: '2d',
+    component: React.lazy(() =>
+      import('../physics/fifthScientific/Magnetism/MagnetismSimulation').then((m) => ({
+        default: m.MagnetismSimulation,
+      }))
+    ),
+  },
+
+  // ==========================================
   // ADVANCED SIMULATIONS PRESERVED FROM V4.1
   // ==========================================
   {

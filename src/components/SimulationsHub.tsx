@@ -169,6 +169,20 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
               >
                 الرابع العلمي (9)
               </button>
+              <button
+                onClick={() => {
+                  setActiveGradeFilter('fifth-scientific');
+                  const firstSim = subjectSimulations.find((s) => s.gradeId === 'fifth-scientific');
+                  if (firstSim) handleSelectSim(firstSim.id);
+                }}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  activeGradeFilter === 'fifth-scientific'
+                    ? 'bg-cyan-600 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                الخامس العلمي (10)
+              </button>
             </div>
           )}
         </div>

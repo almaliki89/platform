@@ -37,11 +37,24 @@ export type PhysicsFourthScientificSimId =
   | 'physics-fourth-thin-lenses'
   | 'physics-fourth-electrostatics';
 
+export type PhysicsFifthScientificSimId =
+  | 'physics-fifth-vectors'
+  | 'physics-fifth-linear-motion'
+  | 'physics-fifth-laws-of-motion'
+  | 'physics-fifth-equilibrium-torques'
+  | 'physics-fifth-work-energy-momentum'
+  | 'physics-fifth-thermodynamics'
+  | 'physics-fifth-circular-rotational-motion'
+  | 'physics-fifth-oscillations-waves-sound'
+  | 'physics-fifth-electric-current'
+  | 'physics-fifth-magnetism';
+
 export type SimulationId =
   | PhysicsFirstIntermediateSimId
   | PhysicsSecondIntermediateSimId
   | PhysicsThirdIntermediateSimId
   | PhysicsFourthScientificSimId
+  | PhysicsFifthScientificSimId
   | 'physics-newton-second-law'
   | 'math-quadratic-graph'
   | 'chemistry-molecule-viewer';
