@@ -19,6 +19,10 @@ interface SimulationsHubProps {
   initialSimulationId?: string;
 }
 
+const ErrorTrigger: React.FC = () => {
+  throw new Error('E2E_TEST_INTENTIONAL_SIMULATION_ERROR');
+};
+
 export const SimulationsHub: React.FC<SimulationsHubProps> = ({
   subjectId,
   onBack,
@@ -37,6 +41,23 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
     }
     return subjectSimulations[0]?.id || SIMULATION_REGISTRY[0].id;
   });
+
+  const [intentionalError, setIntentionalError] = useState<boolean>(false);
+
+  useEffect(() => {
+    const isE2E = import.meta.env.VITE_E2E_MODE === 'true' || 
+                  (typeof window !== 'undefined' && (
+                    window.localStorage.getItem('VITE_E2E_MODE') === 'true' ||
+                    (window as any).VITE_E2E_MODE === 'true'
+                  ));
+    if (
+      isE2E &&
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).get('forceSimulationError') === '1'
+    ) {
+      setIntentionalError(true);
+    }
+  }, []);
 
   // Synchronize when initialSimulationId changes from URL
   useEffect(() => {
@@ -74,9 +95,9 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
   const ActiveComponent = activeEntry.component;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto w-full pb-16">
+    <div className="space-y-6 max-w-7xl mx-auto w-full pb-16 max-w-full overflow-x-hidden px-1 sm:px-4">
       {/* Top Navigation Bar */}
-      <div className="flex flex-col gap-4 bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800">
+      <div className="flex flex-col gap-4 bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 max-w-full overflow-x-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <button
@@ -250,7 +271,7 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
             </div>
           }
         >
-          <ActiveComponent />
+          {intentionalError ? <ErrorTrigger /> : <ActiveComponent />}
         </Suspense>
       </SimulationErrorBoundary>
     </div>

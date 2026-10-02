@@ -69,12 +69,34 @@ export function getErrorMessage(error: unknown): string {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AppUser | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [syncStatus, setSyncStatus] = useState<'synced' | 'saving' | 'offline' | 'error'>('offline');
+  const isE2EMode = import.meta.env.VITE_E2E_MODE === 'true' || 
+                    (typeof window !== 'undefined' && (
+                      window.localStorage.getItem('VITE_E2E_MODE') === 'true' ||
+                      (window as any).VITE_E2E_MODE === 'true'
+                    ));
+  const [user, setUser] = useState<AppUser | null>(() => {
+    if (isE2EMode) {
+      return {
+        uid: 'e2e-test-student-uid',
+        displayName: 'طالب الاختبار التجريبي',
+        email: 'e2e-student@example.com',
+        authProvider: 'email',
+      };
+    }
+    return null;
+  });
+  const [loading, setLoading] = useState<boolean>(!isE2EMode);
+  const [syncStatus, setSyncStatus] = useState<'synced' | 'saving' | 'offline' | 'error'>(
+    isE2EMode ? 'synced' : 'offline'
+  );
 
   // Firebase Auth State is the single authoritative source of truth
   useEffect(() => {
+    if (isE2EMode) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       try {
         if (firebaseUser) {
