@@ -17,17 +17,6 @@ const REPRESENTATIVE_SIMS = [
 ];
 
 test.describe('Physics Responsive Matrix (24 Viewport Checks)', () => {
-  test.beforeEach(async ({ context }) => {
-    await context.addInitScript(() => {
-      (window as any).VITE_E2E_MODE = 'true';
-      try {
-        window.localStorage.setItem('VITE_E2E_MODE', 'true');
-      } catch (e) {
-        // Ignored if origin not defined yet on about:blank
-      }
-    });
-  });
-
   for (const simId of REPRESENTATIVE_SIMS) {
     for (const vp of VIEWPORTS) {
       test(`${simId} on ${vp.name}`, async ({ page }) => {
@@ -42,11 +31,9 @@ test.describe('Physics Responsive Matrix (24 Viewport Checks)', () => {
         const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
         expect(scrollWidth).toBeLessThanOrEqual(vp.width + 2);
 
-        // Verify reset button is in DOM and clickable/accessible
+        // Verify reset button is in DOM and visible (strictly required for physics contract)
         const resetButton = page.locator('button:has-text("إعادة ضبط"), button:has-text("إعادة الضبط"), button[aria-label*="reset"], button[aria-label*="إعادة"]').first();
-        if (await resetButton.count() > 0) {
-          await expect(resetButton).toBeAttached();
-        }
+        await expect(resetButton).toBeVisible();
       });
     }
   }

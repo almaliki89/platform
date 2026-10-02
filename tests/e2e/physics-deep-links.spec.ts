@@ -72,17 +72,6 @@ const REPRESENTATIVE_SIMS = [
 ];
 
 test.describe('Physics Deep Links & Navigation Suite', () => {
-  test.beforeEach(async ({ context }) => {
-    await context.addInitScript(() => {
-      (window as any).VITE_E2E_MODE = 'true';
-      try {
-        window.localStorage.setItem('VITE_E2E_MODE', 'true');
-      } catch (e) {
-        // Ignored if origin not defined yet on about:blank
-      }
-    });
-  });
-
   // Test 1: All 47 simulation routes render cleanly without runtime exceptions
   for (const simId of ALL_47_SIMULATION_IDS) {
     test(`renders deep link for ${simId}`, async ({ page }) => {
@@ -91,8 +80,17 @@ test.describe('Physics Deep Links & Navigation Suite', () => {
 
       page.on('pageerror', (err) => pageErrors.push(err.message));
       page.on('console', (msg) => {
-        if (msg.type() === 'error' && !msg.text().includes('favicon')) {
-          fatalErrors.push(msg.text());
+        const text = msg.text();
+        // Filter harmless messages
+        if (msg.type() === 'error') {
+          if (
+            text.includes('favicon.ico') || 
+            text.includes('chrome-extension') ||
+            text.includes('Download the React DevTools')
+          ) {
+            return;
+          }
+          fatalErrors.push(text);
         }
       });
 
@@ -102,8 +100,9 @@ test.describe('Physics Deep Links & Navigation Suite', () => {
       const heading = page.locator('h1, h2, h3').first();
       await expect(heading).toBeVisible({ timeout: 10000 });
 
-      // Ensure no uncaught page error
-      expect(pageErrors, `Page errors found on ${simId}`).toHaveLength(0);
+      // Ensure no uncaught page error or fatal console errors
+      expect(pageErrors, `Page errors found on ${simId}: ${pageErrors.join(', ')}`).toHaveLength(0);
+      expect(fatalErrors, `Fatal console errors found on ${simId}: ${fatalErrors.join(', ')}`).toHaveLength(0);
     });
   }
 

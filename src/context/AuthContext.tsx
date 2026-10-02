@@ -69,11 +69,7 @@ export function getErrorMessage(error: unknown): string {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const isE2EMode = import.meta.env.VITE_E2E_MODE === 'true' || 
-                    (typeof window !== 'undefined' && (
-                      window.localStorage.getItem('VITE_E2E_MODE') === 'true' ||
-                      (window as any).VITE_E2E_MODE === 'true'
-                    ));
+  const isE2EMode = import.meta.env.VITE_E2E_MODE === 'true';
   const [user, setUser] = useState<AppUser | null>(() => {
     if (isE2EMode) {
       return {

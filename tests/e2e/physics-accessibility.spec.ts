@@ -10,17 +10,6 @@ const REPRESENTATIVE_SIMS = [
 ];
 
 test.describe('Physics Accessibility, Error Boundary & Control Interactions', () => {
-  test.beforeEach(async ({ context }) => {
-    await context.addInitScript(() => {
-      (window as any).VITE_E2E_MODE = 'true';
-      try {
-        window.localStorage.setItem('VITE_E2E_MODE', 'true');
-      } catch (e) {
-        // Ignored if origin not defined yet on about:blank
-      }
-    });
-  });
-
   // Test 1: Accessibility assertions on representative simulations (6/6)
   for (const simId of REPRESENTATIVE_SIMS) {
     test(`accessibility standards for ${simId}`, async ({ page }) => {
@@ -38,16 +27,27 @@ test.describe('Physics Accessibility, Error Boundary & Control Interactions', ()
         expect(hasAccessibleName, `Button #${i} on ${simId} should have accessible name`).toBe(true);
       }
 
-      // 2. Verify range inputs have accessible parent/labels or aria-label
+      // 2. Verify range inputs have actual accessible labels (id is not enough without <label for>)
       const rangeInputs = page.locator('input[type="range"]');
       const inputCount = await rangeInputs.count();
       for (let i = 0; i < inputCount; i++) {
         const input = rangeInputs.nth(i);
         const ariaLabel = await input.getAttribute('aria-label');
         const ariaLabelledBy = await input.getAttribute('aria-labelledby');
+        
+        // Check if there's a label associated via 'for' attribute
         const id = await input.getAttribute('id');
-        const hasLabel = Boolean(ariaLabel) || Boolean(ariaLabelledBy) || Boolean(id);
-        expect(hasLabel !== undefined).toBe(true);
+        let hasAssociatedLabel = false;
+        if (id) {
+          const associatedLabel = page.locator(`label[for="${id}"]`);
+          if (await associatedLabel.count() > 0) {
+            const labelText = await associatedLabel.innerText();
+            hasAssociatedLabel = labelText.trim().length > 0;
+          }
+        }
+
+        const validAssociatedLabel = hasAssociatedLabel;
+        expect(Boolean(ariaLabel || ariaLabelledBy || validAssociatedLabel), `Range input #${i} on ${simId} lacks accessible label`).toBe(true);
       }
     });
   }
@@ -55,7 +55,7 @@ test.describe('Physics Accessibility, Error Boundary & Control Interactions', ()
   // Test 2: Error Boundary Behavior Test
   test('SimulationErrorBoundary catches intentional failure and displays fallback UI', async ({ page }) => {
     const pageErrors: string[] = [];
-    const consoleErrors: string[] = [];
+    const fatalErrors: string[] = [];
     
     page.on('pageerror', (err) => {
       pageErrors.push(err.stack || err.message);
@@ -63,7 +63,7 @@ test.describe('Physics Accessibility, Error Boundary & Control Interactions', ()
     
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
+        fatalErrors.push(msg.text());
       }
     });
 
@@ -85,7 +85,7 @@ test.describe('Physics Accessibility, Error Boundary & Control Interactions', ()
       console.log('PAGE TITLE:', await page.title());
       console.log('PAGE URL:', page.url());
       console.log('PAGE ERRORS:', pageErrors);
-      console.log('CONSOLE ERRORS:', consoleErrors);
+      console.log('FATAL ERRORS:', fatalErrors);
       throw error;
     }
   });
@@ -94,60 +94,107 @@ test.describe('Physics Accessibility, Error Boundary & Control Interactions', ()
   test('interactive controls in physics-first-pressure respond reactively', async ({ page }) => {
     await page.goto('/subject/physics/simulations/physics-first-pressure', { waitUntil: 'domcontentloaded' });
 
-    // Locate force or area slider
+    // Locate slider
     const slider = page.locator('input[type="range"]').first();
     await expect(slider).toBeVisible({ timeout: 10000 });
+    
+    // 1. Capture output BEFORE
+    const initialVal = await slider.inputValue();
+    const initialText = await page.locator('body').innerText();
 
-    // Change slider value
-    await slider.fill('250');
+    // 2. Change control
+    const targetVal = '250';
+    await slider.fill(targetVal);
     await slider.dispatchEvent('input');
     await slider.dispatchEvent('change');
 
-    // Verify output metric reflects updated value
-    await expect(page.locator('body')).toContainText('250');
+    // 3. Assert output AFTER is different
+    const afterVal = await slider.inputValue();
+    expect(afterVal).toBe(targetVal);
+    const afterText = await page.locator('body').innerText();
+    expect(afterText).not.toBe(initialText);
 
-    // Click reset button in SimulationShell
+    // 4. Press reset
     const resetBtn = page.locator('button:has-text("إعادة ضبط"), button:has-text("إعادة الضبط")').first();
-    if (await resetBtn.isVisible()) {
-      await resetBtn.click();
-      const resetVal = await slider.inputValue();
-      expect(Number(resetVal)).toBe(100);
-    }
+    await expect(resetBtn).toBeVisible();
+    await resetBtn.click();
+    
+    // 5. Assert original/default state restored
+    const finalVal = await slider.inputValue();
+    expect(finalVal).toBe(initialVal);
+    const finalText = await page.locator('body').innerText();
+    expect(finalText).toBe(initialText);
   });
 
   test('interactive controls in physics-fourth-reflection-refraction respond reactively', async ({ page }) => {
     await page.goto('/subject/physics/simulations/physics-fourth-reflection-refraction', { waitUntil: 'domcontentloaded' });
 
     const slider = page.locator('input[type="range"]').first();
-    if (await slider.isVisible()) {
-      await slider.fill('60');
-      await slider.dispatchEvent('input');
-      await slider.dispatchEvent('change');
-    }
-    await expect(page.locator('body')).toBeVisible();
+    await expect(slider).toBeVisible({ timeout: 10000 });
+    
+    const initialVal = await slider.inputValue();
+    const initialText = await page.locator('body').innerText();
+
+    await slider.fill('60');
+    await slider.dispatchEvent('input');
+    await slider.dispatchEvent('change');
+    
+    expect(await slider.inputValue()).not.toBe(initialVal);
+    expect(await page.locator('body').innerText()).not.toBe(initialText);
+
+    const resetBtn = page.locator('button:has-text("إعادة ضبط"), button:has-text("إعادة الضبط")').first();
+    await expect(resetBtn).toBeVisible();
+    await resetBtn.click();
+    
+    expect(await slider.inputValue()).toBe(initialVal);
+    expect(await page.locator('body').innerText()).toBe(initialText);
   });
 
   test('interactive controls in physics-fifth-thermodynamics respond reactively', async ({ page }) => {
     await page.goto('/subject/physics/simulations/physics-fifth-thermodynamics', { waitUntil: 'domcontentloaded' });
 
     const slider = page.locator('input[type="range"]').first();
-    if (await slider.isVisible()) {
-      await slider.fill('400');
-      await slider.dispatchEvent('input');
-      await slider.dispatchEvent('change');
-    }
-    await expect(page.locator('body')).toBeVisible();
+    await expect(slider).toBeVisible({ timeout: 10000 });
+    
+    const initialVal = await slider.inputValue();
+    const initialText = await page.locator('body').innerText();
+
+    await slider.fill('400');
+    await slider.dispatchEvent('input');
+    await slider.dispatchEvent('change');
+    
+    expect(await slider.inputValue()).not.toBe(initialVal);
+    expect(await page.locator('body').innerText()).not.toBe(initialText);
+
+    const resetBtn = page.locator('button:has-text("إعادة ضبط"), button:has-text("إعادة الضبط")').first();
+    await expect(resetBtn).toBeVisible();
+    await resetBtn.click();
+    
+    expect(await slider.inputValue()).toBe(initialVal);
+    expect(await page.locator('body').innerText()).toBe(initialText);
   });
 
   test('interactive controls in physics-sixth-capacitors respond reactively', async ({ page }) => {
     await page.goto('/subject/physics/simulations/physics-sixth-capacitors', { waitUntil: 'domcontentloaded' });
 
     const slider = page.locator('input[type="range"]').first();
-    if (await slider.isVisible()) {
-      await slider.fill('20');
-      await slider.dispatchEvent('input');
-      await slider.dispatchEvent('change');
-    }
-    await expect(page.locator('body')).toBeVisible();
+    await expect(slider).toBeVisible({ timeout: 10000 });
+    
+    const initialVal = await slider.inputValue();
+    const initialText = await page.locator('body').innerText();
+
+    await slider.fill('15');
+    await slider.dispatchEvent('input');
+    await slider.dispatchEvent('change');
+    
+    expect(await slider.inputValue()).not.toBe(initialVal);
+    expect(await page.locator('body').innerText()).not.toBe(initialText);
+
+    const resetBtn = page.locator('button:has-text("إعادة ضبط"), button:has-text("إعادة الضبط")').first();
+    await expect(resetBtn).toBeVisible();
+    await resetBtn.click();
+    
+    expect(await slider.inputValue()).toBe(initialVal);
+    expect(await page.locator('body').innerText()).toBe(initialText);
   });
 });

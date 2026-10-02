@@ -45,11 +45,7 @@ export const SimulationsHub: React.FC<SimulationsHubProps> = ({
   const [intentionalError, setIntentionalError] = useState<boolean>(false);
 
   useEffect(() => {
-    const isE2E = import.meta.env.VITE_E2E_MODE === 'true' || 
-                  (typeof window !== 'undefined' && (
-                    window.localStorage.getItem('VITE_E2E_MODE') === 'true' ||
-                    (window as any).VITE_E2E_MODE === 'true'
-                  ));
+    const isE2E = import.meta.env.VITE_E2E_MODE === 'true';
     if (
       isE2E &&
       typeof window !== 'undefined' &&
