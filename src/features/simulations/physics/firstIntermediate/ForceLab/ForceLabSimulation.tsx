@@ -4,6 +4,7 @@ import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
 import { LabSurface } from '../../../visuals/LabSurface';
 import { SimulationStatus } from '../../../visuals/SimulationStatus';
+import { usePrefersReducedMotion } from '../../../core/usePrefersReducedMotion';
 import { calculateNetForce } from './calculations';
 import { ArrowLeft, ArrowRight, Zap, Info, Play, Pause, RotateCcw } from 'lucide-react';
 
@@ -16,12 +17,13 @@ export const ForceLabSimulation: React.FC = () => {
 
   const animRef = useRef<number | null>(null);
   const velocityRef = useRef<number>(0);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const result = calculateNetForce(leftForce, rightForce, mass);
 
   // Animation Loop
   useEffect(() => {
-    if (!isPlaying) {
+    if (!isPlaying || prefersReducedMotion) {
       if (animRef.current) cancelAnimationFrame(animRef.current);
       return;
     }
@@ -52,7 +54,7 @@ export const ForceLabSimulation: React.FC = () => {
     return () => {
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [isPlaying, leftForce, rightForce, mass]);
+  }, [isPlaying, leftForce, rightForce, mass, prefersReducedMotion]);
 
   const handleReset = () => {
     setIsPlaying(false);

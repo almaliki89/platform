@@ -4,6 +4,7 @@ import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
 import { LabSurface } from '../../../visuals/LabSurface';
 import { SimulationStatus } from '../../../visuals/SimulationStatus';
+import { usePrefersReducedMotion } from '../../../core/usePrefersReducedMotion';
 import { stepMotion } from './calculations';
 import { MotionHistoryPoint } from './types';
 import { TrendingUp, Info, ArrowLeft, ArrowRight, Play, Pause, RotateCcw } from 'lucide-react';
@@ -22,19 +23,22 @@ export const MotionExplorerSimulation: React.FC = () => {
   ]);
 
   const animRef = useRef<number | null>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   // Motion integration loop
   useEffect(() => {
-    if (!isPlaying) {
+    if (!isPlaying || prefersReducedMotion) {
       if (animRef.current) cancelAnimationFrame(animRef.current);
       return;
     }
 
     let lastTime = performance.now();
+    const prevVelocityRef = { current: velocity };
 
     const loop = (now: number) => {
       const dt = Math.min(0.08, (now - lastTime) / 1000);
       lastTime = now;
+      prevVelocityRef.current = velocity;
 
       setTimeSec((prevT) => {
         const nextT = prevT + dt;
@@ -73,14 +77,11 @@ export const MotionExplorerSimulation: React.FC = () => {
       animRef.current = requestAnimationFrame(loop);
     };
 
-    const prevVelocityRef = { current: velocity };
-    prevVelocityRef.current = velocity;
-
     animRef.current = requestAnimationFrame(loop);
     return () => {
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [isPlaying, acceleration, velocity]);
+  }, [isPlaying, acceleration, velocity, prefersReducedMotion]);
 
   const handleReset = () => {
     setIsPlaying(false);

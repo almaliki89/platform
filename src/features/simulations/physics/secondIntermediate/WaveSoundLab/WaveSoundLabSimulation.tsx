@@ -4,6 +4,7 @@ import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
 import { LabSurface } from '../../../visuals/LabSurface';
 import { SimulationStatus } from '../../../visuals/SimulationStatus';
+import { usePrefersReducedMotion } from '../../../core/usePrefersReducedMotion';
 import { calculateWaveProperties } from './calculations';
 import { WaveType } from './types';
 import { Activity, Radio, Volume2, Info, Play, Pause, RotateCcw } from 'lucide-react';
@@ -18,12 +19,13 @@ export const WaveSoundLabSimulation: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animRef = useRef<number | null>(null);
   const phaseRef = useRef<number>(0);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const waveData = calculateWaveProperties(frequency, wavelength, amplitude);
 
   // Animated Wave Canvas Render Loop
   useEffect(() => {
-    if (!isPlaying) {
+    if (!isPlaying || prefersReducedMotion) {
       if (animRef.current) cancelAnimationFrame(animRef.current);
       return;
     }
@@ -113,7 +115,7 @@ export const WaveSoundLabSimulation: React.FC = () => {
     return () => {
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [isPlaying, frequency, wavelength, amplitude, waveType]);
+  }, [isPlaying, frequency, wavelength, amplitude, waveType, prefersReducedMotion]);
 
   const handleReset = () => {
     setFrequency(2);

@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
 
 const batchASimulations = [
-  { path: '/physics/first-intermediate/properties-of-matter', name: 'Properties of Matter' },
-  { path: '/physics/first-intermediate/force', name: 'Force Lab' },
-  { path: '/physics/first-intermediate/heat', name: 'Heat Lab' },
-  { path: '/physics/first-intermediate/pressure', name: 'Pressure Lab' },
-  { path: '/physics/first-intermediate/thermal-effects', name: 'Thermal Effects' },
-  { path: '/physics/second-intermediate/motion', name: 'Motion Explorer' },
-  { path: '/physics/second-intermediate/laws-of-motion', name: "Newton's Laws" },
-  { path: '/physics/second-intermediate/work-power-energy', name: 'Work, Power & Energy' },
-  { path: '/physics/second-intermediate/levers', name: 'Lever Lab' },
-  { path: '/physics/second-intermediate/waves-sound', name: 'Waves & Sound' },
-  { path: '/physics/second-intermediate/light', name: 'Light Reflection' },
+  { path: '/subject/physics/simulations/physics-first-properties-of-matter', name: 'Properties of Matter' },
+  { path: '/subject/physics/simulations/physics-first-force', name: 'Force Lab' },
+  { path: '/subject/physics/simulations/physics-first-heat', name: 'Heat Lab' },
+  { path: '/subject/physics/simulations/physics-first-pressure', name: 'Pressure Lab' },
+  { path: '/subject/physics/simulations/physics-first-thermal-effects', name: 'Thermal Effects' },
+  { path: '/subject/physics/simulations/physics-second-motion', name: 'Motion Explorer' },
+  { path: '/subject/physics/simulations/physics-second-laws-of-motion', name: "Newton's Laws" },
+  { path: '/subject/physics/simulations/physics-second-work-power-energy', name: 'Work, Power & Energy' },
+  { path: '/subject/physics/simulations/physics-second-levers', name: 'Lever Lab' },
+  { path: '/subject/physics/simulations/physics-second-waves-sound', name: 'Waves & Sound' },
+  { path: '/subject/physics/simulations/physics-second-light', name: 'Light Reflection' },
 ];
 
 test.describe('OMEGA V4.4 Batch A Visual Realism & Acceptance', () => {
@@ -48,67 +48,97 @@ test.describe('OMEGA V4.4 Batch A Visual Realism & Acceptance', () => {
   }
 
   test('Heat Lab thermal convergence runtime test', async ({ page }) => {
-    await page.goto('/physics/first-intermediate/heat');
+    await page.goto('/subject/physics/simulations/physics-first-heat');
     await page.waitForLoadState('domcontentloaded');
 
-    // Wait for the simulation visualization and temperature badges
-    const tempBadges = page.locator('text=°C');
-    await expect(tempBadges.first()).toBeVisible({ timeout: 10000 });
+    const hotTemp = page.locator('[data-testid="thermal-hot-temperature"]');
+    const coldTemp = page.locator('[data-testid="thermal-cold-temperature"]');
+    await expect(hotTemp).toBeVisible();
+    await expect(coldTemp).toBeVisible();
 
-    // Start simulation (play button)
+    const getVal = async (loc: any) => parseFloat((await loc.innerText()).replace(/[^0-9.]/g, ''));
+
+    const hotBefore = await getVal(hotTemp);
+    const coldBefore = await getVal(coldTemp);
+
     const playButton = page.locator('button').filter({ hasText: /تشغيل|Play|إيقاف|Pause/ }).first();
-    if (await playButton.isVisible()) {
-      await playButton.click();
-    }
+    await playButton.click();
 
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(2000);
 
-    const bodyText = await page.textContent('body');
-    expect(bodyText).not.toContain('NaN');
-    expect(bodyText).not.toContain('Infinity');
+    const hotAfter = await getVal(hotTemp);
+    const coldAfter = await getVal(coldTemp);
+
+    expect(hotAfter).toBeLessThan(hotBefore);
+    expect(coldAfter).toBeGreaterThan(coldBefore);
+    expect(Math.abs(hotAfter - coldAfter)).toBeLessThan(Math.abs(hotBefore - coldBefore));
   });
 
   test('Reduced motion mode support across animated Batch A simulations', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
 
     const reducedMotionSims = [
-      '/physics/first-intermediate/force',
-      '/physics/first-intermediate/heat',
-      '/physics/second-intermediate/motion',
-      '/physics/second-intermediate/waves-sound',
+      '/subject/physics/simulations/physics-first-force',
+      '/subject/physics/simulations/physics-first-heat',
+      '/subject/physics/simulations/physics-second-motion',
+      '/subject/physics/simulations/physics-second-waves-sound',
     ];
 
     for (const path of reducedMotionSims) {
       const pageErrors: string[] = [];
+      const fatalErrors: string[] = [];
+      
       page.on('pageerror', (err) => pageErrors.push(err.message));
+      page.on('console', (msg) => {
+        if (msg.type() === 'error') {
+          const text = msg.text();
+          if (!text.includes('favicon') && !text.includes('HMR')) {
+            fatalErrors.push(text);
+          }
+        }
+      });
 
       await page.goto(path);
       await page.waitForLoadState('domcontentloaded');
 
-      const visualization = page.locator('canvas, svg, [data-testid="physics-visualization"]').first();
+      const visualization = page.locator('[data-testid="physics-visualization"]');
       await expect(visualization).toBeVisible();
 
-      const bodyText = await page.textContent('body');
+      const bodyText = await page.innerText('body');
       expect(bodyText).not.toContain('NaN');
       expect(bodyText).not.toContain('Infinity');
-      expect(pageErrors.length).toBe(0);
+      expect(pageErrors).toHaveLength(0);
+      expect(fatalErrors).toHaveLength(0);
     }
   });
 
   test('Slider interaction and reset behavior test on Force Lab', async ({ page }) => {
-    await page.goto('/physics/first-intermediate/force');
+    await page.goto('/subject/physics/simulations/physics-first-force');
     await page.waitForLoadState('domcontentloaded');
 
     const slider = page.locator('input[type="range"]').first();
     await slider.scrollIntoViewIfNeeded();
     await expect(slider).toBeVisible();
 
+    // Capture initial state
+    const initialVal = await slider.inputValue();
+    const initialOutputText = await page.locator('[data-testid="physics-visualization"]').innerText();
+
+    // Change control
     await slider.fill('75');
     await expect(slider).toHaveValue('75');
+    
+    // Check output changed
+    const afterChangeOutputText = await page.locator('[data-testid="physics-visualization"]').innerText();
+    expect(afterChangeOutputText).not.toBe(initialOutputText);
 
+    // Reset
     const resetButton = page.locator('button').filter({ hasText: /إعادة تعيين|Reset/ }).first();
-    if (await resetButton.isVisible()) {
-      await resetButton.click();
-    }
+    await resetButton.click();
+
+    // Assert restored
+    await expect(slider).toHaveValue(initialVal);
+    const finalOutputText = await page.locator('[data-testid="physics-visualization"]').innerText();
+    expect(finalOutputText).toBe(initialOutputText);
   });
 });

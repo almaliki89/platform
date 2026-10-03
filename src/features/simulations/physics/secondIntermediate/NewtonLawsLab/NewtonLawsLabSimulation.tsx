@@ -10,6 +10,7 @@ import { ScientificGrid } from '../../../visuals/ScientificGrid';
 import { PhysicsVector } from '../../../visuals/PhysicsVector';
 import { ValueBadge } from '../../../visuals/ValueBadge';
 import { SimulationStatus } from '../../../visuals/SimulationStatus';
+import { usePrefersReducedMotion } from '../../../core/usePrefersReducedMotion';
 
 export const NewtonLawsLabSimulation: React.FC = () => {
   const [scenario, setScenario] = useState<NewtonLawScenario>('f_ma');
@@ -24,11 +25,12 @@ export const NewtonLawsLabSimulation: React.FC = () => {
   const animRef = useRef<number | null>(null);
   const velARef = useRef<number>(0);
   const velBRef = useRef<number>(0);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const result = calculateNewtonLawScenario(scenario, force, massA, massB);
 
   useEffect(() => {
-    if (!isPlaying) {
+    if (!isPlaying || prefersReducedMotion) {
       if (animRef.current) cancelAnimationFrame(animRef.current);
       return;
     }
@@ -63,7 +65,7 @@ export const NewtonLawsLabSimulation: React.FC = () => {
     return () => {
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [isPlaying, scenario, result]);
+  }, [isPlaying, scenario, result, prefersReducedMotion]);
 
   const handleReset = () => {
     setIsPlaying(false);
