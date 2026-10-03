@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { SimulationShell } from '../../../core/SimulationShell';
 import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 import { calculateLever } from './calculations';
 import { LeverClassType } from './types';
 import { Scale, Info, Sparkles, RotateCcw } from 'lucide-react';
@@ -132,54 +134,76 @@ export const LeverLabSimulation: React.FC = () => {
           </div>
 
           {/* Interactive Lever Beam Scene */}
-          <div className="relative w-full h-72 bg-slate-950 border border-slate-800 rounded-2xl p-4 overflow-hidden flex flex-col justify-between select-none">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                {result.leverClassAr}
-              </span>
-              <span className="font-mono text-cyan-300 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                {result.balanceStateAr}
-              </span>
-            </div>
-
-            {/* Lever Beam & Fulcrum Pivot */}
-            <div className="relative flex-1 flex flex-col items-center justify-center">
-              {/* Rotating Beam with dynamic tilt */}
-              <div
-                className="relative w-72 sm:w-96 h-4 bg-gradient-to-r from-cyan-600 via-slate-400 to-amber-600 rounded shadow-2xl transition-transform duration-300 origin-center flex items-center justify-between px-2"
-                style={{ transform: `rotate(${result.tiltAngleDeg}deg)` }}
-              >
-                {/* Effort Load Left */}
-                <div className="absolute -top-14 left-4 flex flex-col items-center">
-                  <div className="w-12 h-10 bg-cyan-700 border-2 border-cyan-400 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shadow-md">
-                    {effortForce}N
-                  </div>
-                  <div className="w-0.5 h-4 bg-cyan-400" />
-                  <span className="text-[9px] text-cyan-300 font-bold">القوة F₁</span>
-                </div>
-
-                {/* Resistance Load Right */}
-                <div className="absolute -top-14 right-4 flex flex-col items-center">
-                  <div className="w-12 h-10 bg-amber-700 border-2 border-amber-400 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shadow-md">
-                    {loadForce}N
-                  </div>
-                  <div className="w-0.5 h-4 bg-amber-400" />
-                  <span className="text-[9px] text-amber-300 font-bold">المقاومة F₂</span>
-                </div>
+          <LabSurface type="dark">
+            <div className="relative w-full h-72 bg-slate-950 border border-slate-850 rounded-2xl p-4 overflow-hidden flex flex-col justify-between select-none shadow-inner">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+                  {result.leverClassAr}
+                </span>
+                <span className="font-mono text-cyan-300 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+                  {result.balanceStateAr}
+                </span>
               </div>
 
-              {/* Fulcrum Triangle Pivot */}
-              <div className="w-0 h-0 border-x-[20px] border-x-transparent border-b-[36px] border-b-indigo-500 drop-shadow-lg" />
-              <div className="w-24 h-2 bg-slate-700 rounded-full mt-0.5" />
-            </div>
+              {/* Lever Beam & Fulcrum Pivot */}
+              <div className="relative flex-1 flex flex-col items-center justify-center">
+                {/* Rotating Beam with dynamic tilt */}
+                <div
+                  className="relative w-72 sm:w-96 h-4 bg-gradient-to-r from-cyan-600 via-slate-400 to-amber-600 rounded shadow-2xl transition-transform duration-300 origin-center flex items-center justify-between px-2"
+                  style={{ transform: `rotate(${result.tiltAngleDeg}deg)` }}
+                >
+                  {/* Effort Load Left */}
+                  <div className="absolute -top-14 left-4 flex flex-col items-center">
+                    <div className="w-12 h-10 bg-cyan-700 border-2 border-cyan-400 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shadow-md">
+                      {effortForce}N
+                    </div>
+                    <div className="w-0.5 h-4 bg-cyan-400" />
+                    <span className="text-[9px] text-cyan-300 font-bold">القوة F₁</span>
+                  </div>
 
-            {/* Arm Length Distance Indicator */}
-            <div className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 flex justify-between text-[10px] font-mono text-slate-400">
-              <span className="text-cyan-400">ذراع القوة d₁ = {effortArm.toFixed(1)} m</span>
-              <span className="text-slate-500">نقطة الارتكاز (Fulcrum)</span>
-              <span className="text-amber-400">ذراع المقاومة d₂ = {loadArm.toFixed(1)} m</span>
+                  {/* Resistance Load Right */}
+                  <div className="absolute -top-14 right-4 flex flex-col items-center">
+                    <div className="w-12 h-10 bg-amber-700 border-2 border-amber-400 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shadow-md">
+                      {loadForce}N
+                    </div>
+                    <div className="w-0.5 h-4 bg-amber-400" />
+                    <span className="text-[9px] text-amber-300 font-bold">المقاومة F₂</span>
+                  </div>
+                </div>
+
+                {/* Fulcrum Triangle Pivot */}
+                <div className="w-0 h-0 border-x-[20px] border-x-transparent border-b-[36px] border-b-indigo-500 drop-shadow-lg" />
+                <div className="w-24 h-2 bg-slate-700 rounded-full mt-0.5" />
+              </div>
+
+              {/* Arm Length Distance Indicator */}
+              <div className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 flex justify-between text-[10px] font-mono text-slate-400">
+                <span className="text-cyan-400">ذراع القوة d₁ = {effortArm.toFixed(1)} m</span>
+                <span className="text-slate-500">نقطة الارتكاز (Fulcrum)</span>
+                <span className="text-amber-400">ذراع المقاومة d₂ = {loadArm.toFixed(1)} m</span>
+              </div>
+            </div>
+          </LabSurface>
+
+          {/* Live Formula Display */}
+          <div className="p-3 bg-slate-900/50 border border-slate-800 rounded-2xl space-y-1.5 text-xs text-slate-300">
+            <span className="font-bold text-slate-400 block">العلاقة الرياضية المطبقة حالياً:</span>
+            <div className="font-mono text-cyan-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+              F₁ × d₁ = F₂ × d₂ &nbsp;⟹&nbsp; ({effortForce} N × {effortArm} m) = ({loadForce} N × {loadArm} m) &nbsp;⟹&nbsp; {result.torqueLeft.toFixed(1)} N·m = {result.torqueRight.toFixed(1)} N·m
             </div>
           </div>
+
+          {/* Cause and effect feedback area */}
+          <SimulationStatus
+            status={result.isBalanced ? 'nominal' : 'warning'}
+            message={`ما الذي تغيّر؟ عزم القوة (F₁·d₁ = ${result.torqueLeft.toFixed(1)} N·m) ${
+              result.isBalanced
+                ? 'يساوي عزم المقاومة تماماً، فالعتلة في حالة اتزان ميكانيكي.'
+                : result.torqueLeft > result.torqueRight
+                ? 'أكبر من عزم المقاومة، مما يسبب ميلان العتلة نحو جهة القوة.'
+                : 'أقل من عزم المقاومة، مما يسبب ميلان العتلة نحو جهة الحمل.'
+            } الفائدة الميكانيكية MA = ${result.mechanicalAdvantage.toFixed(2)}.`}
+          />
         </div>
       }
       controls={
@@ -195,6 +219,7 @@ export const LeverLabSimulation: React.FC = () => {
             <input
               id="lev-f1"
               type="range"
+              aria-label="القوة المبذولة F1"
               min="5"
               max="120"
               step="5"
@@ -215,6 +240,7 @@ export const LeverLabSimulation: React.FC = () => {
             <input
               id="lev-d1"
               type="range"
+              aria-label="ذراع القوة d1"
               min="0.5"
               max="3.0"
               step="0.1"
@@ -235,6 +261,7 @@ export const LeverLabSimulation: React.FC = () => {
             <input
               id="lev-f2"
               type="range"
+              aria-label="المقاومة والحمل F2"
               min="5"
               max="150"
               step="5"
@@ -255,6 +282,7 @@ export const LeverLabSimulation: React.FC = () => {
             <input
               id="lev-d2"
               type="range"
+              aria-label="ذراع المقاومة d2"
               min="0.5"
               max="3.0"
               step="0.1"

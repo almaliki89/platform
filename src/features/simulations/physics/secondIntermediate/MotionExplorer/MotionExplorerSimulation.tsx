@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { SimulationShell } from '../../../core/SimulationShell';
 import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 import { stepMotion } from './calculations';
 import { MotionHistoryPoint } from './types';
 import { TrendingUp, Info, ArrowLeft, ArrowRight, Play, Pause, RotateCcw } from 'lucide-react';
@@ -201,52 +203,70 @@ export const MotionExplorerSimulation: React.FC = () => {
       visualization={
         <div className="space-y-3">
           {/* Motion Track Canvas */}
-          <div className="relative w-full h-64 bg-slate-950 border border-slate-800 rounded-2xl p-4 overflow-hidden flex flex-col justify-between select-none">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                المسار الخطي المستقيم
-              </span>
-              <span className="font-mono text-cyan-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                t = {timeSec.toFixed(1)} s
-              </span>
-            </div>
+          <LabSurface type="dark">
+            <div className="relative w-full h-64 bg-slate-950 border border-slate-850 rounded-2xl p-4 overflow-hidden flex flex-col justify-between select-none shadow-inner">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+                  المسار الخطي المستقيم
+                </span>
+                <span className="font-mono text-cyan-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+                  t = {timeSec.toFixed(1)} s
+                </span>
+              </div>
 
-            {/* Vehicle on track */}
-            <div className="relative flex-1 flex items-center justify-center">
-              <div
-                className="relative transition-transform duration-75"
-                style={{ transform: `translateX(${visualCarX}px)` }}
-              >
-                {/* Velocity Vector Arrow */}
-                {velocity !== 0 && (
-                  <div
-                    className={`absolute -top-7 ${
-                      velocity > 0 ? 'left-1/2 bg-amber-500' : 'right-1/2 bg-rose-500'
-                    } h-2 rounded flex items-center`}
-                    style={{ width: `${Math.min(80, Math.abs(velocity) * 6)}px` }}
-                  >
-                    <span className="absolute -top-4 text-[10px] font-bold text-amber-400 whitespace-nowrap">
-                      v = {velocity.toFixed(1)} m/s
-                    </span>
+              {/* Vehicle on track */}
+              <div className="relative flex-1 flex items-center justify-center">
+                <div
+                  className="relative transition-transform duration-75"
+                  style={{ transform: `translateX(${visualCarX}px)` }}
+                >
+                  {/* Velocity Vector Arrow */}
+                  {velocity !== 0 && (
+                    <div
+                      className={`absolute -top-7 ${
+                        velocity > 0 ? 'left-1/2 bg-amber-500' : 'right-1/2 bg-rose-500'
+                      } h-2 rounded flex items-center`}
+                      style={{ width: `${Math.min(80, Math.abs(velocity) * 6)}px` }}
+                    >
+                      <span className="absolute -top-4 text-[10px] font-bold text-amber-400 whitespace-nowrap">
+                        v = {velocity.toFixed(1)} m/s
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Car Body */}
+                  <div className="w-24 h-12 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl shadow-lg border border-cyan-300 flex items-center justify-center text-white font-bold text-xs">
+                    🚗 جسم متحرك
                   </div>
-                )}
-
-                {/* Car Body */}
-                <div className="w-24 h-12 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl shadow-lg border border-cyan-300 flex items-center justify-center text-white font-bold text-xs">
-                  🚗 جسم متحرك
                 </div>
               </div>
-            </div>
 
-            {/* Number Line Track */}
-            <div className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 flex justify-between text-[10px] font-mono text-slate-400">
-              <span>-30m</span>
-              <span>-15m</span>
-              <span className="text-amber-400 font-bold">0m (نقطة الأصل)</span>
-              <span>+15m</span>
-              <span>+30m</span>
+              {/* Number Line Track */}
+              <div className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 flex justify-between text-[10px] font-mono text-slate-400">
+                <span>-30m</span>
+                <span>-15m</span>
+                <span className="text-amber-400 font-bold">0m (نقطة الأصل)</span>
+                <span>+15m</span>
+                <span>+30m</span>
+              </div>
+            </div>
+          </LabSurface>
+
+          {/* Live Formula Display */}
+          <div className="p-3 bg-slate-900/50 border border-slate-800 rounded-2xl space-y-1.5 text-xs text-slate-300">
+            <span className="font-bold text-slate-400 block">العلاقة الرياضية المطبقة حالياً:</span>
+            <div className="font-mono text-cyan-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+              x(t) = v₀·t + ½a·t² = ({initVelocity} m/s)·({timeSec.toFixed(1)} s) + ½({acceleration} m/s²)·({timeSec.toFixed(1)} s)² = {position.toFixed(1)} m
             </div>
           </div>
+
+          {/* Cause and effect feedback area */}
+          <SimulationStatus
+            status="nominal"
+            message={`ما الذي تغيّر؟ الإزاحة الحالية هي (x = ${position.toFixed(1)} m) والمسافة الكلية هي (d = ${totalDistance.toFixed(1)} m). عند التعجيل ${
+              acceleration === 0 ? 'المعدوم (a = 0)' : `a = ${acceleration} m/s²`
+            }، تكون السرعة المتجهة الحالية (v = ${velocity.toFixed(1)} m/s).`}
+          />
         </div>
       }
       controls={
@@ -266,6 +286,7 @@ export const MotionExplorerSimulation: React.FC = () => {
             <input
               id="m-vel"
               type="range"
+              aria-label="السرعة الابتدائية v0"
               min="-15"
               max="15"
               step="1"
@@ -290,6 +311,7 @@ export const MotionExplorerSimulation: React.FC = () => {
             <input
               id="m-acc"
               type="range"
+              aria-label="التعجيل الخطي a"
               min="-4"
               max="4"
               step="0.5"

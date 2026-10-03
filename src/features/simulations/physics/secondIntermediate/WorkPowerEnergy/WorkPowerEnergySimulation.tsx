@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { SimulationShell } from '../../../core/SimulationShell';
 import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 import { calculateAllEnergyMetrics } from './calculations';
 import { Zap, Activity, BatteryCharging, Info, RotateCcw } from 'lucide-react';
 
@@ -102,60 +104,77 @@ export const WorkPowerEnergySimulation: React.FC = () => {
       }
       visualization={
         <div className="space-y-4">
-          {/* Energy Bar Chart & Crane Canvas */}
-          <div className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-5 text-white space-y-4">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-400">مخطط تحولات الطاقة الميكانيكية (Mechanical Energy)</span>
-              <span className="font-mono text-cyan-300 font-bold">
-                E_total = {metricsData.totalMechanicalEnergyJ.toFixed(1)} J
-              </span>
-            </div>
-
-            {/* Stacked Energy Bar */}
-            <div className="space-y-1.5">
-              <div className="w-full h-8 bg-slate-900 rounded-xl overflow-hidden flex border border-slate-800">
-                <div
-                  className="h-full bg-gradient-to-r from-violet-600 to-indigo-500 transition-all duration-300 flex items-center justify-center text-[11px] font-bold"
-                  style={{ width: `${pePercent}%` }}
-                >
-                  {pePercent > 12 && `Ep: ${metricsData.potentialEnergyJ.toFixed(0)} J`}
-                </div>
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-600 to-teal-500 transition-all duration-300 flex items-center justify-center text-[11px] font-bold"
-                  style={{ width: `${kePercent}%` }}
-                >
-                  {kePercent > 12 && `Ek: ${metricsData.kineticEnergyJ.toFixed(0)} J`}
-                </div>
-              </div>
-              <div className="flex justify-between text-[11px] text-slate-400 px-1">
-                <span className="flex items-center gap-1.5 text-violet-400">
-                  <span className="w-2.5 h-2.5 rounded-full bg-violet-500" /> طاقة كامنة (Ep) = {metricsData.potentialEnergyJ.toFixed(1)} J
-                </span>
-                <span className="flex items-center gap-1.5 text-emerald-400">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> طاقة حركية (Ek) = {metricsData.kineticEnergyJ.toFixed(1)} J
+          <LabSurface type="dark">
+            {/* Energy Bar Chart & Crane Canvas */}
+            <div className="w-full bg-slate-950 border border-slate-850 rounded-2xl p-5 text-white space-y-4 shadow-inner">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400">مخطط تحولات الطاقة الميكانيكية (Mechanical Energy)</span>
+                <span className="font-mono text-cyan-300 font-bold">
+                  E_total = {metricsData.totalMechanicalEnergyJ.toFixed(1)} J
                 </span>
               </div>
-            </div>
 
-            {/* Work & Power Apparatus Visualization */}
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-around gap-4 text-center">
-              <div className="space-y-1">
-                <span className="text-xs text-slate-400">الشغل المنجز برفع الكتلة:</span>
-                <div className="text-xl font-bold font-mono text-amber-400">
-                  W = {metricsData.workJ.toFixed(0)} J
+              {/* Stacked Energy Bar */}
+              <div className="space-y-1.5">
+                <div className="w-full h-8 bg-slate-900 rounded-xl overflow-hidden flex border border-slate-800">
+                  <div
+                    className="h-full bg-gradient-to-r from-violet-600 to-indigo-500 transition-all duration-300 flex items-center justify-center text-[11px] font-bold"
+                    style={{ width: `${pePercent}%` }}
+                  >
+                    {pePercent > 12 && `Ep: ${metricsData.potentialEnergyJ.toFixed(0)} J`}
+                  </div>
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-600 to-teal-500 transition-all duration-300 flex items-center justify-center text-[11px] font-bold"
+                    style={{ width: `${kePercent}%` }}
+                  >
+                    {kePercent > 12 && `Ek: ${metricsData.kineticEnergyJ.toFixed(0)} J`}
+                  </div>
                 </div>
-                <span className="text-[10px] text-slate-500">القوة ({force} N) × المسافة ({distance} m)</span>
-              </div>
-              <div className="w-px h-12 bg-slate-800 hidden sm:block" />
-              <div className="space-y-1">
-                <span className="text-xs text-slate-400">القدرة المبذولة خلال {timeSec} ثانية:</span>
-                <div className="text-xl font-bold font-mono text-cyan-400">
-                  P = {metricsData.powerW.toFixed(1)} Watt
+                <div className="flex justify-between text-[11px] text-slate-400 px-1">
+                  <span className="flex items-center gap-1.5 text-violet-400">
+                    <span className="w-2.5 h-2.5 rounded-full bg-violet-500" /> طاقة كامنة (Ep) = {metricsData.potentialEnergyJ.toFixed(1)} J
+                  </span>
+                  <span className="flex items-center gap-1.5 text-emerald-400">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> طاقة حركية (Ek) = {metricsData.kineticEnergyJ.toFixed(1)} J
+                  </span>
                 </div>
-                <span className="text-[10px] text-slate-500">معدل بذل الشغل في الثانية الواحدة</span>
               </div>
+
+              {/* Work & Power Apparatus Visualization */}
+              <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-around gap-4 text-center">
+                <div className="space-y-1">
+                  <span className="text-xs text-slate-400">الشغل المنجز برفع الكتلة:</span>
+                  <div className="text-xl font-bold font-mono text-amber-400">
+                    W = {metricsData.workJ.toFixed(0)} J
+                  </div>
+                  <span className="text-[10px] text-slate-500">القوة ({force} N) × المسافة ({distance} m)</span>
+                </div>
+                <div className="w-px h-12 bg-slate-800 hidden sm:block" />
+                <div className="space-y-1">
+                  <span className="text-xs text-slate-400">القدرة المبذولة خلال {timeSec} ثانية:</span>
+                  <div className="text-xl font-bold font-mono text-cyan-400">
+                    P = {metricsData.powerW.toFixed(1)} Watt
+                  </div>
+                  <span className="text-[10px] text-slate-500">معدل بذل الشغل في الثانية الواحدة</span>
+                </div>
+              </div>
+            </div>
+          </LabSurface>
+
+          {/* Live Formula Display */}
+          <div className="p-3 bg-slate-900/50 border border-slate-800 rounded-2xl space-y-1.5 text-xs text-slate-300">
+            <span className="font-bold text-slate-400 block">العلاقة الرياضية المطبقة حالياً:</span>
+            <div className="grid grid-cols-2 gap-2 text-center font-mono text-xs">
+              <div className="bg-slate-950 p-2 rounded-xl text-amber-400">W = F·d = {force}N × {distance}m = {metricsData.workJ} J</div>
+              <div className="bg-slate-950 p-2 rounded-xl text-cyan-400">P = W/t = {metricsData.workJ}J / {timeSec}s = {metricsData.powerW.toFixed(1)} W</div>
             </div>
           </div>
+
+          {/* Cause and effect feedback area */}
+          <SimulationStatus
+            status="nominal"
+            message={`ما الذي تغيّر؟ بزيادة القوة المؤثرة (${force} N) أو المسافة (${distance} m)، يزداد الشغل المنجز (${metricsData.workJ.toFixed(0)} J). زيادة الشغل أو تقليل الزمن المستغرق (${timeSec} s) تؤدي إلى زيادة القدرة الميكانيكية (${metricsData.powerW.toFixed(1)} W).`}
+          />
         </div>
       }
       controls={

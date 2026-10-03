@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { SimulationShell } from '../../../core/SimulationShell';
 import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 import { calculateEquilibriumTemperature, stepThermalConduction } from './calculations';
 import { ThermalHistoryPoint } from './types';
 import { Flame, Thermometer, TrendingUp, Info, ArrowLeft, ArrowRight, Play, Pause, RotateCcw } from 'lucide-react';
@@ -208,62 +210,70 @@ export const HeatLabSimulation: React.FC = () => {
       visualization={
         <div className="space-y-4">
           {/* Thermal Conduction Blocks Simulation */}
-          <div className="relative w-full h-64 bg-slate-950 border border-slate-800 rounded-2xl p-4 overflow-hidden flex flex-col justify-between select-none">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                {inContact ? 'الجسمان في حالة تلامس حراري مباشر' : 'الجسمان معزولان'}
-              </span>
-              <span className="font-mono text-cyan-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                الزمن: {timeSec.toFixed(1)} ثانية
-              </span>
-            </div>
-
-            {/* Blocks in Contact */}
-            <div className="flex items-center justify-center gap-2 sm:gap-4 my-auto">
-              {/* Body A */}
-              <div
-                className={`w-32 sm:w-40 h-32 bg-gradient-to-br ${getTemperatureColor(currentTempA)} rounded-2xl shadow-xl flex flex-col items-center justify-center text-white border-2 border-white/20 transition-all duration-300`}
-              >
-                <span className="text-xs font-bold text-white/80">الجسم (A)</span>
-                <span className="text-2xl font-black font-mono mt-1">{currentTempA.toFixed(1)}°C</span>
-                <span className="text-[10px] text-white/70 mt-1">{massA} kg</span>
+          <LabSurface type="dark">
+            <div className="relative w-full h-64 bg-slate-950 border border-slate-850 rounded-2xl p-4 overflow-hidden flex flex-col justify-between select-none shadow-inner">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+                  {inContact ? 'الجسمان في حالة تلامس حراري مباشر' : 'الجسمان معزولان'}
+                </span>
+                <span className="font-mono text-cyan-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+                  الزمن: {timeSec.toFixed(1)} ثانية
+                </span>
               </div>
 
-              {/* Conduction Energy Flow Animation */}
-              {inContact && !isEquilibriumReached && (
-                <div className="flex flex-col items-center gap-1 text-amber-400 animate-pulse">
-                  <span className="text-[10px] font-bold">انتقال حرارة Q</span>
-                  <div className="flex items-center text-lg font-bold">
-                    {currentTempA > currentTempB ? '⇄' : '⇆'}
-                  </div>
+              {/* Blocks in Contact */}
+              <div className="flex items-center justify-center gap-2 sm:gap-4 my-auto">
+                {/* Body A */}
+                <div
+                  className={`w-32 sm:w-40 h-32 bg-gradient-to-br ${getTemperatureColor(currentTempA)} rounded-2xl shadow-xl flex flex-col items-center justify-center text-white border-2 border-white/20 transition-all duration-300`}
+                >
+                  <span className="text-xs font-bold text-white/80">الجسم (A)</span>
+                  <span className="text-2xl font-black font-mono mt-1">{currentTempA.toFixed(1)}°C</span>
+                  <span className="text-[10px] text-white/70 mt-1">{massA} kg</span>
                 </div>
-              )}
 
-              {/* Body B */}
-              <div
-                className={`w-32 sm:w-40 h-32 bg-gradient-to-br ${getTemperatureColor(currentTempB)} rounded-2xl shadow-xl flex flex-col items-center justify-center text-white border-2 border-white/20 transition-all duration-300`}
-              >
-                <span className="text-xs font-bold text-white/80">الجسم (B)</span>
-                <span className="text-2xl font-black font-mono mt-1">{currentTempB.toFixed(1)}°C</span>
-                <span className="text-[10px] text-white/70 mt-1">{massB} kg</span>
+                {/* Conduction Energy Flow Animation */}
+                {inContact && !isEquilibriumReached && (
+                  <div className="flex flex-col items-center gap-1 text-amber-400 animate-pulse">
+                    <span className="text-[10px] font-bold">انتقال حرارة Q</span>
+                    <div className="flex items-center text-lg font-bold">
+                      {currentTempA > currentTempB ? '⇄' : '⇆'}
+                    </div>
+                  </div>
+                )}
+
+                {/* Body B */}
+                <div
+                  className={`w-32 sm:w-40 h-32 bg-gradient-to-br ${getTemperatureColor(currentTempB)} rounded-2xl shadow-xl flex flex-col items-center justify-center text-white border-2 border-white/20 transition-all duration-300`}
+                >
+                  <span className="text-xs font-bold text-white/80">الجسم (B)</span>
+                  <span className="text-2xl font-black font-mono mt-1">{currentTempB.toFixed(1)}°C</span>
+                  <span className="text-[10px] text-white/70 mt-1">{massB} kg</span>
+                </div>
+              </div>
+
+              {/* Status Bottom Pill */}
+              <div className="text-center">
+                <span
+                  className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
+                    isEquilibriumReached
+                      ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                      : 'bg-slate-900 text-slate-300 border border-slate-800'
+                  }`}
+                >
+                  {isEquilibriumReached
+                    ? 'تم الوصول إلى الاتزان الحراري التام (T = ' + eqTemp.toFixed(1) + '°C)'
+                    : 'جاري انتقال الطاقة الحرارية...'}
+                </span>
               </div>
             </div>
+          </LabSurface>
 
-            {/* Status Bottom Pill */}
-            <div className="text-center">
-              <span
-                className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
-                  isEquilibriumReached
-                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                    : 'bg-slate-900 text-slate-300 border border-slate-800'
-                }`}
-              >
-                {isEquilibriumReached
-                  ? 'تم الوصول إلى الاتزان الحراري التام (T = ' + eqTemp.toFixed(1) + '°C)'
-                  : 'جاري انتقال الطاقة الحرارية...'}
-              </span>
-            </div>
-          </div>
+          {/* Cause and effect feedback area */}
+          <SimulationStatus
+            status={isEquilibriumReached ? 'nominal' : 'warning'}
+            message={`ما الذي تغيّر؟ عند تلامس الجسمين، تنتقل الطاقة الحرارية تلقائياً من الجسم الساخن (A = ${currentTempA.toFixed(1)}°C) إلى الجسم البارد (B = ${currentTempB.toFixed(1)}°C) حتى تتساوى الدرجتان وتصلا إلى درجة حرارة الاتزان T_eq = ${eqTemp.toFixed(1)}°C.`}
+          />
         </div>
       }
       controls={
@@ -283,6 +293,7 @@ export const HeatLabSimulation: React.FC = () => {
             <input
               id="temp-a"
               type="range"
+              aria-label="حرارة الجسم A الابتدائية"
               min="20"
               max="100"
               step="5"
@@ -307,6 +318,7 @@ export const HeatLabSimulation: React.FC = () => {
             <input
               id="temp-b"
               type="range"
+              aria-label="حرارة الجسم B الابتدائية"
               min="0"
               max="60"
               step="5"

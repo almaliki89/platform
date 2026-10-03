@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { SimulationShell } from '../../../core/SimulationShell';
 import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 import { calculateReflection } from './calculations';
 import { Sun, Compass, Sparkles, Info, RotateCcw } from 'lucide-react';
 
@@ -88,113 +90,129 @@ export const LightRayLabSimulation: React.FC = () => {
       visualization={
         <div className="space-y-3">
           {/* Optical Bench SVG Canvas */}
-          <div className="relative w-full bg-slate-950 border border-slate-800 rounded-2xl p-2 sm:p-4 overflow-hidden flex flex-col justify-between select-none">
-            <div className="flex justify-between items-center text-xs px-2 pt-1">
-              <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                منضدة بصرية رقمية (مرآة مستوية)
-              </span>
-              <span className="font-mono text-amber-400 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                θᵢ = {result.incidenceAngleDeg}° | θᵣ = {result.reflectionAngleDeg}°
-              </span>
-            </div>
+          <LabSurface type="dark">
+            <div className="relative w-full bg-slate-950 border border-slate-850 rounded-2xl p-2 sm:p-4 overflow-hidden flex flex-col justify-between select-none shadow-inner">
+              <div className="flex justify-between items-center text-xs px-2 pt-1">
+                <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+                  منضدة بصرية رقمية (مرآة مستوية)
+                </span>
+                <span className="font-mono text-amber-400 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+                  θᵢ = {result.incidenceAngleDeg}° | θᵣ = {result.reflectionAngleDeg}°
+                </span>
+              </div>
 
-            <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-64 overflow-visible">
-              {/* Semicircular Protractor Grid */}
-              {showProtractor && (
-                <g opacity="0.35">
-                  <path
-                    d={`M ${originX - 160} ${originY} A 160 160 0 0 1 ${originX + 160} ${originY}`}
-                    fill="none"
-                    stroke="#475569"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                  />
-                  {[15, 30, 45, 60, 75].map((deg) => {
-                    const r = (deg * Math.PI) / 180;
-                    const xL = originX - Math.sin(r) * 160;
-                    const yL = originY - Math.cos(r) * 160;
-                    const xR = originX + Math.sin(r) * 160;
-                    const yR = originY - Math.cos(r) * 160;
-                    return (
-                      <g key={deg}>
-                        <line x1={originX} y1={originY} x2={xL} y2={yL} stroke="#334155" strokeWidth="1" strokeDasharray="2 2" />
-                        <line x1={originX} y1={originY} x2={xR} y2={yR} stroke="#334155" strokeWidth="1" strokeDasharray="2 2" />
-                        <text x={xL - 8} y={yL - 4} fill="#64748b" fontSize="9" textAnchor="middle">{deg}°</text>
-                        <text x={xR + 8} y={yR - 4} fill="#64748b" fontSize="9" textAnchor="middle">{deg}°</text>
-                      </g>
-                    );
-                  })}
-                </g>
-              )}
+              <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-64 overflow-visible">
+                {/* Semicircular Protractor Grid */}
+                {showProtractor && (
+                  <g opacity="0.35">
+                    <path
+                      d={`M ${originX - 160} ${originY} A 160 160 0 0 1 ${originX + 160} ${originY}`}
+                      fill="none"
+                      stroke="#475569"
+                      strokeWidth="1.5"
+                      strokeDasharray="4 4"
+                    />
+                    {[15, 30, 45, 60, 75].map((deg) => {
+                      const r = (deg * Math.PI) / 180;
+                      const xL = originX - Math.sin(r) * 160;
+                      const yL = originY - Math.cos(r) * 160;
+                      const xR = originX + Math.sin(r) * 160;
+                      const yR = originY - Math.cos(r) * 160;
+                      return (
+                        <g key={deg}>
+                          <line x1={originX} y1={originY} x2={xL} y2={yL} stroke="#334155" strokeWidth="1" strokeDasharray="2 2" />
+                          <line x1={originX} y1={originY} x2={xR} y2={yR} stroke="#334155" strokeWidth="1" strokeDasharray="2 2" />
+                          <text x={xL - 8} y={yL - 4} fill="#64748b" fontSize="9" textAnchor="middle">{deg}°</text>
+                          <text x={xR + 8} y={yR - 4} fill="#64748b" fontSize="9" textAnchor="middle">{deg}°</text>
+                        </g>
+                      );
+                    })}
+                  </g>
+                )}
 
-              {/* Flat Mirror at Bottom */}
-              <rect x={40} y={originY} width={svgWidth - 80} height={14} fill="#0ea5e9" rx="3" opacity="0.8" />
-              {/* Mirror Hatching marks */}
-              {Array.from({ length: 22 }).map((_, i) => (
-                <line
-                  key={i}
-                  x1={50 + i * 18}
-                  y1={originY + 14}
-                  x2={40 + i * 18}
-                  y2={originY + 22}
-                  stroke="#334155"
-                  strokeWidth="1.5"
-                />
-              ))}
-
-              {/* Normal Line (العمود المقام) */}
-              {showNormal && (
-                <g>
+                {/* Flat Mirror at Bottom */}
+                <rect x={40} y={originY} width={svgWidth - 80} height={14} fill="#0ea5e9" rx="3" opacity="0.8" />
+                {/* Mirror Hatching marks */}
+                {Array.from({ length: 22 }).map((_, i) => (
                   <line
-                    x1={originX}
-                    y1={originY}
-                    x2={originX}
-                    y2={originY - 200}
-                    stroke="#94a3b8"
-                    strokeWidth="2"
-                    strokeDasharray="6 4"
+                    key={i}
+                    x1={50 + i * 18}
+                    y1={originY + 14}
+                    x2={40 + i * 18}
+                    y2={originY + 22}
+                    stroke="#334155"
+                    strokeWidth="1.5"
                   />
-                  <text x={originX} y={originY - 206} fill="#94a3b8" fontSize="10" textAnchor="middle" fontWeight="bold">
-                    العمود المقام (Normal)
-                  </text>
-                </g>
-              )}
+                ))}
 
-              {/* Incident Ray (Red/Amber Laser) */}
-              <line
-                x1={incidentStartX}
-                y1={incidentStartY}
-                x2={originX}
-                y2={originY}
-                stroke="#f59e0b"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-              />
-              {/* Laser Emitter Box */}
-              <circle cx={incidentStartX} cy={incidentStartY} r="7" fill="#f59e0b" stroke="#ffffff" strokeWidth="2" />
-              <text x={incidentStartX - 10} y={incidentStartY - 10} fill="#fcd34d" fontSize="10" fontWeight="bold" textAnchor="end">
-                مصدر الليزر
-              </text>
+                {/* Normal Line (العمود المقام) */}
+                {showNormal && (
+                  <g>
+                    <line
+                      x1={originX}
+                      y1={originY}
+                      x2={originX}
+                      y2={originY - 200}
+                      stroke="#94a3b8"
+                      strokeWidth="2"
+                      strokeDasharray="6 4"
+                    />
+                    <text x={originX} y={originY - 206} fill="#94a3b8" fontSize="10" textAnchor="middle" fontWeight="bold">
+                      العمود المقام (Normal)
+                    </text>
+                  </g>
+                )}
 
-              {/* Reflected Ray (Cyan Laser) */}
-              <line
-                x1={originX}
-                y1={originY}
-                x2={reflectedEndX}
-                y2={reflectedEndY}
-                stroke="#06b6d4"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-              />
-              <circle cx={reflectedEndX} cy={reflectedEndY} r="5" fill="#06b6d4" />
-              <text x={reflectedEndX + 10} y={reflectedEndY - 10} fill="#67e8f9" fontSize="10" fontWeight="bold">
-                الشعاع المنعكس
-              </text>
+                {/* Incident Ray (Red/Amber Laser) */}
+                <line
+                  x1={incidentStartX}
+                  y1={incidentStartY}
+                  x2={originX}
+                  y2={originY}
+                  stroke="#f59e0b"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                />
+                {/* Laser Emitter Box */}
+                <circle cx={incidentStartX} cy={incidentStartY} r="7" fill="#f59e0b" stroke="#ffffff" strokeWidth="2" />
+                <text x={incidentStartX - 10} y={incidentStartY - 10} fill="#fcd34d" fontSize="10" fontWeight="bold" textAnchor="end">
+                  مصدر الليزر
+                </text>
 
-              {/* Point of Incidence Marker */}
-              <circle cx={originX} cy={originY} r="5" fill="#ef4444" stroke="#ffffff" strokeWidth="2" />
-            </svg>
+                {/* Reflected Ray (Cyan Laser) */}
+                <line
+                  x1={originX}
+                  y1={originY}
+                  x2={reflectedEndX}
+                  y2={reflectedEndY}
+                  stroke="#06b6d4"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                />
+                <circle cx={reflectedEndX} cy={reflectedEndY} r="5" fill="#06b6d4" />
+                <text x={reflectedEndX + 10} y={reflectedEndY - 10} fill="#67e8f9" fontSize="10" fontWeight="bold">
+                  الشعاع المنعكس
+                </text>
+
+                {/* Point of Incidence Marker */}
+                <circle cx={originX} cy={originY} r="5" fill="#ef4444" stroke="#ffffff" strokeWidth="2" />
+              </svg>
+            </div>
+          </LabSurface>
+
+          {/* Live Formula Display */}
+          <div className="p-3 bg-slate-900/50 border border-slate-800 rounded-2xl space-y-1.5 text-xs text-slate-300">
+            <span className="font-bold text-slate-400 block">العلاقة الرياضية المطبقة حالياً:</span>
+            <div className="font-mono text-cyan-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+              θᵢ = θᵣ &nbsp;⟹&nbsp; زاوية السقوط ({incidentAngle}°) = زاوية الانعكاس ({result.reflectionAngleDeg}°)
+            </div>
           </div>
+
+          {/* Cause and effect feedback area */}
+          <SimulationStatus
+            status="nominal"
+            message={`ما الذي تغيّر؟ وفقاً لقانون الانعكاس الثاني، فإن زاوية السقوط تساوي دائماً زاوية الانعكاس (${incidentAngle}°). عند تغيير زاوية السقوط بواسطة مصدر الليزر، ينعكس الشعاع بزاوية مطابقة تماماً بالنسبة للعمود المقام.`}
+          />
         </div>
       }
       controls={
@@ -210,6 +228,7 @@ export const LightRayLabSimulation: React.FC = () => {
             <input
               id="inc-angle"
               type="range"
+              aria-label="زاوية السقوط ثيتا"
               min="0"
               max="80"
               step="1"

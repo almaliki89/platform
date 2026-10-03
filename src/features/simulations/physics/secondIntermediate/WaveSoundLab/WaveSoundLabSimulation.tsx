@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { SimulationShell } from '../../../core/SimulationShell';
 import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 import { calculateWaveProperties } from './calculations';
 import { WaveType } from './types';
 import { Activity, Radio, Volume2, Info, Play, Pause, RotateCcw } from 'lucide-react';
@@ -202,28 +204,44 @@ export const WaveSoundLabSimulation: React.FC = () => {
           </div>
 
           {/* Animated Wave Canvas */}
-          <div className="relative w-full h-64 bg-slate-950 border border-slate-800 rounded-2xl p-4 overflow-hidden flex flex-col justify-between select-none">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                {waveType === 'transverse' ? 'قمم وقيعان مستعرضة' : 'تضاغطات وتخلخلات طولية'}
-              </span>
-              <span className="font-mono text-cyan-300 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                v = {waveData.waveSpeed.toFixed(2)} m/s
-              </span>
+          <LabSurface type="dark">
+            <div className="relative w-full h-64 bg-slate-950 border border-slate-850 rounded-2xl p-4 overflow-hidden flex flex-col justify-between select-none shadow-inner">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+                  {waveType === 'transverse' ? 'قمم وقيعان مستعرضة' : 'تضاغطات وتخلخلات طولية'}
+                </span>
+                <span className="font-mono text-cyan-300 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+                  v = {waveData.waveSpeed.toFixed(2)} m/s
+                </span>
+              </div>
+
+              <canvas
+                ref={canvasRef}
+                width={500}
+                height={180}
+                className="w-full h-40 rounded-xl my-auto"
+              />
+
+              <div className="flex justify-between text-[11px] text-slate-400 font-mono px-2">
+                <span>{waveData.soundPitchAr}</span>
+                <span>{waveData.soundLoudnessAr}</span>
+              </div>
             </div>
+          </LabSurface>
 
-            <canvas
-              ref={canvasRef}
-              width={500}
-              height={180}
-              className="w-full h-40 rounded-xl my-auto"
-            />
-
-            <div className="flex justify-between text-[11px] text-slate-400 font-mono px-2">
-              <span>{waveData.soundPitchAr}</span>
-              <span>{waveData.soundLoudnessAr}</span>
+          {/* Live Formula Display */}
+          <div className="p-3 bg-slate-900/50 border border-slate-800 rounded-2xl space-y-1.5 text-xs text-slate-300">
+            <span className="font-bold text-slate-400 block">العلاقة الرياضية المطبقة حالياً:</span>
+            <div className="font-mono text-cyan-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+              v = f × λ &nbsp;⟹&nbsp; {frequency} Hz × {wavelength} m = {waveData.waveSpeed.toFixed(2)} m/s &nbsp;|&nbsp; T = 1/f = {waveData.period.toFixed(2)} s
             </div>
           </div>
+
+          {/* Cause and effect feedback area */}
+          <SimulationStatus
+            status="nominal"
+            message={`ما الذي تغيّر؟ سرعة انتشار الموجة تتحدد بضرب التردد في الطول الموجي (v = ${waveData.waveSpeed.toFixed(2)} m/s). زيادة التردد (f = ${frequency} Hz) تؤدي إلى تقارب القمم وزيادة حدة الصوت، وزيادة السعة (A = ${amplitude} cm) تزيد من شدة وسعة الموجة الصوتية.`}
+          />
         </div>
       }
       controls={
@@ -243,6 +261,7 @@ export const WaveSoundLabSimulation: React.FC = () => {
             <input
               id="w-freq"
               type="range"
+              aria-label="التردد f"
               min="0.5"
               max="8"
               step="0.5"
@@ -263,6 +282,7 @@ export const WaveSoundLabSimulation: React.FC = () => {
             <input
               id="w-lambda"
               type="range"
+              aria-label="الطول الموجي lambda"
               min="1"
               max="5"
               step="0.2"
@@ -283,6 +303,7 @@ export const WaveSoundLabSimulation: React.FC = () => {
             <input
               id="w-amp"
               type="range"
+              aria-label="سعة الاهتزاز A"
               min="0.5"
               max="4.5"
               step="0.5"

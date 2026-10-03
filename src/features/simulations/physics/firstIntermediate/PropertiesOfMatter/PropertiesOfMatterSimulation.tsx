@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { SimulationShell } from '../../../core/SimulationShell';
 import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 import { MatterState, Particle } from './types';
 import { getMatterProperties, generateInitialParticles } from './calculations';
 import { Thermometer, Sparkles, Box, Droplets, Wind, RotateCcw } from 'lucide-react';
@@ -221,20 +223,36 @@ export const PropertiesOfMatterSimulation: React.FC = () => {
           </div>
 
           {/* Particle Simulation Canvas */}
-          <div className="relative bg-slate-950 border border-slate-800 rounded-2xl p-2 sm:p-4 overflow-hidden flex items-center justify-center">
-            <canvas
-              ref={canvasRef}
-              width={450}
-              height={300}
-              className="w-full max-w-lg h-auto rounded-xl select-none"
-            />
-            <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-lg border border-slate-700 text-[11px] text-slate-300 pointer-events-none">
-              وعاء محاكاة الجزيئات المجهرية
+          <LabSurface type="dark">
+            <div className="relative bg-slate-950 border border-slate-800 rounded-2xl p-2 sm:p-4 overflow-hidden flex items-center justify-center shadow-inner">
+              <canvas
+                ref={canvasRef}
+                width={450}
+                height={300}
+                className="w-full max-w-lg h-auto rounded-xl select-none"
+              />
+              <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-lg border border-slate-700 text-[11px] text-slate-300 pointer-events-none">
+                وعاء محاكاة الجزيئات المجهرية
+              </div>
+              <div className="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-lg border border-slate-700 text-xs font-mono text-amber-400 pointer-events-none">
+                {temperatureC}°C
+              </div>
             </div>
-            <div className="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-lg border border-slate-700 text-xs font-mono text-amber-400 pointer-events-none">
-              {temperatureC}°C
-            </div>
-          </div>
+          </LabSurface>
+
+          {/* Cause and effect feedback area */}
+          <SimulationStatus
+            status="nominal"
+            message={`ما الذي تغيّر؟ عند الانتقال إلى الحالة ${
+              state === 'solid' ? 'الصلبة' : state === 'liquid' ? 'السائلة' : 'الغازية'
+            }، تكون ${
+              state === 'solid'
+                ? 'الجزيئات متراصة جداً وتتحرك اهتزازياً حول مواضع استقرارها، مما يحافظ على شكل وحجم ثابتين.'
+                : state === 'liquid'
+                ? 'المسافات البينية أكبر وقوى التماسك أضعف، مما يسمح للجزيئات بالانزلاق والترتيب المرن لتأخذ شكل الوعاء.'
+                : 'المسافات البينية كبيرة جداً وتتحرك الجزيئات بحرية تامة وتملأ كامل حجم الوعاء.'
+            }`}
+          />
         </div>
       }
       controls={
@@ -250,6 +268,7 @@ export const PropertiesOfMatterSimulation: React.FC = () => {
             <input
               id="temp-slider"
               type="range"
+              aria-label="درجة الحرارة التقديرية"
               min="-20"
               max="150"
               step="5"
@@ -275,6 +294,7 @@ export const PropertiesOfMatterSimulation: React.FC = () => {
             <input
               id="speed-slider"
               type="range"
+              aria-label="معدل سرعة الحركة الجزيئية"
               min="0.2"
               max="3"
               step="0.2"
