@@ -4,6 +4,7 @@ import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
 import { LabSurface } from '../../../visuals/LabSurface';
 import { SimulationStatus } from '../../../visuals/SimulationStatus';
+import { usePrefersReducedMotion } from '../../../core/usePrefersReducedMotion';
 import { calculateEquilibriumTemperature, stepThermalConduction } from './calculations';
 import { ThermalHistoryPoint } from './types';
 import { Flame, Thermometer, TrendingUp, Info, ArrowLeft, ArrowRight, Play, Pause, RotateCcw } from 'lucide-react';
@@ -23,14 +24,24 @@ export const HeatLabSimulation: React.FC = () => {
     { time: 0, tempA: 85, tempB: 15 },
   ]);
 
+  const prefersReducedMotion = usePrefersReducedMotion();
   const animRef = useRef<number | null>(null);
+
+  // Refs to hold latest state for RAF without stale closures
+  const tempARef = useRef<number>(currentTempA);
+  const tempBRef = useRef<number>(currentTempB);
+  const timeRef = useRef<number>(timeSec);
+
+  tempARef.current = currentTempA;
+  tempBRef.current = currentTempB;
+  timeRef.current = timeSec;
 
   const eqTemp = calculateEquilibriumTemperature(initTempA, initTempB, massA, massB);
   const isEquilibriumReached = Math.abs(currentTempA - currentTempB) < 0.2;
 
   // Thermal Conduction Loop
   useEffect(() => {
-    if (!isPlaying) {
+    if (!isPlaying || prefersReducedMotion) {
       if (animRef.current) cancelAnimationFrame(animRef.current);
       return;
     }
@@ -41,35 +52,34 @@ export const HeatLabSimulation: React.FC = () => {
       const dt = Math.min(0.08, (now - lastTime) / 1000);
       lastTime = now;
 
-      if (inContact) {
-        setTimeSec((prevT) => {
-          const nextT = prevT + dt;
+      if (inContact && Math.abs(tempARef.current - tempBRef.current) >= 0.1) {
+        const step = stepThermalConduction(
+          tempARef.current,
+          tempBRef.current,
+          massA,
+          massB,
+          0.45,
+          dt
+        );
 
-          setCurrentTempA((tA) => {
-            setCurrentTempB((tB) => {
-              const step = stepThermalConduction(tA, tB, massA, massB, 0.45, dt);
+        const nextT = timeRef.current + dt;
+        setTimeSec(nextT);
+        setCurrentTempA(step.nextTempA);
+        setCurrentTempB(step.nextTempB);
 
-              setHistory((prevH) => {
-                const lastPoint = prevH[prevH.length - 1];
-                if (!lastPoint || nextT - lastPoint.time >= 0.2) {
-                  return [
-                    ...prevH.slice(-80),
-                    {
-                      time: Number(nextT.toFixed(1)),
-                      tempA: Number(step.nextTempA.toFixed(1)),
-                      tempB: Number(step.nextTempB.toFixed(1)),
-                    },
-                  ];
-                }
-                return prevH;
-              });
-
-              return step.nextTempB;
-            });
-            return tA;
-          });
-
-          return nextT;
+        setHistory((prevH) => {
+          const lastPoint = prevH[prevH.length - 1];
+          if (!lastPoint || nextT - lastPoint.time >= 0.2) {
+            return [
+              ...prevH.slice(-80),
+              {
+                time: Number(nextT.toFixed(1)),
+                tempA: Number(step.nextTempA.toFixed(1)),
+                tempB: Number(step.nextTempB.toFixed(1)),
+              },
+            ];
+          }
+          return prevH;
         });
       }
 
@@ -80,7 +90,7 @@ export const HeatLabSimulation: React.FC = () => {
     return () => {
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [isPlaying, inContact, massA, massB]);
+  }, [isPlaying, inContact, massA, massB, prefersReducedMotion]);
 
   const handleReset = () => {
     setIsPlaying(false);
@@ -138,7 +148,7 @@ export const HeatLabSimulation: React.FC = () => {
     const pointsB = history.map((h) => `${getX(h.time)},${getY(h.tempB)}`);
 
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white space-y-2">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white space-y-2" data-testid="formula-substitution">
         <div className="flex items-center justify-between text-xs font-bold">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-amber-400" />
@@ -155,11 +165,9 @@ export const HeatLabSimulation: React.FC = () => {
         </div>
 
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-36">
-          {/* Axes */}
           <line x1={padding.left} y1={padding.top} x2={padding.left} y2={height - padding.bottom} stroke="#475569" strokeWidth="1.5" />
           <line x1={padding.left} y1={height - padding.bottom} x2={width - padding.right} y2={height - padding.bottom} stroke="#475569" strokeWidth="1.5" />
 
-          {/* Equilibrium Guide Line */}
           <line
             x1={padding.left}
             y1={getY(eqTemp)}
@@ -173,7 +181,6 @@ export const HeatLabSimulation: React.FC = () => {
             T_eq = {eqTemp.toFixed(1)}°C
           </text>
 
-          {/* Temperature Curves */}
           {pointsA.length > 1 && (
             <polyline fill="none" stroke="#f43f5e" strokeWidth="2.5" points={pointsA.join(' ')} />
           )}
@@ -208,7 +215,7 @@ export const HeatLabSimulation: React.FC = () => {
         </div>
       }
       visualization={
-        <div className="space-y-4">
+        <div className="space-y-4" data-testid="physics-visualization">
           {/* Thermal Conduction Blocks Simulation */}
           <LabSurface type="dark">
             <div className="relative w-full h-64 bg-slate-950 border border-slate-850 rounded-2xl p-4 overflow-hidden flex flex-col justify-between select-none shadow-inner">
@@ -226,6 +233,7 @@ export const HeatLabSimulation: React.FC = () => {
                 {/* Body A */}
                 <div
                   className={`w-32 sm:w-40 h-32 bg-gradient-to-br ${getTemperatureColor(currentTempA)} rounded-2xl shadow-xl flex flex-col items-center justify-center text-white border-2 border-white/20 transition-all duration-300`}
+                  data-testid="thermal-hot-temperature"
                 >
                   <span className="text-xs font-bold text-white/80">الجسم (A)</span>
                   <span className="text-2xl font-black font-mono mt-1">{currentTempA.toFixed(1)}°C</span>
@@ -233,7 +241,7 @@ export const HeatLabSimulation: React.FC = () => {
                 </div>
 
                 {/* Conduction Energy Flow Animation */}
-                {inContact && !isEquilibriumReached && (
+                {inContact && !isEquilibriumReached && !prefersReducedMotion && (
                   <div className="flex flex-col items-center gap-1 text-amber-400 animate-pulse">
                     <span className="text-[10px] font-bold">انتقال حرارة Q</span>
                     <div className="flex items-center text-lg font-bold">
@@ -245,6 +253,7 @@ export const HeatLabSimulation: React.FC = () => {
                 {/* Body B */}
                 <div
                   className={`w-32 sm:w-40 h-32 bg-gradient-to-br ${getTemperatureColor(currentTempB)} rounded-2xl shadow-xl flex flex-col items-center justify-center text-white border-2 border-white/20 transition-all duration-300`}
+                  data-testid="thermal-cold-temperature"
                 >
                   <span className="text-xs font-bold text-white/80">الجسم (B)</span>
                   <span className="text-2xl font-black font-mono mt-1">{currentTempB.toFixed(1)}°C</span>
@@ -270,10 +279,12 @@ export const HeatLabSimulation: React.FC = () => {
           </LabSurface>
 
           {/* Cause and effect feedback area */}
-          <SimulationStatus
-            status={isEquilibriumReached ? 'nominal' : 'warning'}
-            message={`ما الذي تغيّر؟ عند تلامس الجسمين، تنتقل الطاقة الحرارية تلقائياً من الجسم الساخن (A = ${currentTempA.toFixed(1)}°C) إلى الجسم البارد (B = ${currentTempB.toFixed(1)}°C) حتى تتساوى الدرجتان وتصلا إلى درجة حرارة الاتزان T_eq = ${eqTemp.toFixed(1)}°C.`}
-          />
+          <div data-testid="simulation-status">
+            <SimulationStatus
+              status={isEquilibriumReached ? 'nominal' : 'warning'}
+              message={`ما الذي تغيّر؟ عند تلامس الجسمين، تنتقل الطاقة الحرارية تلقائياً من الجسم الساخن (A = ${currentTempA.toFixed(1)}°C) إلى الجسم البارد (B = ${currentTempB.toFixed(1)}°C) حتى تتساوى الدرجتان وتصلا إلى درجة حرارة الاتزان T_eq = ${eqTemp.toFixed(1)}°C.`}
+            />
+          </div>
         </div>
       }
       controls={
