@@ -5,6 +5,11 @@ import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
 import { NewtonLawScenario } from './types';
 import { calculateNewtonLawScenario } from './calculations';
 import { Zap, Shield, Repeat, ArrowLeft, ArrowRight, Play, Pause, RotateCcw } from 'lucide-react';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { ScientificGrid } from '../../../visuals/ScientificGrid';
+import { PhysicsVector } from '../../../visuals/PhysicsVector';
+import { ValueBadge } from '../../../visuals/ValueBadge';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 
 export const NewtonLawsLabSimulation: React.FC = () => {
   const [scenario, setScenario] = useState<NewtonLawScenario>('f_ma');
@@ -97,7 +102,7 @@ export const NewtonLawsLabSimulation: React.FC = () => {
 
   return (
     <SimulationShell
-      title="مختبر قوانين الحركة لنيوتن (القصور، F=ma، الفعل ورد الفعل)"
+      title="مختبر قوانين الحركة لنيوتن (القصور، F=ma، الفعل رد الفعل)"
       subjectTitle="الفيزياء • الثاني المتوسط"
       topic="الفصل الثاني: قوانين الحركة"
       grade="الصف الثاني المتوسط"
@@ -116,15 +121,15 @@ export const NewtonLawsLabSimulation: React.FC = () => {
         </div>
       }
       visualization={
-        <div className="space-y-3">
+        <div className="space-y-4">
           {/* Scenario Tabs */}
-          <div className="grid grid-cols-3 gap-2 bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-2xl">
+          <div className="grid grid-cols-3 gap-2 bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800">
             <button
               onClick={() => {
                 setScenario('inertia');
                 handleReset();
               }}
-              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
                 scenario === 'inertia'
                   ? 'bg-indigo-600 text-white shadow-md'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
@@ -138,7 +143,7 @@ export const NewtonLawsLabSimulation: React.FC = () => {
                 setScenario('f_ma');
                 handleReset();
               }}
-              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
                 scenario === 'f_ma'
                   ? 'bg-amber-600 text-white shadow-md'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
@@ -152,7 +157,7 @@ export const NewtonLawsLabSimulation: React.FC = () => {
                 setScenario('action_reaction');
                 handleReset();
               }}
-              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
                 scenario === 'action_reaction'
                   ? 'bg-rose-600 text-white shadow-md'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
@@ -163,86 +168,149 @@ export const NewtonLawsLabSimulation: React.FC = () => {
             </button>
           </div>
 
-          {/* Interactive Simulation Scene */}
-          <div className="relative w-full h-64 bg-slate-950 border border-slate-800 rounded-2xl p-4 overflow-hidden flex flex-col justify-between select-none">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+          {/* Interactive Simulation Scene using LabSurface */}
+          <LabSurface type="metallic" className="select-none">
+            <div className="flex justify-between items-center text-xs mb-2">
+              <span className="text-slate-400 bg-slate-950/80 px-2.5 py-1 rounded-lg border border-slate-800">
                 {result.lawNameAr}
               </span>
-              <span className="font-mono text-cyan-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                {scenario === 'action_reaction' ? 'نظام ثنائي الأجسام' : 'جسم مفرد'}
-              </span>
+              <ValueBadge
+                label="التعجيل المحسوب a ="
+                value={result.accelerationA.toFixed(2)}
+                unit="m/s²"
+                color="cyan"
+              />
             </div>
 
-            {/* Bodies Render */}
-            <div className="relative flex-1 flex items-center justify-center">
-              {scenario !== 'action_reaction' ? (
-                /* Single Body Scenario */
-                <div
-                  className="relative transition-transform duration-75 flex items-center"
-                  style={{ transform: `translateX(${posA}px)` }}
-                >
-                  {scenario === 'f_ma' && force > 0 && (
-                    <div
-                      className="absolute left-full ml-1 h-3 bg-amber-500 rounded-r flex items-center"
-                      style={{ width: `${Math.min(100, force * 1.5)}px` }}
-                    >
-                      <span className="absolute -top-4 left-1 text-[10px] text-amber-400 font-bold whitespace-nowrap">
-                        F = {force} N →
-                      </span>
-                    </div>
-                  )}
+            {/* Visual physics playground */}
+            <div className="relative w-full h-48 overflow-hidden flex flex-col justify-end">
+              <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+                <ScientificGrid width={600} height={192} gridSize={25} showAxes={false} />
 
-                  <div className="w-20 h-20 bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl shadow-xl border-2 border-indigo-400 flex flex-col items-center justify-center text-white">
-                    <span className="text-[10px] text-indigo-200">الكتلة</span>
-                    <span className="text-sm font-black">{massA} kg</span>
-                  </div>
-                </div>
-              ) : (
-                /* Dual Action-Reaction Scenario (e.g. 2 skaters/carts pushing apart) */
-                <div className="flex items-center justify-center gap-4">
-                  {/* Body A */}
+                {/* Physics force vectors with real components on screen */}
+                {scenario === 'f_ma' && force > 0 && (
+                  <PhysicsVector
+                    startX={300 + posA}
+                    startY={96}
+                    endX={300 + posA + Math.min(120, force * 2.2)}
+                    endY={96}
+                    color="#f59e0b"
+                    label="F"
+                    magnitude={force}
+                    unit="N"
+                    lineWidth={3}
+                  />
+                )}
+
+                {scenario === 'action_reaction' && (
+                  <>
+                    {/* Action Vector on Body B */}
+                    <PhysicsVector
+                      startX={300 + posB}
+                      startY={96}
+                      endX={300 + posB + Math.min(90, force * 1.5)}
+                      endY={96}
+                      color="#ef4444"
+                      label="Action (F₂)"
+                      magnitude={force}
+                      unit="N"
+                      lineWidth={3}
+                    />
+                    {/* Reaction Vector on Body A */}
+                    <PhysicsVector
+                      startX={300 + posA}
+                      startY={96}
+                      endX={300 + posA - Math.min(90, force * 1.5)}
+                      endY={96}
+                      color="#3b82f6"
+                      label="Reaction (-F₁)"
+                      magnitude={force}
+                      unit="N"
+                      lineWidth={3}
+                    />
+                  </>
+                )}
+              </svg>
+
+              {/* Bodies Render */}
+              <div className="relative flex-1 flex items-center justify-center z-10">
+                {scenario !== 'action_reaction' ? (
+                  /* Single Body Scenario */
                   <div
                     className="relative transition-transform duration-75 flex items-center"
                     style={{ transform: `translateX(${posA}px)` }}
                   >
-                    <div className="absolute right-full mr-1 h-3 bg-blue-500 rounded-l flex items-center w-16">
-                      <span className="absolute -top-4 right-1 text-[10px] text-blue-400 font-bold whitespace-nowrap">
-                        ← F₁ = {force} N (رد الفعل)
-                      </span>
-                    </div>
-
-                    <div className="w-18 h-18 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl shadow-xl border-2 border-blue-400 flex flex-col items-center justify-center text-white">
-                      <span className="text-[10px] text-blue-200">الجسم 1</span>
-                      <span className="text-xs font-bold">{massA} kg</span>
+                    <div className="w-20 h-20 bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl shadow-xl border-2 border-indigo-400 flex flex-col items-center justify-center text-white">
+                      <span className="text-[10px] text-indigo-200">الكتلة</span>
+                      <span className="text-sm font-black">{massA} kg</span>
                     </div>
                   </div>
-
-                  {/* Body B */}
-                  <div
-                    className="relative transition-transform duration-75 flex items-center"
-                    style={{ transform: `translateX(${posB}px)` }}
-                  >
-                    <div className="w-18 h-18 bg-gradient-to-br from-rose-600 to-rose-800 rounded-2xl shadow-xl border-2 border-rose-400 flex flex-col items-center justify-center text-white">
-                      <span className="text-[10px] text-rose-200">الجسم 2</span>
-                      <span className="text-xs font-bold">{massB} kg</span>
+                ) : (
+                  /* Dual Action-Reaction Scenario (e.g. 2 skaters/carts pushing apart) */
+                  <div className="flex items-center justify-center gap-4">
+                    {/* Body A */}
+                    <div
+                      className="relative transition-transform duration-75 flex items-center"
+                      style={{ transform: `translateX(${posA}px)` }}
+                    >
+                      <div className="w-18 h-18 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl shadow-xl border-2 border-blue-400 flex flex-col items-center justify-center text-white">
+                        <span className="text-[10px] text-blue-200">الجسم 1</span>
+                        <span className="text-xs font-bold">{massA} kg</span>
+                      </div>
                     </div>
 
-                    <div className="absolute left-full ml-1 h-3 bg-rose-500 rounded-r flex items-center w-16">
-                      <span className="absolute -top-4 left-1 text-[10px] text-rose-400 font-bold whitespace-nowrap">
-                        F₂ = {force} N (الفعل) →
-                      </span>
+                    {/* Body B */}
+                    <div
+                      className="relative transition-transform duration-75 flex items-center"
+                      style={{ transform: `translateX(${posB}px)` }}
+                    >
+                      <div className="w-18 h-18 bg-gradient-to-br from-rose-600 to-rose-800 rounded-2xl shadow-xl border-2 border-rose-400 flex flex-col items-center justify-center text-white">
+                        <span className="text-[10px] text-rose-200">الجسم 2</span>
+                        <span className="text-xs font-bold">{massB} kg</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            {/* Track Footer */}
-            <div className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 flex justify-center text-xs font-mono text-slate-400">
-              مسار عديم الاحتكاك (سطح أملس مثالي)
+              {/* Track Footer */}
+              <div className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 flex justify-center text-[10px] font-mono text-slate-400">
+                مسار عديم الاحتكاك (سطح أملس مثالي)
+              </div>
             </div>
+          </LabSurface>
+
+          {/* Dynamic Formula substitution output */}
+          <div className="p-3 bg-slate-900/50 border border-slate-800 rounded-xl space-y-1.5 text-xs text-slate-300">
+            <span className="font-bold text-slate-400 block">التعويض بالقيم الرقمية المباشرة في القوانين:</span>
+            {scenario === 'inertia' && (
+              <div className="font-mono text-indigo-400 font-semibold bg-slate-950 p-2 rounded-lg text-center">
+                ΣF = 0 &nbsp;&rarr;&nbsp; a = 0 m/s² (السرعة ثابتة والتعجيل صفر)
+              </div>
+            )}
+            {scenario === 'f_ma' && (
+              <div className="font-mono text-amber-400 font-semibold bg-slate-950 p-2 rounded-lg text-center">
+                a = F / m = {force} N / {massA} kg = {result.accelerationA.toFixed(2)} m/s²
+              </div>
+            )}
+            {scenario === 'action_reaction' && (
+              <div className="font-mono text-rose-400 font-semibold bg-slate-950 p-2 rounded-lg text-center">
+                F_action = -F_reaction = {force} N &nbsp;|&nbsp; a₁ = {result.accelerationA.toFixed(2)} m/s², a₂ = {(result.accelerationB || 0).toFixed(2)} m/s²
+              </div>
+            )}
           </div>
+
+          {/* Live Cause & Effect Statement */}
+          <SimulationStatus
+            status={isPlaying ? 'nominal' : 'warning'}
+            message={
+              scenario === 'f_ma'
+                ? `عند ثبوت الكتلة (${massA} kg)، كلما زادت القوة تضاعف التعجيل طردياً. وبزيادة الكتلة يقل التعجيل بنسبة عكسية.`
+                : scenario === 'action_reaction'
+                ? `الفعل ورد الفعل: قوة الفعل ${force} N تولد قوة رد فعل معاكسة ${force} N بالاتجاه. السرير/الكتلة الأكبر تتسارع بشكل أقل.`
+                : 'القصور الذاتي: يستمر الجسم بالحركة بسرعة ثابتة بنفس الاتجاه ما لم تؤثر عليه قوة خارجية تغير حالته.'
+            }
+          />
         </div>
       }
       controls={
@@ -261,6 +329,7 @@ export const NewtonLawsLabSimulation: React.FC = () => {
               </div>
               <input
                 id="n-force"
+                aria-label="القوة المتبادلة"
                 type="range"
                 min="5"
                 max="100"
@@ -282,6 +351,7 @@ export const NewtonLawsLabSimulation: React.FC = () => {
             </div>
             <input
               id="n-mass-a"
+              aria-label="كتلة الجسم الأول"
               type="range"
               min="1"
               max="20"
@@ -302,6 +372,7 @@ export const NewtonLawsLabSimulation: React.FC = () => {
               </div>
               <input
                 id="n-mass-b"
+                aria-label="كتلة الجسم الثاني"
                 type="range"
                 min="1"
                 max="20"

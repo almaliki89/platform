@@ -10,6 +10,9 @@ import {
 } from './calculations';
 import { CapacitorMode, CombinationType } from './types';
 import { Layers, BatteryCharging, Zap, RotateCcw, Play, Pause, Sparkles, Activity } from 'lucide-react';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { ValueBadge } from '../../../visuals/ValueBadge';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 
 export const CapacitorsSimulation: React.FC = () => {
   const [mode, setMode] = useState<CapacitorMode>('parallel-plate');
@@ -440,34 +443,75 @@ export const CapacitorsSimulation: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left Column: Visual Canvas & HUD */}
         <div className="lg:col-span-3 space-y-4">
-          <div className="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl p-2">
-            <canvas
-              ref={canvasRef}
-              width={820}
-              height={380}
-              className="w-full h-auto rounded-xl block"
-            />
+          <LabSurface type="metallic" className="select-none">
+            <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 p-2 shadow-inner">
+              <canvas
+                ref={canvasRef}
+                width={820}
+                height={380}
+                className="w-full h-auto rounded-xl block"
+              />
 
-            {/* RC controls overlay */}
+              {/* RC controls overlay */}
+              {mode === 'rc-circuit' && (
+                <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                  <button
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="p-2.5 rounded-xl bg-slate-900/90 text-cyan-400 hover:bg-slate-800 border border-slate-700 backdrop-blur-md cursor-pointer transition-all"
+                    title={isPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
+                  >
+                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                  </button>
+                  <button
+                    onClick={() => setRcTime(0)}
+                    className="p-2.5 rounded-xl bg-slate-900/90 text-slate-300 hover:bg-slate-800 border border-slate-700 backdrop-blur-md cursor-pointer transition-all"
+                    title="إعادة التصفير"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </LabSurface>
+
+          {/* Dynamic formula substitution based on active mode */}
+          <div className="p-3.5 bg-slate-900/50 border border-slate-800 rounded-2xl space-y-2 text-xs text-slate-300">
+            <span className="font-bold text-slate-400 block">صيغة القانون وحساب السعة والجهد لحظياً:</span>
+            {mode === 'parallel-plate' && (
+              <div className="font-mono text-cyan-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+                C = k·ε₀·A / d = {selectedDielectric.dielectricConstantK} · 8.85pF/m · ({plateAreaCm2}cm²/{separationMm}mm) = {plateResult.capacitancePicoFarads.toFixed(2)} pF
+              </div>
+            )}
+            {mode === 'series-parallel' && (
+              <div className="font-mono text-emerald-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center font-bold">
+                {combType === 'series' ? 'توالي (Series): 1/Ceq = 1/C₁ + 1/C₂' : 'توازي (Parallel): Ceq = C₁ + C₂'} &nbsp;&rarr;&nbsp; Ceq = {combResult.cEquivalentMicroF.toFixed(2)} μF
+              </div>
+            )}
+            {mode === 'stored-energy' && (
+              <div className="font-mono text-amber-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+                PE = ½ C·V² = ½ · {plateResult.capacitancePicoFarads.toFixed(1)}pF · ({voltage}V)² = {(plateResult.storedEnergyMicroJoules * 1000).toFixed(2)} nJ
+              </div>
+            )}
             {mode === 'rc-circuit' && (
-              <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                <button
-                  onClick={() => setIsPlaying(!isPlaying)}
-                  className="p-2.5 rounded-xl bg-slate-900/90 text-cyan-400 hover:bg-slate-800 border border-slate-700 backdrop-blur-md cursor-pointer transition-all"
-                  title={isPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
-                >
-                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                </button>
-                <button
-                  onClick={() => setRcTime(0)}
-                  className="p-2.5 rounded-xl bg-slate-900/90 text-slate-300 hover:bg-slate-800 border border-slate-700 backdrop-blur-md cursor-pointer transition-all"
-                  title="إعادة التصفير"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                </button>
+              <div className="font-mono text-cyan-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+                Vc(t) = V₀(1 - e^-t/τ) = {rcVolt}V · (1 - e^-{rcTime.toFixed(1)}s/{rcResult.timeConstantSec.toFixed(2)}s) = {rcResult.capacitorVoltageV.toFixed(2)} V
               </div>
             )}
           </div>
+
+          {/* Cause and effect status summary */}
+          <SimulationStatus
+            status={voltage > 25 ? 'warning' : 'nominal'}
+            message={
+              mode === 'parallel-plate'
+                ? `العلاقات البينية: بزيادة المساحة (A = ${plateAreaCm2} cm²) تزداد السعة. وبزيادة البعد (d = ${separationMm} mm) تقل السعة بنسبة عكسية.`
+                : mode === 'series-parallel'
+                ? `ربط المتسعات: في ربط التوازي يزداد السعة المكافئة لزيادة المساحة السطحية المتقابلة، بينما في التوالي يزداد البعد البيني فتقل السعة المكافئة.`
+                : mode === 'stored-energy'
+                ? `الطاقة المختزنة: الطاقة الكامنة في المجال الكهربائي تتناسب طردياً مع مربع فرق الجهد (V² = ${voltage * voltage} V²).`
+                : `دائرة الشحن والتفريغ: ثابت الزمن (τ = RC = ${rcResult.timeConstantSec.toFixed(2)} ثانية). يكتمل شحن المتسعة تماماً بنسبة 99% بعد مرور 5 ثابت زمن (5τ ≈ ${(rcResult.timeConstantSec * 5).toFixed(1)}s).`
+            }
+          />
 
           {/* HUD Metrics */}
           {mode === 'parallel-plate' && (

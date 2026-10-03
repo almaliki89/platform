@@ -9,6 +9,9 @@ import {
 } from './calculations';
 import { ThermoMode, GasProcessType } from './types';
 import { Flame, Gauge, Sparkles, ArrowRight, ArrowDown, Activity, RotateCcw } from 'lucide-react';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { ValueBadge } from '../../../visuals/ValueBadge';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 
 export const ThermodynamicsSimulation: React.FC = () => {
   const [mode, setMode] = useState<ThermoMode>('pv-processes');
@@ -384,14 +387,58 @@ export const ThermodynamicsSimulation: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left Column: Visual Canvas & HUD */}
         <div className="lg:col-span-3 space-y-4">
-          <div className="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl p-2">
-            <canvas
-              ref={canvasRef}
-              width={820}
-              height={380}
-              className="w-full h-auto rounded-xl block"
-            />
+          <LabSurface type="metallic" className="select-none">
+            <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 p-2 shadow-inner">
+              <canvas
+                ref={canvasRef}
+                width={820}
+                height={380}
+                className="w-full h-auto rounded-xl block"
+              />
+            </div>
+          </LabSurface>
+
+          {/* Dynamic formula substitution based on active mode */}
+          <div className="p-3.5 bg-slate-900/50 border border-slate-800 rounded-2xl space-y-2 text-xs text-slate-300">
+            <span className="font-bold text-slate-400 block">العلاقة الرياضية المطبقة حالياً:</span>
+            {mode === 'pv-processes' && (
+              <div className="font-mono text-cyan-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+                W = ∫P·dV = {pvResult.workDoneJ.toFixed(1)} J &nbsp;|&nbsp;
+                ΔU = Q - W &nbsp;&rarr;&nbsp; {pvResult.deltaInternalEnergyJ.toFixed(1)} J = {pvResult.heatTransferredJ.toFixed(1)} J - ({pvResult.workDoneJ.toFixed(1)} J)
+              </div>
+            )}
+            {mode === 'first-law' && (
+              <div className="font-mono text-emerald-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+                ΔU = Q - W = {heatQ} J - ({workW} J) = {firstLawResult.deltaInternalEnergyU_J.toFixed(1)} J
+              </div>
+            )}
+            {mode === 'heat-engine' && (
+              <div className="font-mono text-amber-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+                η_max (Carnot) = 1 - T_C / T_H = 1 - {tCold} K / {tHot} K = {engineResult.carnotEfficiencyPercent.toFixed(1)}% &nbsp;|&nbsp;
+                W = Q_H - Q_C = {qHot} J - {engineResult.heatExhaustQc_J.toFixed(1)} J = {engineResult.actualWorkOutputJ.toFixed(1)} J
+              </div>
+            )}
           </div>
+
+          {/* Cause and effect status summary */}
+          <SimulationStatus
+            status={mode === 'heat-engine' && engineResult.carnotEfficiencyPercent < 45 ? 'warning' : 'nominal'}
+            message={
+              mode === 'pv-processes'
+                ? `العملية الحالية: ${
+                    processType === 'isobaric'
+                      ? 'تمدد/انضغاط تحت ضغط ثابت (Isobaric). الشغل هو المساحة المستطيلة.'
+                      : processType === 'isochoric'
+                      ? 'عملية بثبوت الحجم (Isochoric). الحجم ثابت تماماً، لذا فإن الشغل المنجز يساوي صفراً (W = 0).'
+                      : processType === 'isothermal'
+                      ? 'عملية بثبوت درجة الحرارة (Isothermal). الطاقة الداخلية ثابتة (ΔU = 0) والحرارة تتحول بالكامل لشغل.'
+                      : 'عملية كظومة معزولة (Adiabatic). لا يوجد تبادل حراري (Q = 0)، والشغل ينجز على حساب الطاقة الداخلية.'
+                  }`
+                : mode === 'first-law'
+                ? `القانون الأول: بإضافة حرارة مقدارها (Q = ${heatQ} J) وإنجاز شغل (W = ${workW} J)، يتغير محتوى الطاقة الداخلية بمقدار (ΔU = ${firstLawResult.deltaInternalEnergyU_J.toFixed(1)} J) وفقاً لمبدأ حفظ الطاقة.`
+                : `المحرك الحراري: عند حرارة مصدر ساخن (${tHot} K) ومستودع بارد (${tCold} K)، الكفاءة القصوى المتاحة نظرياً هي كفاءة دورة كارنو وهي (${engineResult.carnotEfficiencyPercent.toFixed(1)}%).`
+            }
+          />
 
           {/* HUD Metrics */}
           {mode === 'pv-processes' && (

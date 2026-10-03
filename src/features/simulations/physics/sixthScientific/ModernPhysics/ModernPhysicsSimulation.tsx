@@ -11,6 +11,9 @@ import {
 import { ModernPhysicsMode } from './types';
 import { ELECTRON_MASS_KG } from '../constants';
 import { Zap, Sparkles, Sun, Radio, Activity, CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { ValueBadge } from '../../../visuals/ValueBadge';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 
 export const ModernPhysicsSimulation: React.FC = () => {
   const [mode, setMode] = useState<ModernPhysicsMode>('photoelectric');
@@ -285,14 +288,54 @@ export const ModernPhysicsSimulation: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left Column: Visual Canvas & HUD */}
         <div className="lg:col-span-3 space-y-4">
-          <div className="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl p-2">
-            <canvas
-              ref={canvasRef}
-              width={820}
-              height={380}
-              className="w-full h-auto rounded-xl block"
-            />
+          <LabSurface type="metallic" className="select-none">
+            <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 p-2 shadow-inner">
+              <canvas
+                ref={canvasRef}
+                width={820}
+                height={380}
+                className="w-full h-auto rounded-xl block"
+              />
+            </div>
+          </LabSurface>
+
+          {/* Dynamic formula substitution based on active mode */}
+          <div className="p-3.5 bg-slate-900/50 border border-slate-800 rounded-2xl space-y-2 text-xs text-slate-300">
+            <span className="font-bold text-slate-400 block">العلاقة الرياضية المطبقة حالياً:</span>
+            {(mode === 'photoelectric' || mode === 'photon-energy') && (
+              <div className="font-mono text-cyan-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+                E = h·f = {peResult.photonEnergyEv.toFixed(2)} eV &nbsp;|&nbsp;
+                Kmax = h·f - W₀ = {peResult.photonEnergyEv.toFixed(2)} eV - {selectedMetal.workFunctionEv.toFixed(2)} eV = {peResult.maxKineticEnergyEv.toFixed(2)} eV
+              </div>
+            )}
+            {mode === 'de-broglie' && (
+              <div className="font-mono text-emerald-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+                p = m·v = 9.11e-31 kg · {dbVelocity} km/s = {dbResult.momentumKgM_s.toExponential(2)} kg·m/s &nbsp;|&nbsp;
+                λ = h / p = {dbResult.deBroglieWavelengthNm.toFixed(4)} nm
+              </div>
+            )}
+            {mode === 'uncertainty' && (
+              <div className="font-mono text-amber-400 font-semibold bg-slate-950 p-2.5 rounded-xl text-center">
+                Δx · Δp ≥ h / 4π &nbsp;&rarr;&nbsp; 
+                Δp ≥ {uncertResult.minMomentumUncertaintyKgM_s.toExponential(2)} kg·m/s &nbsp;|&nbsp;
+                Δv ≥ {(uncertResult.minVelocityUncertaintyM_s / 1000).toFixed(0)} km/s
+              </div>
+            )}
           </div>
+
+          {/* Cause and effect status summary */}
+          <SimulationStatus
+            status={(mode === 'photoelectric' && !peResult.isEmissionOccurring) ? 'warning' : 'nominal'}
+            message={
+              mode === 'photoelectric'
+                ? peResult.isEmissionOccurring
+                  ? `الانبعاث الكهروضوئي: مستمر بنجاح لأن طاقة الفوتون الساقط (${peResult.photonEnergyEv.toFixed(2)} eV) أكبر من دالة عمل المعدن (${selectedMetal.workFunctionEv.toFixed(2)} eV).`
+                  : `الانبعاث الكهروضوئي: متوقف لأن طاقة الفوتون الساقط (${peResult.photonEnergyEv.toFixed(2)} eV) أقل من دالة العمل لمعدن الباعث (${selectedMetal.workFunctionEv.toFixed(2)} eV).`
+                : mode === 'de-broglie'
+                ? `موجات دي برولي: للإلكترونات المتحركة بسرعة (${dbVelocity} km/s) موجات مادية مرافقة لها طول موجي مجهري حقيقي يساوي (${dbResult.deBroglieWavelengthNm.toFixed(4)} nm).`
+                : `مبدأ اللادقة: كلما زادت دقة تحديد موضع الإلكترون (Δx = ${deltaX_nm} nm)، ازداد اللايقين تلقائياً في زخم حركته وسرعته (Δv ≥ ${(uncertResult.minVelocityUncertaintyM_s / 1000).toFixed(0)} km/s) طردياً.`
+            }
+          />
 
           {/* HUD Metrics */}
           {mode === 'photoelectric' && (

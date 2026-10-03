@@ -8,6 +8,9 @@ import {
 } from './calculations';
 import { RefractionMode } from './types';
 import { Compass, Sparkles, Layers, RotateCcw, ShieldAlert, ArrowRightLeft } from 'lucide-react';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { ValueBadge } from '../../../visuals/ValueBadge';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 
 export const ReflectionRefractionSimulation: React.FC = () => {
   const [mode, setMode] = useState<RefractionMode>('snell-law');
@@ -278,13 +281,13 @@ export const ReflectionRefractionSimulation: React.FC = () => {
         <div className="lg:col-span-2 space-y-4">
           <SimulationHUD metrics={hudMetrics} />
 
-          <div className="relative bg-slate-900/90 rounded-2xl border border-slate-800 p-4 shadow-xl">
+          <LabSurface type="metallic" className="select-none">
             {/* Mode selection buttons */}
             <div className="flex flex-wrap items-center justify-between gap-2 mb-4 bg-slate-950/60 p-1.5 rounded-xl border border-slate-800/80">
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setMode('snell-law')}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     mode === 'snell-law'
                       ? 'bg-sky-500 text-white shadow-md'
                       : 'text-slate-400 hover:text-white'
@@ -295,7 +298,7 @@ export const ReflectionRefractionSimulation: React.FC = () => {
                 </button>
                 <button
                   onClick={() => setMode('optical-fiber')}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     mode === 'optical-fiber'
                       ? 'bg-amber-500 text-white shadow-md'
                       : 'text-slate-400 hover:text-white'
@@ -313,7 +316,7 @@ export const ReflectionRefractionSimulation: React.FC = () => {
                   setMedium1Id(medium2Id);
                   setMedium2Id(t);
                 }}
-                className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 text-slate-300 hover:text-white rounded-lg text-xs transition-colors"
+                className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 text-slate-300 hover:text-white rounded-lg text-xs transition-colors cursor-pointer"
                 title="تبديل الوسطين"
               >
                 <ArrowRightLeft className="w-3.5 h-3.5" />
@@ -321,13 +324,15 @@ export const ReflectionRefractionSimulation: React.FC = () => {
               </button>
             </div>
 
-            <canvas
-              ref={canvasRef}
-              width={640}
-              height={320}
-              className="w-full h-auto rounded-xl bg-slate-950 border border-slate-800/80 block"
-            />
-          </div>
+            <div className="relative">
+              <canvas
+                ref={canvasRef}
+                width={640}
+                height={320}
+                className="w-full h-auto rounded-xl bg-slate-950 border border-slate-800/80 block z-10 relative"
+              />
+            </div>
+          </LabSurface>
 
           {/* Formulas and Insight */}
           <div className="bg-slate-900/70 rounded-xl border border-slate-800 p-4 text-xs text-slate-300 space-y-3">
@@ -337,15 +342,27 @@ export const ReflectionRefractionSimulation: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 font-mono text-center text-sky-300">
-                n₁ · sin(θ₁) = n₂ · sin(θ₂)
+              <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 font-mono text-center text-sky-300 flex flex-col justify-center">
+                <span className="text-[10px] opacity-60">قانون سنيل</span>
+                <span>n₁ · sin(θ₁) = n₂ · sin(θ₂)</span>
               </div>
-              <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 font-mono text-center text-amber-300">
-                sin(θ_c) = n₂ / n₁ &nbsp;(عند n₁ &gt; n₂)
+              <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 font-mono text-center text-amber-300 flex flex-col justify-center">
+                <span className="text-[10px] opacity-60">الزاوية الحرجة</span>
+                <span>sin(θ_c) = n₂ / n₁</span>
               </div>
-              <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 font-mono text-center text-emerald-300">
-                v = c / n &nbsp;(c ≈ 300,000 km/s)
+              <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 font-mono text-center text-emerald-300 flex flex-col justify-center">
+                <span className="text-[10px] opacity-60">سرعة الضوء بالوسط</span>
+                <span>v = c / n</span>
               </div>
+            </div>
+
+            {/* Substitution formula in real-time */}
+            <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800/80 text-center font-mono text-indigo-400">
+              {result.isTotalInternalReflection ? (
+                <span>θ₁ ({thetaIncidentDeg}°) &gt; θ_c ({result.criticalAngleDeg?.toFixed(1)}°) &rarr; انعكاس كلي داخلي</span>
+              ) : (
+                <span>n₁·sin(θ₁) = {med1.refractiveIndex} · sin({thetaIncidentDeg}°) = {med2.refractiveIndex} · sin({result.thetaRefractedDeg?.toFixed(1)}°) = n₂·sin(θ₂)</span>
+              )}
             </div>
 
             {result.criticalAngleDeg !== null && (
@@ -356,7 +373,7 @@ export const ReflectionRefractionSimulation: React.FC = () => {
                 </span>
                 <button
                   onClick={handleSetCritical}
-                  className="px-2.5 py-1 bg-sky-500 text-white rounded text-xs hover:bg-sky-400 transition-colors"
+                  className="px-2.5 py-1 bg-sky-500 text-white rounded text-xs hover:bg-sky-400 transition-colors cursor-pointer"
                 >
                   اضبط الزاوية الحرجة
                 </button>
@@ -418,27 +435,15 @@ export const ReflectionRefractionSimulation: React.FC = () => {
               />
             </div>
 
-            {/* Status indicator */}
-            <div
-              className={`p-3 rounded-lg border text-xs leading-relaxed ${
+            {/* Status indicator using SimulationStatus */}
+            <SimulationStatus
+              status={result.isTotalInternalReflection ? 'error' : 'nominal'}
+              message={
                 result.isTotalInternalReflection
-                  ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
-                  : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-              }`}
-            >
-              {result.isTotalInternalReflection ? (
-                <div className="flex items-start gap-2">
-                  <ShieldAlert className="w-4 h-4 mt-0.5 shrink-0" />
-                  <div>
-                    <strong>حالة انعكاس كلي داخلي:</strong> زاوية السقوط ({thetaIncidentDeg}°) أكبر من الزاوية الحرجة ({result.criticalAngleDeg?.toFixed(1)}°)، لذا يرتد الشعاع كاملاً إلى الوسط الأول دون أي نفاذ.
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <strong>انكسار منتظم:</strong> الشعاع ينفذ إلى الوسط الثاني بزاوية ({result.thetaRefractedDeg?.toFixed(1)}°).
-                </div>
-              )}
-            </div>
+                  ? `حالة انعكاس كلي داخلي: زاوية السقوط (${thetaIncidentDeg}°) أكبر من الزاوية الحرجة (${result.criticalAngleDeg?.toFixed(1)}°)، لذا يرتد الشعاع كاملاً إلى الوسط الأول دون أي نفاذ.`
+                  : `انكسار منتظم: الشعاع ينفذ إلى الوسط الثاني بزاوية (${result.thetaRefractedDeg?.toFixed(1)}°).`
+              }
+            />
           </SimulationControls>
         </div>
       </div>

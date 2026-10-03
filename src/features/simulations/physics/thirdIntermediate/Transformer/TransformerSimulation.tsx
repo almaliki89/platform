@@ -4,6 +4,9 @@ import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
 import { calculateTransformer } from './calculations';
 import { Layers, Activity, Sparkles, ArrowUpDown, RotateCcw } from 'lucide-react';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { ValueBadge } from '../../../visuals/ValueBadge';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 
 export const TransformerSimulation: React.FC = () => {
   const [primaryVoltageV1, setPrimaryVoltageV1] = useState<number>(220);
@@ -69,7 +72,7 @@ export const TransformerSimulation: React.FC = () => {
       const coreThick = 45;
 
       // 1. Laminated Closed Iron Core
-      ctx.fillStyle = '#334155';
+      ctx.fillStyle = '#1e293b';
       ctx.fillRect(cx - coreOuterW / 2, cy - coreOuterH / 2, coreOuterW, coreOuterH);
 
       // Inner Window cutout
@@ -79,8 +82,8 @@ export const TransformerSimulation: React.FC = () => {
       ctx.fillRect(cx - winW / 2, cy - winH / 2, winW, winH);
 
       // Core Borders
-      ctx.strokeStyle = '#64748b';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 2.5;
       ctx.strokeRect(cx - coreOuterW / 2, cy - coreOuterH / 2, coreOuterW, coreOuterH);
       ctx.strokeRect(cx - winW / 2, cy - winH / 2, winW, winH);
 
@@ -103,8 +106,8 @@ export const TransformerSimulation: React.FC = () => {
       const numTurnsVisualLeft = Math.min(18, Math.max(6, Math.round(primaryTurnsN1 / 15)));
       const leftStep = winH / (numTurnsVisualLeft + 1);
 
-      ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#f87171';
+      ctx.lineWidth = 4.5;
       for (let i = 1; i <= numTurnsVisualLeft; i++) {
         const y = cy - winH / 2 + i * leftStep;
         ctx.beginPath();
@@ -118,7 +121,7 @@ export const TransformerSimulation: React.FC = () => {
       const rightStep = winH / (numTurnsVisualRight + 1);
 
       ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 4.5;
       for (let i = 1; i <= numTurnsVisualRight; i++) {
         const y = cy - winH / 2 + i * rightStep;
         ctx.beginPath();
@@ -128,7 +131,7 @@ export const TransformerSimulation: React.FC = () => {
 
       // Labels on canvas
       // Primary Labels
-      ctx.fillStyle = '#ef4444';
+      ctx.fillStyle = '#f87171';
       ctx.font = 'bold 12px sans-serif';
       ctx.textAlign = 'right';
       ctx.fillText('الملف الابتدائي (Primary)', leftLimbX - 45, cy - 40);
@@ -194,22 +197,46 @@ export const TransformerSimulation: React.FC = () => {
       topic="المحولة الكهربائية"
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Canvas & Oscilloscope */}
+        {/* Main Canvas & Oscilloscope with LabSurface */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="relative rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-inner flex flex-col items-center justify-center p-4">
-            <canvas
-              ref={canvasRef}
-              width={600}
-              height={290}
-              className="w-full max-w-[600px] h-auto aspect-[600/290] block select-none"
-            />
+          <LabSurface type="metallic" className="select-none">
+            <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-inner flex flex-col items-center justify-center p-2">
+              <canvas
+                ref={canvasRef}
+                width={600}
+                height={290}
+                className="w-full max-w-[600px] h-auto aspect-[600/290] block select-none rounded-xl"
+              />
 
-            <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-slate-700/60 px-3 py-1.5 rounded-xl text-xs font-mono text-cyan-400">
-              V₂ / V₁ = N₂ / N₁
+              <div className="absolute top-4 left-4 bg-slate-900/90 backdrop-blur border border-slate-700/60 px-3 py-1.5 rounded-xl text-xs font-mono text-cyan-400">
+                V₂ / V₁ = N₂ / N₁
+              </div>
+            </div>
+          </LabSurface>
+
+          {/* HUD Metrics summary */}
+          <SimulationHUD metrics={hudMetrics} />
+
+          {/* Dynamic Formula Display Card */}
+          <div className="p-3.5 bg-slate-900/50 border border-slate-800 rounded-2xl space-y-2 text-xs text-slate-300">
+            <span className="font-bold text-slate-400 block">العلاقات الحسابية المستخرجة لحظياً:</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="font-mono text-cyan-400 font-semibold bg-slate-950 p-2 rounded-xl text-center">
+                V₂ = V₁ · (N₂/N₁) = {primaryVoltageV1}V · ({secondaryTurnsN2}/{primaryTurnsN1}) = {result.secondaryVoltageV2.toFixed(1)} V
+              </div>
+              <div className="font-mono text-emerald-400 font-semibold bg-slate-950 p-2 rounded-xl text-center">
+                P_out = P_in · η = {result.powerInW.toFixed(1)}W · {efficiencyPercent}% = {result.powerOutW.toFixed(1)} W
+              </div>
             </div>
           </div>
 
-          <SimulationHUD metrics={hudMetrics} />
+          {/* Cause and Effect Visual status */}
+          <SimulationStatus
+            status={result.transformerType === 'step-up' ? 'warning' : 'nominal'}
+            message={`تحليل الحالة: بما أن (N₁ = ${primaryTurnsN1}) و (N₂ = ${secondaryTurnsN2})، فإن هذه المحولة تعتبر ${
+              result.transformerType === 'step-up' ? 'رافعة للفولتية وخافضة للتيار' : result.transformerType === 'step-down' ? 'خافضة للفولتية ورافعة للتيار' : 'مثالية عازلة للفولتية'
+            }.`}
+          />
 
           {/* Educational Callout */}
           <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-900 dark:text-cyan-200 space-y-1.5">
@@ -293,7 +320,7 @@ export const TransformerSimulation: React.FC = () => {
                       setPrimaryTurnsN1(200);
                       setSecondaryTurnsN2(20);
                     }}
-                    className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-right"
+                    className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-right cursor-pointer"
                   >
                     شاحن هاتف (خافضة 220V→22V)
                   </button>
@@ -304,7 +331,7 @@ export const TransformerSimulation: React.FC = () => {
                       setPrimaryTurnsN1(100);
                       setSecondaryTurnsN2(200);
                     }}
-                    className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-right"
+                    className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-right cursor-pointer"
                   >
                     محطة نقل (رافعة 110V→220V)
                   </button>

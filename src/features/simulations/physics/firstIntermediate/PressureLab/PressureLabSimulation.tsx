@@ -4,6 +4,11 @@ import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
 import { calculatePressure, PRESSURE_PRESETS } from './calculations';
 import { Layers, Info, ShieldAlert, Sparkles, RotateCcw } from 'lucide-react';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { ScientificGrid } from '../../../visuals/ScientificGrid';
+import { PhysicsVector } from '../../../visuals/PhysicsVector';
+import { ValueBadge } from '../../../visuals/ValueBadge';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
 
 export const PressureLabSimulation: React.FC = () => {
   const [force, setForce] = useState<number>(100); // N
@@ -57,7 +62,7 @@ export const PressureLabSimulation: React.FC = () => {
   ];
 
   // Visual width of the press block proportional to area
-  const blockWidthPx = Math.min(260, Math.max(30, Math.sqrt(areaCm2) * 16));
+  const blockWidthPx = Math.min(260, Math.max(40, Math.sqrt(areaCm2) * 16));
   const penetrationPx = Math.round(result.relativePenetration * 45);
 
   return (
@@ -73,7 +78,7 @@ export const PressureLabSimulation: React.FC = () => {
         'تفسير التطبيقات العملية (المسامير، السكاكين، إطارات الشاحنات العريضة)',
       ]}
       educationalNote={
-        <div className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+        <div className="space-y-3 text-xs text-slate-700 dark:text-slate-300">
           <p className="font-bold text-slate-900 dark:text-white">
             قانون الضغط الوزاري ووحدات القياس:
           </p>
@@ -86,18 +91,18 @@ export const PressureLabSimulation: React.FC = () => {
         </div>
       }
       visualization={
-        <div className="space-y-3">
+        <div className="space-y-4">
           {/* Preset Buttons */}
-          <div className="flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800/80 p-2 rounded-xl">
+          <div className="flex flex-wrap items-center gap-2 bg-slate-100 dark:bg-slate-800/80 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
             <span className="text-xs text-slate-500 font-medium px-1">نماذج تطبيقية:</span>
             {PRESSURE_PRESETS.map((p) => (
               <button
                 key={p.id}
                 onClick={() => handleSelectPreset(p.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   selectedPreset === p.id
                     ? 'bg-amber-600 text-white shadow-sm'
-                    : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+                    : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-650'
                 }`}
               >
                 {p.nameAr}
@@ -105,55 +110,82 @@ export const PressureLabSimulation: React.FC = () => {
             ))}
           </div>
 
-          {/* Interactive Visual Press Canvas */}
-          <div className="relative w-full h-72 bg-slate-950 border border-slate-800 rounded-2xl p-4 overflow-x-hidden flex flex-col justify-between select-none">
-            <div className="flex justify-between items-center z-10 text-xs">
-              <span className="text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+          {/* Interactive Visual Press Canvas with LabSurface */}
+          <LabSurface type="metallic" className="select-none">
+            <div className="flex justify-between items-center z-10 text-xs mb-3">
+              <span className="text-slate-400 bg-slate-950/80 px-2.5 py-1 rounded-lg border border-slate-800">
                 سطح مرن قابل للانضغاط (رمل / إسفنج)
               </span>
-              <span className="font-mono text-amber-400 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
-                P = {result.pressureKPa > 10 ? `${result.pressureKPa.toFixed(1)} kPa` : `${result.pressurePa.toFixed(0)} Pa`}
-              </span>
+              <ValueBadge
+                label="الضغط المحسوب P ="
+                value={result.pressureKPa > 10 ? result.pressureKPa.toFixed(1) : result.pressurePa.toFixed(0)}
+                unit={result.pressureKPa > 10 ? 'kPa' : 'Pa'}
+                color={result.pressureKPa > 50 ? 'rose' : 'amber'}
+              />
             </div>
 
-            {/* Press Object Visualization */}
-            <div className="relative flex-1 flex flex-col items-center justify-end pb-8">
-              {/* Force Arrow pointing down onto object */}
-              <div className="flex flex-col items-center mb-1 animate-pulse">
-                <span className="text-xs font-mono font-bold text-cyan-400">
-                  F = {force} N ↓
-                </span>
-                <div className="w-1 h-8 bg-cyan-500" />
-                <div className="w-0 h-0 border-x-4 border-x-transparent border-t-8 border-t-cyan-500" />
-              </div>
-
-              {/* Press Body */}
-              <div
-                className="bg-gradient-to-b from-indigo-500 to-indigo-700 border-2 border-indigo-300 rounded-t-lg shadow-2xl flex flex-col items-center justify-center text-white transition-all duration-200"
-                style={{
-                  width: `${blockWidthPx}px`,
-                  height: '60px',
-                  transform: `translateY(${penetrationPx}px)`,
-                }}
-              >
-                <span className="text-[10px] text-indigo-200 font-mono">
-                  A = {areaCm2} cm²
-                </span>
-              </div>
-
-              {/* Elastic Surface Baseline with indentation notch */}
-              <div className="w-full relative h-16 bg-gradient-to-b from-amber-900/60 to-amber-950 border-t-2 border-amber-600/80 mt-0">
-                {/* Visual penetration shadow notch */}
-                <div
-                  className="mx-auto bg-amber-950/90 border-x border-b border-amber-500/50 rounded-b transition-all duration-200"
-                  style={{
-                    width: `${blockWidthPx + 4}px`,
-                    height: `${penetrationPx}px`,
-                  }}
+            {/* SVG Visual Stage */}
+            <div className="relative w-full h-64 overflow-hidden flex flex-col justify-end">
+              <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+                <ScientificGrid width={600} height={256} gridSize={20} showAxes={false} />
+                
+                {/* Physics force arrow vector representation */}
+                <PhysicsVector
+                  startX={300}
+                  startY={20}
+                  endX={300}
+                  endY={140 + penetrationPx}
+                  color="#22d3ee"
+                  label="F_press"
+                  magnitude={force}
+                  unit="N"
+                  lineWidth={4}
                 />
+              </svg>
+
+              {/* Real Physical Object (Block) */}
+              <div className="relative w-full flex-1 flex flex-col items-center justify-end pb-12 z-10">
+                {/* Press Body */}
+                <div
+                  className="bg-gradient-to-b from-indigo-500 to-indigo-700 border-2 border-indigo-300 rounded-t-lg shadow-2xl flex flex-col items-center justify-center text-white transition-all duration-200"
+                  style={{
+                    width: `${blockWidthPx}px`,
+                    height: '60px',
+                    transform: `translateY(${penetrationPx}px)`,
+                  }}
+                >
+                  <span className="text-[10px] text-indigo-200 font-mono font-bold">
+                    A = {areaCm2} cm²
+                  </span>
+                </div>
+
+                {/* Elastic Surface with indentation */}
+                <div className="w-full relative h-12 bg-gradient-to-b from-amber-900/60 to-amber-950 border-t-2 border-amber-600/80 mt-0">
+                  <div
+                    className="mx-auto bg-amber-950/90 border-x border-b border-amber-500/50 rounded-b transition-all duration-200"
+                    style={{
+                      width: `${blockWidthPx + 4}px`,
+                      height: `${penetrationPx}px`,
+                    }}
+                  />
+                </div>
               </div>
+            </div>
+          </LabSurface>
+
+          {/* Formula Substitution Card */}
+          <div className="p-3 bg-slate-900/50 border border-slate-800 rounded-xl space-y-1.5 text-xs text-slate-300">
+            <span className="font-bold text-slate-400 block">صيغة التعويض المباشر:</span>
+            <div className="font-mono text-cyan-400 font-semibold bg-slate-950 p-2 rounded-lg text-center">
+              P = F / A = {force} N / {areaM2.toFixed(4)} m² = {result.pressurePa.toLocaleString(undefined, { maximumFractionDigits: 0 })} Pa
             </div>
           </div>
+
+          {/* Live Cause & Effect Statement */}
+          <SimulationStatus
+            status={force / areaCm2 > 10 ? 'warning' : 'nominal'}
+            message={`التناسب والتحليل: عند زيادة القوة الضاغطة (F = ${force} N) يزداد الضغط طردياً، بينما عند زيادة المساحة (A = ${areaCm2} cm²) يتوزع الضغط ويقل التأثير العكسي.`}
+          />
         </div>
       }
       controls={
@@ -168,6 +200,7 @@ export const PressureLabSimulation: React.FC = () => {
             </div>
             <input
               id="p-force"
+              aria-label="القوة الضاغطة"
               type="range"
               min="10"
               max="500"
@@ -184,13 +217,14 @@ export const PressureLabSimulation: React.FC = () => {
           {/* Area Slider */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
-              <label htmlFor="p-area">مساحة السطح (Area - A):</label>
+              <label htmlFor="p-area">مساحة السถح (Area - A):</label>
               <span className="font-mono text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/60 px-2 py-0.5 rounded text-sm font-black">
                 {areaCm2} cm² ({areaM2.toFixed(4)} m²)
               </span>
             </div>
             <input
               id="p-area"
+              aria-label="مساحة السطح"
               type="range"
               min="1"
               max="200"
