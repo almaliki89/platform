@@ -3,19 +3,47 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Student profile and progress data
+    // Helper function to check authentication
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check student document ownership
+    function isOwner(studentId) {
+      return isAuthenticated() && (request.auth.uid == studentId);
+    }
+
+    // Student profile, settings and overall progress (strict owner-only privacy)
     match /students/{studentId} {
-      allow read, write: if true;
+      allow read, create, update: if isOwner(studentId);
+      allow delete: if false;
+
+      // Student sub-collections: exam results
+      match /exam_results/{resultId} {
+        allow read, write: if isOwner(studentId);
+      }
+
+      // Student sub-collections: notes
+      match /notes/{noteId} {
+        allow read, write: if isOwner(studentId);
+      }
+
+      // Student sub-collections: bookmarks
+      match /bookmarks/{bookmarkId} {
+        allow read, write: if isOwner(studentId);
+      }
     }
 
-    // Student exam results and submissions
-    match /students/{studentId}/exam_results/{resultId} {
-      allow read, write: if true;
-    }
-
-    // Global leaderboards / public statistics
+    // Global leaderboards / public statistics (read-only for clients, writes secured)
     match /leaderboard/{entry} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Shared curriculum or malzama drafts (read-only for clients, writes secured)
+    match /curriculum_shared/{docId} {
+      allow read: if true;
+      allow write: if false;
     }
   }
 }

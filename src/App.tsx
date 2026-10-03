@@ -1,4 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  useParams,
+  Navigate,
+} from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './components/Dashboard';
@@ -10,29 +19,157 @@ import { IrregularVerbsLab } from './components/IrregularVerbsLab';
 import { MinisterialMockSimulator } from './components/MinisterialMockSimulator';
 import { VisualVocabAtlas } from './components/VisualVocabAtlas';
 import { StudentProfileModal } from './components/StudentProfileModal';
-import { MalzamaUploadLab } from './components/MalzamaUploadLab';
+import { SmartReviewSection } from './components/SmartReviewSection';
+import { GlobalSearchModal } from './components/GlobalSearchModal';
 import { AuthGate } from './components/AuthGate';
-import { AuthModal } from './components/AuthModal';
+import { SubjectDetailView } from './components/SubjectDetailView';
+import { SimulationsHub } from './components/SimulationsHub';
+import { NotFound } from './components/NotFound';
 
 import { CURRICULUM_UNITS } from './data/curriculumData';
 import { THIRD_INTERMEDIATE_UNITS } from './data/thirdIntermediateData';
 import { Unit, Lesson, StudentState, EducationalGrade } from './types';
-import { 
-  loadStudentStateForUser, 
-  saveStudentStateForUser, 
-  triggerCelebration, 
-  INITIAL_STUDENT_STATE 
+import { SubjectId } from './types/subject';
+import {
+  loadStudentState,
+  saveStudentState,
+  triggerCelebration,
+  INITIAL_STUDENT_STATE,
 } from './utils/storage';
+import { isValidSubjectId } from './routes';
+import { getSimulationsForSubject } from './features/simulations';
 import { GraduationCap, Loader2 } from 'lucide-react';
+
+function SubjectDetailRouteWrapper({
+  studentState,
+  onSelectLesson,
+}: {
+  studentState: StudentState;
+  onSelectLesson: (lesson: Lesson) => void;
+}) {
+  const { subjectId } = useParams<{ subjectId: string }>();
+  const navigate = useNavigate();
+
+  if (!isValidSubjectId(subjectId)) {
+    return <Navigate to="/subjects" replace />;
+  }
+
+  return (
+    <SubjectDetailView
+      subjectId={subjectId}
+      studentState={studentState}
+      onBack={() => navigate('/subjects')}
+      onSelectLesson={onSelectLesson}
+      onOpenSimulations={(sId, simId) => {
+        if (simId) {
+          navigate(`/subject/${sId}/simulations/${simId}`);
+        } else {
+          navigate(`/subject/${sId}/simulations`);
+        }
+      }}
+    />
+  );
+}
+
+function SimulationRouteWrapper() {
+  const { subjectId, simulationId } = useParams<{ subjectId: string; simulationId?: string }>();
+  const navigate = useNavigate();
+
+  if (!isValidSubjectId(subjectId)) {
+    return <Navigate to="/subjects" replace />;
+  }
+
+  const isScience = ['physics', 'mathematics', 'chemistry'].includes(subjectId);
+  if (!isScience) {
+    return <Navigate to={`/subject/${subjectId}`} replace />;
+  }
+
+  // Validate simulationId if specified in URL
+  if (simulationId) {
+    const validSims = getSimulationsForSubject(subjectId as 'physics' | 'mathematics' | 'chemistry');
+    const simExists = validSims.some((s) => s.id === simulationId);
+    if (!simExists) {
+      return <Navigate to={`/subject/${subjectId}/simulations`} replace />;
+    }
+  }
+
+  return (
+    <SimulationsHub
+      subjectId={subjectId}
+      initialSimulationId={simulationId}
+      onBack={() => navigate(`/subject/${subjectId}`)}
+    />
+  );
+}
+
+function LessonRouteWrapper({
+  currentUnits,
+  studentState,
+  onSelectLesson,
+  onToggleComplete,
+  onAnswerExercise,
+}: {
+  currentUnits: Unit[];
+  studentState: StudentState;
+  onSelectLesson: (lesson: Lesson) => void;
+  onToggleComplete: (lessonId: string) => void;
+  onAnswerExercise: (exerciseId: string, isCorrect: boolean) => void;
+}) {
+  const { lessonId } = useParams<{ lessonId: string }>();
+  const navigate = useNavigate();
+
+  // Search in current grade units first, then fallback across all known units
+  const allUnits = [...THIRD_INTERMEDIATE_UNITS, ...CURRICULUM_UNITS];
+  let foundUnit: Unit | undefined;
+  let foundLesson: Lesson | undefined;
+
+  for (const unit of currentUnits) {
+    const l = unit.lessons.find((item) => item.id === lessonId);
+    if (l) {
+      foundUnit = unit;
+      foundLesson = l;
+      break;
+    }
+  }
+
+  if (!foundLesson) {
+    for (const unit of allUnits) {
+      const l = unit.lessons.find((item) => item.id === lessonId);
+      if (l) {
+        foundUnit = unit;
+        foundLesson = l;
+        break;
+      }
+    }
+  }
+
+  if (!foundUnit || !foundLesson) {
+    return <NotFound />;
+  }
+
+  return (
+    <LessonViewer
+      unit={foundUnit}
+      lesson={foundLesson}
+      onBackToDashboard={() => navigate('/')}
+      onSelectLesson={onSelectLesson}
+      isCompleted={studentState.completedLessonIds.includes(foundLesson.id)}
+      onToggleComplete={onToggleComplete}
+      onAnswerExercise={onAnswerExercise}
+    />
+  );
+}
 
 function MainAppContent() {
   const { user, loading, saveStudentToCloud, loadStudentFromCloud } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // Navigation tabs
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'lesson' | 'exam' | 'mock' | 'literature' | 'essays' | 'verbs' | 'vocab' | 'malzama'>('dashboard');
+  // Search modal state
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  // Student progress state - isolated per user
-  const [studentState, setStudentState] = useState<StudentState>(() => loadStudentStateForUser(null));
+  // Student progress state
+  const [studentState, setStudentState] = useState<StudentState>(loadStudentState);
 
   // Active Grade selection
   const [selectedGrade, setSelectedGrade] = useState<EducationalGrade>(() => {
@@ -42,218 +179,260 @@ function MainAppContent() {
   const isThirdIntermediate = selectedGrade === 'third-intermediate';
   const currentUnits = isThirdIntermediate ? THIRD_INTERMEDIATE_UNITS : CURRICULUM_UNITS;
 
-  // Currently viewed Unit and Lesson
-  const [activeUnit, setActiveUnit] = useState<Unit>(currentUnits[0]);
-  const [activeLesson, setActiveLesson] = useState<Lesson>(currentUnits[0].lessons[0]);
-
-  // Modals state
+  // Profile Modal state
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // Backward Compatibility: Translate old hash navigation to real React Router paths on initial load
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+      const hashMap: Record<string, string> = {
+        dashboard: '/',
+        subjects: '/subjects',
+        review: '/review',
+        mock: '/mock',
+        exam: '/exam',
+        literature: '/literature',
+        essays: '/essays',
+        verbs: '/verbs',
+        vocab: '/vocab',
+      };
+      const targetPath = hashMap[hash];
+      if (targetPath) {
+        navigate(targetPath, { replace: true });
+        window.history.replaceState(null, '', targetPath);
+      }
+    }
+  }, [navigate]);
+
+  // Keyboard shortcut for Search (Ctrl+K or Cmd+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Sync with Firestore when user logs in
   const prevUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
+    let isCancelled = false;
+
     async function syncOnLogin() {
       if (user && user.uid !== prevUserIdRef.current) {
         prevUserIdRef.current = user.uid;
-        const cloudData = await loadStudentFromCloud(user.uid, user.email);
+        const cloudData = await loadStudentFromCloud(user.uid);
+        if (isCancelled) return;
+
         if (cloudData) {
-          // Cleanly load the specific user's cloud data without cross-polluting from other accounts
-          setStudentState(cloudData);
+          const currentLocal = loadStudentState();
+          const merged: StudentState = {
+            ...cloudData,
+            name: cloudData.name || user.displayName || currentLocal.name,
+            xp: Math.max(cloudData.xp || 0, currentLocal.xp || 0),
+            completedLessonIds: Array.from(
+              new Set([...(cloudData.completedLessonIds || []), ...(currentLocal.completedLessonIds || [])])
+            ),
+            bookmarkedQuestionIds: Array.from(
+              new Set([...(cloudData.bookmarkedQuestionIds || []), ...(currentLocal.bookmarkedQuestionIds || [])])
+            ),
+            totalQuestionsAttempted: Math.max(
+              cloudData.totalQuestionsAttempted || 0,
+              currentLocal.totalQuestionsAttempted || 0
+            ),
+            totalQuestionsCorrect: Math.max(
+              cloudData.totalQuestionsCorrect || 0,
+              currentLocal.totalQuestionsCorrect || 0
+            ),
+            unlockedBadges: Array.from(
+              new Set([...(cloudData.unlockedBadges || []), ...(currentLocal.unlockedBadges || [])])
+            ),
+            selectedGrade: cloudData.selectedGrade || currentLocal.selectedGrade || selectedGrade,
+            answeredExercises: {
+              ...(cloudData.answeredExercises || {}),
+              ...(currentLocal.answeredExercises || {}),
+            },
+          };
+
           if (cloudData.selectedGrade) {
             setSelectedGrade(cloudData.selectedGrade);
           }
-          saveStudentStateForUser(cloudData, user.uid);
+          setStudentState(merged);
+          saveStudentState(merged);
+          await saveStudentToCloud(merged);
         } else {
-          // Brand new user or first-time setup for this specific user UID
-          const cached = loadStudentStateForUser(user.uid);
-          const initialUserPlan: StudentState = (cached && (cached.xp > 0 || cached.completedLessonIds.length > 0))
-            ? cached
-            : {
-                ...INITIAL_STUDENT_STATE,
-                name: user.displayName || 'طالب متميز',
-                selectedGrade: selectedGrade
-              };
-          setStudentState(initialUserPlan);
-          saveStudentStateForUser(initialUserPlan, user.uid);
-          saveStudentToCloud(initialUserPlan);
+          const currentLocal = loadStudentState();
+          const initialCloudState: StudentState = {
+            ...currentLocal,
+            name: user.displayName || currentLocal.name,
+          };
+          setStudentState(initialCloudState);
+          saveStudentState(initialCloudState);
+          await saveStudentToCloud(initialCloudState);
         }
-      } else if (!user && prevUserIdRef.current !== null) {
-        // User signed out -> load fresh/isolated guest state
+      } else if (!user) {
         prevUserIdRef.current = null;
-        const guestState = loadStudentStateForUser(null);
-        setStudentState(guestState);
-        if (guestState.selectedGrade) {
-          setSelectedGrade(guestState.selectedGrade);
-        }
       }
     }
+
     syncOnLogin();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [user]);
 
-  // Handle grade change
+  // Synchronize studentState to cloud after state transitions (never during render)
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (user) {
+      saveStudentToCloud(studentState);
+    }
+  }, [studentState, user]);
+
   const handleSelectGrade = (newGrade: EducationalGrade) => {
     setSelectedGrade(newGrade);
-    setStudentState(prev => {
+    setStudentState((prev) => {
       const updated = { ...prev, selectedGrade: newGrade };
-      if (user) saveStudentToCloud(updated);
+      saveStudentState(updated);
       return updated;
     });
-    const units = newGrade === 'third-intermediate' ? THIRD_INTERMEDIATE_UNITS : CURRICULUM_UNITS;
-    setActiveUnit(units[0]);
-    setActiveLesson(units[0].lessons[0]);
-    setCurrentTab('dashboard');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Persist student state changes locally (per user) & to cloud
-  useEffect(() => {
-    const fullState = {
-      ...studentState,
-      selectedGrade,
-    };
-    saveStudentStateForUser(fullState, user ? user.uid : null);
-    if (user) {
-      saveStudentToCloud(fullState);
-    }
-  }, [studentState, selectedGrade, user]);
-
-  // Handle selecting a unit from dashboard
-  const handleSelectUnit = (unit: Unit) => {
-    setActiveUnit(unit);
-    if (unit.lessons.length > 0) {
-      setActiveLesson(unit.lessons[0]);
-      setStudentState(prev => ({ ...prev, lastVisitedLessonId: unit.lessons[0].id }));
-    }
-    setCurrentTab('lesson');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // Handle selecting a specific lesson
   const handleSelectLesson = (lesson: Lesson) => {
-    const parentUnit = currentUnits.find(u => u.id === lesson.unitId) || currentUnits[0];
-    setActiveUnit(parentUnit);
-    setActiveLesson(lesson);
-    setStudentState(prev => ({ ...prev, lastVisitedLessonId: lesson.id }));
-    setCurrentTab('lesson');
+    navigate(`/lesson/${lesson.id}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    setStudentState((prev) => {
+      const updated = { ...prev, lastVisitedLessonId: lesson.id };
+      saveStudentState(updated);
+      return updated;
+    });
   };
 
-  // Toggle complete lesson
+  const handleSelectUnit = (unit: Unit) => {
+    if (unit.lessons.length > 0) {
+      handleSelectLesson(unit.lessons[0]);
+    }
+  };
+
   const handleToggleCompleteLesson = (lessonId: string) => {
-    setStudentState(prev => {
+    setStudentState((prev) => {
       const isAlreadyCompleted = prev.completedLessonIds.includes(lessonId);
       let updated: string[];
       let addedXp = 0;
 
       if (isAlreadyCompleted) {
-        updated = prev.completedLessonIds.filter(id => id !== lessonId);
+        updated = prev.completedLessonIds.filter((id) => id !== lessonId);
       } else {
         updated = [...prev.completedLessonIds, lessonId];
         addedXp = 50;
         triggerCelebration();
       }
 
-      const newState = {
+      const newBadges = [...prev.unlockedBadges];
+      if (updated.length >= 1 && !newBadges.includes('first-step')) {
+        newBadges.push('first-step');
+      }
+      if (updated.length >= 5 && !newBadges.includes('grammar-master')) {
+        newBadges.push('grammar-master');
+      }
+
+      const nextState = {
         ...prev,
         completedLessonIds: updated,
-        xp: prev.xp + addedXp
+        xp: Math.max(0, prev.xp + addedXp),
+        unlockedBadges: newBadges,
       };
-      if (user) saveStudentToCloud(newState);
-      return newState;
+
+      saveStudentState(nextState);
+      return nextState;
     });
   };
 
-  // Record exercise answer
   const handleAnswerExercise = (exerciseId: string, isCorrect: boolean) => {
-    setStudentState(prev => {
-      const newAttempted = prev.totalQuestionsAttempted + 1;
-      const newCorrect = isCorrect ? prev.totalQuestionsCorrect + 1 : prev.totalQuestionsCorrect;
-      const gainedXp = isCorrect ? 25 : 5;
+    setStudentState((prev) => {
+      const wasAlreadyAnswered = prev.answeredExercises[exerciseId];
+      if (wasAlreadyAnswered !== undefined) return prev;
 
-      if (isCorrect) {
-        triggerCelebration();
+      const addedXp = isCorrect ? 20 : 5;
+      if (isCorrect) triggerCelebration();
+
+      const totalAttempted = prev.totalQuestionsAttempted + 1;
+      const totalCorrect = prev.totalQuestionsCorrect + (isCorrect ? 1 : 0);
+
+      const newBadges = [...prev.unlockedBadges];
+      if (totalAttempted >= 10 && !newBadges.includes('dedicated-scholar')) {
+        newBadges.push('dedicated-scholar');
       }
 
-      const newState = {
+      const nextState = {
         ...prev,
-        totalQuestionsAttempted: newAttempted,
-        totalQuestionsCorrect: newCorrect,
-        xp: prev.xp + gainedXp,
-        answeredExercises: {
-          ...prev.answeredExercises,
-          [exerciseId]: isCorrect
-        }
+        xp: prev.xp + addedXp,
+        answeredExercises: { ...prev.answeredExercises, [exerciseId]: isCorrect },
+        totalQuestionsAttempted: totalAttempted,
+        totalQuestionsCorrect: totalCorrect,
+        unlockedBadges: newBadges,
       };
-      if (user) saveStudentToCloud(newState);
-      return newState;
+
+      saveStudentState(nextState);
+      return nextState;
     });
   };
 
-  // Record exam or verb answer
-  const handleRecordQuestionAnswer = (questionIdOrIsCorrect: string | boolean, maybeIsCorrect?: boolean) => {
-    const isCorrect = typeof questionIdOrIsCorrect === 'boolean' 
-      ? questionIdOrIsCorrect 
-      : !!maybeIsCorrect;
-
-    setStudentState(prev => {
-      const newAttempted = prev.totalQuestionsAttempted + 1;
-      const newCorrect = isCorrect ? prev.totalQuestionsCorrect + 1 : prev.totalQuestionsCorrect;
-      const gainedXp = isCorrect ? 20 : 5;
-
-      if (isCorrect) {
-        triggerCelebration();
-      }
-
-      const newState = {
+  const handleRecordQuestionAnswer = (questionId: string, isCorrect: boolean) => {
+    setStudentState((prev) => {
+      const nextState = {
         ...prev,
-        totalQuestionsAttempted: newAttempted,
-        totalQuestionsCorrect: newCorrect,
-        xp: prev.xp + gainedXp
+        xp: prev.xp + (isCorrect ? 25 : 5),
+        totalQuestionsAttempted: prev.totalQuestionsAttempted + 1,
+        totalQuestionsCorrect: prev.totalQuestionsCorrect + (isCorrect ? 1 : 0),
       };
-      if (user) saveStudentToCloud(newState);
-      return newState;
+      saveStudentState(nextState);
+      return nextState;
     });
   };
 
-  // Update student name
   const handleUpdateStudentName = (newName: string) => {
-    setStudentState(prev => {
-      const newState = { ...prev, name: newName };
-      if (user) saveStudentToCloud(newState);
-      return newState;
+    setStudentState((prev) => {
+      const nextState = { ...prev, name: newName };
+      saveStudentState(nextState);
+      return nextState;
     });
   };
 
-  // Reset student progress
   const handleResetProgress = () => {
-    const resetState = {
-      ...INITIAL_STUDENT_STATE,
-      name: studentState.name
-    };
-    setStudentState(resetState);
-    saveStudentStateForUser(resetState, user ? user.uid : null);
-    if (user) saveStudentToCloud(resetState);
+    setStudentState(INITIAL_STUDENT_STATE);
+    saveStudentState(INITIAL_STUDENT_STATE);
   };
 
-  // 1. Loading Screen
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 text-white" dir="rtl">
-        <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4 shadow-xl shadow-indigo-500/20">
-          <GraduationCap className="w-8 h-8 text-white animate-pulse" />
+      <div
+        className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center space-y-4"
+        dir="rtl"
+      >
+        <div className="w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center animate-pulse">
+          <GraduationCap className="w-8 h-8 text-indigo-400" />
         </div>
-        <div className="flex items-center gap-2 font-black text-lg text-white mb-2">
-          <Loader2 className="w-5 h-5 animate-spin text-amber-300" />
+        <div className="flex items-center gap-2 text-indigo-300 font-bold text-sm">
+          <Loader2 className="w-4 h-4 animate-spin" />
           <span>جاري فتح منصة النموذجية السحابية...</span>
         </div>
-        <p className="text-xs text-indigo-200">إشراف الأستاذ مصطفى تركي • 2027</p>
+        <p className="text-xs text-indigo-200">إشراف الأستاذ مصطفى تركي • OMEGA V4.1</p>
       </div>
     );
   }
 
-  // 2. Compulsory Authentication Gate (Blocks site until registered / logged in)
   if (!user) {
     return (
       <AuthGate
@@ -265,154 +444,172 @@ function MainAppContent() {
     );
   }
 
-  // 3. Authenticated Full Platform Experience
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-indigo-500 selection:text-white" dir="rtl">
-      
-      {/* Top Navigation */}
+    <div
+      className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white"
+      dir="rtl"
+    >
       <Navbar
-        currentTab={currentTab}
-        setCurrentTab={setCurrentTab}
         studentState={studentState}
         selectedGrade={selectedGrade}
         onSelectGrade={handleSelectGrade}
         onOpenProfile={() => setIsProfileOpen(true)}
-        onOpenAuth={() => setIsAuthModalOpen(true)}
+        onOpenAuth={() => setIsProfileOpen(true)}
+        onOpenSearch={() => setIsSearchOpen(true)}
       />
 
-      {/* Main Interactive Views */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        
-        {currentTab === 'dashboard' && (
-          <Dashboard
-            selectedGrade={selectedGrade}
-            studentState={studentState}
-            onSelectGrade={handleSelectGrade}
-            onSelectUnit={handleSelectUnit}
-            onSelectLesson={handleSelectLesson}
-            onNavigateTab={(tab) => {
-              setCurrentTab(tab);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 overflow-x-hidden">
+        <Routes>
+          {/* Dashboard / Subject Hub */}
+          <Route
+            path="/"
+            element={
+              <Dashboard
+                selectedGrade={selectedGrade}
+                studentState={studentState}
+                onSelectGrade={handleSelectGrade}
+                onSelectUnit={handleSelectUnit}
+                onSelectLesson={handleSelectLesson}
+                onNavigateTab={(tab) => navigate(`/${tab}`)}
+                onSelectSubject={(sId) => navigate(`/subject/${sId}`)}
+                onOpenSimulations={(sId) => navigate(`/subject/${sId}/simulations`)}
+              />
+            }
           />
-        )}
-
-        {currentTab === 'lesson' && activeUnit && activeLesson && (
-          <LessonViewer
-            unit={activeUnit}
-            lesson={activeLesson}
-            onBackToDashboard={() => setCurrentTab('dashboard')}
-            onSelectLesson={handleSelectLesson}
-            isCompleted={studentState.completedLessonIds.includes(activeLesson.id)}
-            onToggleComplete={handleToggleCompleteLesson}
-            onAnswerExercise={handleAnswerExercise}
+          <Route
+            path="/subjects"
+            element={
+              <Dashboard
+                selectedGrade={selectedGrade}
+                studentState={studentState}
+                onSelectGrade={handleSelectGrade}
+                onSelectUnit={handleSelectUnit}
+                onSelectLesson={handleSelectLesson}
+                onNavigateTab={(tab) => navigate(`/${tab}`)}
+                onSelectSubject={(sId) => navigate(`/subject/${sId}`)}
+                onOpenSimulations={(sId) => navigate(`/subject/${sId}/simulations`)}
+              />
+            }
           />
-        )}
 
-        {currentTab === 'exam' && (
-          <ExamEngine
-            studentName={studentState.name}
-            grade={selectedGrade}
-            onRecordAnswer={(qId, isCorrect) => handleRecordQuestionAnswer(qId, isCorrect)}
+          {/* Subject Detail View */}
+          <Route
+            path="/subject/:subjectId"
+            element={
+              <SubjectDetailRouteWrapper
+                studentState={studentState}
+                onSelectLesson={handleSelectLesson}
+              />
+            }
           />
-        )}
 
-        {currentTab === 'mock' && (
-          <div className="max-w-5xl mx-auto">
-            <MinisterialMockSimulator
-              studentName={studentState.name}
-              grade={selectedGrade}
-              onClose={() => setCurrentTab('dashboard')}
-              onRecordScore={(score) => {
-                handleRecordQuestionAnswer('mock-exam-complete', score >= 50);
-              }}
-            />
-          </div>
-        )}
-
-        {currentTab === 'literature' && (
-          <LiteratureSection grade={selectedGrade} />
-        )}
-
-        {currentTab === 'essays' && (
-          <EssaysSection grade={selectedGrade} />
-        )}
-
-        {currentTab === 'malzama' && (
-          <MalzamaUploadLab 
-            onNavigateToUnits={() => {
-              setCurrentTab('dashboard');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onNavigateToMock={() => {
-              setCurrentTab('mock');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onSelectGrade={handleSelectGrade}
+          {/* Subject Simulations Hub */}
+          <Route path="/subject/:subjectId/simulations" element={<SimulationRouteWrapper />} />
+          <Route
+            path="/subject/:subjectId/simulations/:simulationId"
+            element={<SimulationRouteWrapper />}
           />
-        )}
 
-        {currentTab === 'verbs' && (
-          <IrregularVerbsLab
-            onRecordAnswer={(isCorrect) => handleRecordQuestionAnswer(isCorrect)}
+          {/* Specific Lesson View */}
+          <Route
+            path="/lesson/:lessonId"
+            element={
+              <LessonRouteWrapper
+                currentUnits={currentUnits}
+                studentState={studentState}
+                onSelectLesson={handleSelectLesson}
+                onToggleComplete={handleToggleCompleteLesson}
+                onAnswerExercise={handleAnswerExercise}
+              />
+            }
           />
-        )}
 
-        {currentTab === 'vocab' && (
-          <VisualVocabAtlas />
-        )}
+          {/* Dedicated Study Sections */}
+          <Route
+            path="/review"
+            element={
+              <SmartReviewSection
+                studentState={studentState}
+                currentUnits={currentUnits}
+                onSelectLesson={handleSelectLesson}
+                onNavigateToTab={(tab) => navigate(`/${tab}`)}
+              />
+            }
+          />
+          <Route
+            path="/exam"
+            element={
+              <ExamEngine
+                onRecordAnswer={handleRecordQuestionAnswer}
+                grade={selectedGrade}
+              />
+            }
+          />
+          <Route
+            path="/mock"
+            element={
+              <MinisterialMockSimulator
+                studentName={studentState.name}
+                onClose={() => navigate('/')}
+                grade={selectedGrade}
+              />
+            }
+          />
+          <Route path="/literature" element={<LiteratureSection grade={selectedGrade} />} />
+          <Route path="/essays" element={<EssaysSection grade={selectedGrade} />} />
+          <Route
+            path="/verbs"
+            element={
+              <IrregularVerbsLab
+                onRecordAnswer={(isCorrect) => handleRecordQuestionAnswer('verb', isCorrect)}
+              />
+            }
+          />
+          <Route path="/vocab" element={<VisualVocabAtlas />} />
+
+          {/* 404 Catch-All */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-auto border-t border-slate-200 bg-white/80 py-6 text-center text-xs text-slate-500">
+      {isProfileOpen && (
+        <StudentProfileModal
+          isOpen={isProfileOpen}
+          onClose={() => setIsProfileOpen(false)}
+          studentState={studentState}
+          onUpdateName={handleUpdateStudentName}
+          onResetProgress={handleResetProgress}
+          onOpenAuth={() => {}}
+        />
+      )}
+
+      {isSearchOpen && (
+        <GlobalSearchModal
+          isOpen={isSearchOpen}
+          onClose={() => setIsSearchOpen(false)}
+          onSelectLesson={handleSelectLesson}
+          onNavigateToTab={(tab) => navigate(`/${tab}`)}
+        />
+      )}
+
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-8 text-center text-xs text-slate-500 mt-auto overflow-x-hidden">
         <div className="max-w-7xl mx-auto px-4 space-y-2">
-          <p className="font-bold text-slate-700">
-            المنصة الرقمية المتكاملة لملزمة «النموذجية في اللغة الإنكليزية - {isThirdIntermediate ? 'الثالث المتوسط 2027' : 'السادس الإعدادي 2027'}»
+          <p className="font-bold text-slate-700 dark:text-slate-300">
+            منصة النموذجية التعليمية العراقية • OMEGA V4.1 Multi-Subject Platform & 3D Science Engine
           </p>
-          <p>
-            إعداد وإشراف الأستاذ مصطفى تركي • صممت وبرمجت وفق أحدث المعايير الوزارية والتربوية
-          </p>
+          <p>إشراف الأستاذ مصطفى تركي • جميع الحقوق محفوظة © 2027</p>
         </div>
       </footer>
-
-      {/* Profile & Achievements Modal */}
-      <StudentProfileModal
-        isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
-        studentState={studentState}
-        onUpdateName={handleUpdateStudentName}
-        onResetProgress={handleResetProgress}
-        onOpenAuth={() => {
-          setIsProfileOpen(false);
-          setIsAuthModalOpen(true);
-        }}
-        onSwitchAccount={() => {
-          setIsProfileOpen(false);
-          setIsAuthModalOpen(true);
-        }}
-      />
-
-      {/* Cloud Authentication Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onAuthSuccess={(name: string) => {
-          if (name) {
-            handleUpdateStudentName(name);
-          }
-        }}
-      />
-
     </div>
   );
 }
 
-export function App() {
+export default function App() {
   return (
-    <AuthProvider>
-      <MainAppContent />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <MainAppContent />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
-
-export default App;

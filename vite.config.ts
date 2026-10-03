@@ -10,6 +10,11 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
+    define: {
+      'import.meta.env.VITE_E2E_MODE': JSON.stringify(
+        process.env.VITE_E2E_MODE ?? (process.env.NODE_ENV === 'production' ? 'false' : 'true')
+      ),
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
