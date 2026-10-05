@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { SimulationShell } from '../../../core/SimulationShell';
 import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
@@ -7,7 +8,12 @@ import {
   calculateMechanicalProperties,
 } from './calculations';
 import { MechanicalMode } from './types';
-import { Activity, AlertTriangle, CheckCircle2, Sparkles, Layers, RotateCcw } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, Sparkles } from 'lucide-react';
+import { ScientificGrid } from '../../../visuals/ScientificGrid';
+import { MeasurementScale } from '../../../visuals/MeasurementScale';
+import { FormulaSubstitution } from '../../../visuals/FormulaSubstitution';
+import { ScientificGraph } from '../../../visuals/ScientificGraph';
+import { DiagramLabel } from '../../../visuals/DiagramLabel';
 
 export const MechanicalPropertiesSimulation: React.FC = () => {
   const [mode, setMode] = useState<MechanicalMode>('spring');
@@ -16,8 +22,6 @@ export const MechanicalPropertiesSimulation: React.FC = () => {
   const [originalLengthM, setOriginalLengthM] = useState<number>(2.0); // m
   const [crossSectionAreaMm2, setCrossSectionAreaMm2] = useState<number>(1.5); // mm²
   const [materialId, setSelectedMaterialId] = useState<string>('steel');
-
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const result = calculateMechanicalProperties(
     mode,
@@ -30,143 +34,6 @@ export const MechanicalPropertiesSimulation: React.FC = () => {
 
   const currentMat =
     ELASTIC_MATERIALS.find((m) => m.id === materialId) || ELASTIC_MATERIALS[0];
-
-  // Canvas drawing
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    ctx.clearRect(0, 0, width, height);
-
-    // Background grid
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < width; x += 25) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
-      ctx.stroke();
-    }
-    for (let y = 0; y < height; y += 25) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
-    }
-
-    const cx = width * 0.35;
-    const topY = 35;
-
-    // Fixed Support Ceiling
-    ctx.fillStyle = '#475569';
-    ctx.fillRect(cx - 70, topY - 12, 140, 12);
-    ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(cx - 70, topY - 12, 140, 12);
-
-    // Support hatch marks
-    ctx.strokeStyle = '#64748b';
-    ctx.lineWidth = 1.5;
-    for (let hx = cx - 60; hx <= cx + 60; hx += 12) {
-      ctx.beginPath();
-      ctx.moveTo(hx, topY - 12);
-      ctx.lineTo(hx + 8, topY - 22);
-      ctx.stroke();
-    }
-
-    if (mode === 'spring') {
-      // Spring Mode Rendering
-      const baseLenPx = 90;
-      // Scale extension: e.g. 1m = 120px
-      const extPx = Math.min(130, result.extensionM * 110);
-      const totalLenPx = baseLenPx + extPx;
-      const numCoils = 14;
-      const coilStep = totalLenPx / numCoils;
-
-      ctx.strokeStyle = result.isWithinElasticLimit ? '#38bdf8' : '#ef4444';
-      ctx.lineWidth = 3.5;
-      ctx.beginPath();
-      ctx.moveTo(cx, topY);
-
-      for (let i = 0; i <= numCoils; i++) {
-        const y = topY + i * coilStep;
-        const xOffset = i === 0 || i === numCoils ? 0 : (i % 2 === 0 ? 20 : -20);
-        ctx.lineTo(cx + xOffset, y);
-      }
-      ctx.stroke();
-
-      const loadY = topY + totalLenPx;
-
-      // Hanging Weight Load
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(cx - 24, loadY, 48, 36);
-      ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(cx - 24, loadY, 48, 36);
-
-      ctx.fillStyle = '#f59e0b';
-      ctx.font = 'bold 11px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(`${appliedForceN} N`, cx, loadY + 22);
-
-      // Extension ruler alongside spring
-      const rulerX = cx + 55;
-      ctx.strokeStyle = '#94a3b8';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath();
-      ctx.moveTo(rulerX, topY + baseLenPx);
-      ctx.lineTo(rulerX, loadY);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Extension label
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 11px monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText(`Δx = ${result.extensionMm.toFixed(1)} mm`, rulerX + 8, topY + baseLenPx + extPx / 2 + 4);
-    } else {
-      // Wire Extension Mode
-      const wireBaseLenPx = 110;
-      const wireExtPx = Math.min(110, result.extensionMm * 15);
-      const wireTotalLen = wireBaseLenPx + wireExtPx;
-
-      ctx.strokeStyle = currentMat.color;
-      ctx.lineWidth = Math.max(3, Math.min(10, crossSectionAreaMm2 * 1.5));
-      ctx.beginPath();
-      ctx.moveTo(cx, topY);
-      ctx.lineTo(cx, topY + wireTotalLen);
-      ctx.stroke();
-
-      const loadY = topY + wireTotalLen;
-
-      // Heavy Weight
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(cx - 30, loadY, 60, 42);
-      ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(cx - 30, loadY, 60, 42);
-
-      ctx.fillStyle = '#f59e0b';
-      ctx.font = 'bold 12px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(`F = ${appliedForceN} N`, cx, loadY + 26);
-
-      // Wire specs text
-      ctx.fillStyle = '#cbd5e1';
-      ctx.font = '10px sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText(`سلك من ${currentMat.nameAr.split('(')[0]}`, cx + 30, topY + 40);
-      ctx.fillText(`L₀ = ${originalLengthM} m | A = ${crossSectionAreaMm2} mm²`, cx + 30, topY + 60);
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 11px monospace';
-      ctx.fillText(`الاستطالة ΔL = ${result.extensionMm.toFixed(3)} mm`, cx + 30, topY + 82);
-    }
-  }, [mode, appliedForceN, springConstantK, originalLengthM, crossSectionAreaMm2, currentMat, result]);
 
   const handleReset = () => {
     setAppliedForceN(40);
@@ -199,6 +66,21 @@ export const MechanicalPropertiesSimulation: React.FC = () => {
     },
   ];
 
+  const getGraphData = () => {
+    const data = [];
+    const maxStress = currentMat.elasticLimitStressPa * 1.5;
+    const maxStrain = maxStress / currentMat.youngModulusPa;
+    for (let i = 0; i <= 20; i++) {
+      const strain = (i / 20) * maxStrain;
+      let stress = strain * currentMat.youngModulusPa;
+      if (stress > currentMat.elasticLimitStressPa) {
+        stress = currentMat.elasticLimitStressPa + (stress - currentMat.elasticLimitStressPa) * 0.2;
+      }
+      data.push({ x: strain * 1000, y: stress / 1e6 });
+    }
+    return data;
+  };
+
   return (
     <SimulationShell
       title="مختبر الخصائص الميكانيكية للمادة وقانون هوك"
@@ -218,7 +100,7 @@ export const MechanicalPropertiesSimulation: React.FC = () => {
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
             }`}
           >
-            تجربة النابض الحلزوني (قانون هوك F = k Δx)
+            تجربة النابض الحلزوني
           </button>
           <button
             type="button"
@@ -229,20 +111,83 @@ export const MechanicalPropertiesSimulation: React.FC = () => {
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
             }`}
           >
-            شد الأسلاك وحساب معامل يونك (Young's Modulus)
+            شد الأسلاك ومعامل يونك
           </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4">
-            {/* Visual Canvas Area */}
-            <div className="relative rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-inner flex flex-col items-center justify-center p-4">
-              <canvas
-                ref={canvasRef}
-                width={600}
-                height={290}
-                className="w-full max-w-[600px] h-auto aspect-[600/290] block select-none"
-              />
+          <div className="lg:col-span-2 space-y-6">
+            {/* Visual Scene */}
+            <div className="relative aspect-video rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-inner flex flex-col items-center justify-center p-4">
+              <svg viewBox="0 0 600 300" className="w-full h-full">
+                <ScientificGrid width={600} height={300} />
+                
+                {/* Ceiling Support */}
+                <rect x="230" y="10" width="140" height="15" fill="#475569" rx="2" />
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <line key={i} x1={235 + i * 11} y1="10" x2={243 + i * 11} y2="0" stroke="#64748b" strokeWidth="2" />
+                ))}
+
+                {mode === 'spring' ? (
+                  <g>
+                    {/* Spring Visual */}
+                    {(() => {
+                      const baseLen = 100;
+                      const ext = result.extensionM * 50; 
+                      const totalLen = baseLen + ext;
+                      const coils = 12;
+                      const points = Array.from({ length: coils * 10 }).map((_, i) => {
+                        const t = i / (coils * 10 - 1);
+                        const angle = t * coils * Math.PI * 2;
+                        const x = 300 + Math.sin(angle) * 15;
+                        const y = 25 + t * totalLen;
+                        return `${x},${y}`;
+                      }).join(' ');
+
+                      return (
+                        <>
+                          <polyline 
+                            points={points} 
+                            fill="none" 
+                            stroke={result.isWithinElasticLimit ? "#38bdf8" : "#ef4444"} 
+                            strokeWidth="3" 
+                            strokeLinejoin="round"
+                          />
+                          <motion.g animate={{ y: 25 + totalLen }}>
+                            <rect x="275" y="0" width="50" height="40" fill="#1e293b" stroke="#f59e0b" strokeWidth="2" />
+                            <text x="300" y="25" textAnchor="middle" fill="#f59e0b" className="text-[12px] font-bold">{appliedForceN} N</text>
+                          </motion.g>
+                        </>
+                      );
+                    })()}
+                  </g>
+                ) : (
+                  <g>
+                    {/* Wire Visual */}
+                    {(() => {
+                      const baseLen = 150;
+                      const ext = result.extensionMm * 10; 
+                      const totalLen = baseLen + ext;
+                      return (
+                        <>
+                          <line 
+                            x1="300" y1="25" x2="300" y2={25 + totalLen} 
+                            stroke={currentMat.color} 
+                            strokeWidth={Math.max(2, crossSectionAreaMm2 * 2)} 
+                          />
+                          <motion.g animate={{ y: 25 + totalLen }}>
+                            <rect x="270" y="0" width="60" height="50" fill="#334155" stroke="#f59e0b" strokeWidth="2" />
+                            <text x="300" y="30" textAnchor="middle" fill="#f59e0b" className="text-[12px] font-bold">{appliedForceN} N</text>
+                          </motion.g>
+                        </>
+                      );
+                    })()}
+                  </g>
+                )}
+
+                <MeasurementScale x={350} y={25} width={200} minVal={0} maxVal={50} unit="mm" color="#94a3b8" />
+                <DiagramLabel x={300} y={150} text={mode === 'spring' ? 'Spring' : currentMat.nameAr.split('(')[0]} color="cyan" />
+              </svg>
 
               <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-slate-700/60 px-3 py-1.5 rounded-xl text-xs font-mono text-cyan-400">
                 {mode === 'spring' ? 'F = k · Δx' : 'Y = (F · L₀) / (A · ΔL)'}
@@ -251,40 +196,26 @@ export const MechanicalPropertiesSimulation: React.FC = () => {
 
             <SimulationHUD metrics={hudMetrics} />
 
-            {/* Hooke Linear Region Graph Preview */}
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-cyan-600" />
-                  <span>منحنى القوة والاستطالة (قانون هوك وحد المرونة):</span>
-                </span>
-                <span className="text-[11px] font-mono text-slate-400">
-                  معامل يونك = {(currentMat.youngModulusPa / 1e9).toFixed(0)} GPa
-                </span>
-              </div>
-
-              {/* Hooke Curve SVG */}
-              <div className="h-28 w-full bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 p-3 relative">
-                <svg className="w-full h-full" viewBox="0 0 400 90">
-                  <line x1="30" y1="75" x2="380" y2="75" stroke="#475569" strokeWidth="1.5" />
-                  <line x1="30" y1="10" x2="30" y2="75" stroke="#475569" strokeWidth="1.5" />
-                  <text x="370" y="86" fill="#94a3b8" fontSize="9" textAnchor="end">الاستطالة Δx</text>
-                  <text x="35" y="15" fill="#94a3b8" fontSize="9">القوة F</text>
-
-                  {/* Linear Elastic Line */}
-                  <line x1="30" y1="75" x2="250" y2="25" stroke="#06b6d4" strokeWidth="2.5" />
-
-                  {/* Elastic Limit Mark */}
-                  <circle cx="250" cy="25" r="3.5" fill="#f59e0b" />
-                  <text x="250" y="18" fill="#f59e0b" fontSize="8" fontWeight="bold" textAnchor="middle">
-                    حد المرونة
-                  </text>
-
-                  {/* Plastic Deformation dashed line beyond limit */}
-                  <path d="M 250 25 Q 310 20 360 40" fill="none" stroke="#ef4444" strokeWidth="2" strokeDasharray="3 3" />
-                  <text x="350" y="55" fill="#ef4444" fontSize="8">منطقة التشوه الدائم</text>
-                </svg>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormulaSubstitution
+                formula={mode === 'spring' ? 'Δx = F / k' : 'σ = F / A'}
+                substitutions={mode === 'spring' ? [
+                  { symbol: 'F', value: appliedForceN, unit: 'N' },
+                  { symbol: 'k', value: springConstantK, unit: 'N/m' },
+                ] : [
+                  { symbol: 'F', value: appliedForceN, unit: 'N' },
+                  { symbol: 'A', value: (crossSectionAreaMm2 * 1e-6).toExponential(2), unit: 'm²' },
+                ]}
+                result={mode === 'spring' ? `${result.extensionMm.toFixed(2)} mm` : `${result.stressMPa.toFixed(1)} MPa`}
+              />
+              <ScientificGraph
+                data={getGraphData()}
+                xLabel="Strain (x10^-3)"
+                yLabel="Stress (MPa)"
+                xRange={[0, (currentMat.elasticLimitStressPa * 1.5 / currentMat.youngModulusPa) * 1000]}
+                yRange={[0, currentMat.elasticLimitStressPa * 1.5 / 1e6]}
+                currentPoint={{ x: result.strain * 1000, y: result.stressMPa }}
+              />
             </div>
 
             {/* Educational Callout */}
@@ -331,11 +262,6 @@ export const MechanicalPropertiesSimulation: React.FC = () => {
                     onChange={(e) => setAppliedForceN(Number(e.target.value))}
                     className="w-full accent-amber-500 cursor-pointer"
                   />
-                  <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
-                    <span>0 N</span>
-                    <span>100 N</span>
-                    <span>200 N</span>
-                  </div>
                 </div>
 
                 {mode === 'spring' ? (

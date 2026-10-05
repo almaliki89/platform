@@ -5,6 +5,14 @@ import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
 import { calculateCircuit, generateVICharacteristic } from './calculations';
 import { CircuitMode } from './types';
 import { Zap, RotateCcw, Activity, GitFork, ArrowRight, Sparkles } from 'lucide-react';
+import { LabSurface } from '../../../visuals/LabSurface';
+import { ScientificGrid } from '../../../visuals/ScientificGrid';
+import { CircuitWire } from '../../../visuals/CircuitWire';
+import { ScientificGraph } from '../../../visuals/ScientificGraph';
+import { FormulaSubstitution } from '../../../visuals/FormulaSubstitution';
+import { SimulationStatus } from '../../../visuals/SimulationStatus';
+import { ValueBadge } from '../../../visuals/ValueBadge';
+import { usePrefersReducedMotion } from '../../../core/usePrefersReducedMotion';
 
 export const ElectricCurrentSimulation: React.FC = () => {
   const [mode, setMode] = useState<CircuitMode>('series');
@@ -13,224 +21,12 @@ export const ElectricCurrentSimulation: React.FC = () => {
   const [r2Ohm, setR2Ohm] = useState<number>(6);
   const [hasR3, setHasR3] = useState<boolean>(false);
   const [r3Ohm, setR3Ohm] = useState<number>(12);
-
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const animOffsetRef = useRef<number>(0);
-  const animFrameRef = useRef<number | null>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const resistances = hasR3 ? [r1Ohm, r2Ohm, r3Ohm] : [r1Ohm, r2Ohm];
   const activeResistances = mode === 'single' ? [r1Ohm] : resistances;
   const circuitResult = calculateCircuit(mode, voltageV, activeResistances);
   const viPoints = generateVICharacteristic(circuitResult.equivalentResistanceOhm, 24);
-
-  // Animation Loop for Current flow dots
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let isMounted = true;
-
-    const render = () => {
-      if (!isMounted) return;
-      const width = canvas.width;
-      const height = canvas.height;
-      ctx.clearRect(0, 0, width, height);
-
-      // Grid
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-      ctx.lineWidth = 1;
-      for (let x = 0; x < width; x += 25) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-
-      // Update flow offset proportional to current
-      const flowSpeed = Math.min(6, Math.max(0.5, circuitResult.totalCurrentA * 0.8));
-      animOffsetRef.current = (animOffsetRef.current + flowSpeed) % 20;
-
-      // Draw Circuit Schematic based on mode
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 2.5;
-
-      const left = 60;
-      const right = width - 60;
-      const top = 50;
-      const bottom = height - 50;
-
-      // Main Outer Loop Wires
-      ctx.beginPath();
-      ctx.moveTo(left, top);
-      ctx.lineTo(right, top);
-      ctx.lineTo(right, bottom);
-      ctx.lineTo(left, bottom);
-      ctx.lineTo(left, top);
-      ctx.stroke();
-
-      // Battery on Left Wire
-      const batY = (top + bottom) / 2;
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(left - 12, batY - 26, 24, 52);
-
-      // Long positive plate
-      ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = 3.5;
-      ctx.beginPath();
-      ctx.moveTo(left - 15, batY - 14);
-      ctx.lineTo(left + 15, batY - 14);
-      ctx.stroke();
-
-      // Short thick negative plate
-      ctx.strokeStyle = '#3b82f6';
-      ctx.lineWidth = 5;
-      ctx.beginPath();
-      ctx.moveTo(left - 9, batY + 14);
-      ctx.lineTo(left + 9, batY + 14);
-      ctx.stroke();
-
-      ctx.fillStyle = '#ef4444';
-      ctx.font = 'bold 12px sans-serif';
-      ctx.fillText('+', left + 22, batY - 12);
-      ctx.fillStyle = '#3b82f6';
-      ctx.fillText('−', left + 22, batY + 16);
-
-      ctx.fillStyle = '#f8fafc';
-      ctx.font = 'bold 11px sans-serif';
-      ctx.textAlign = 'right';
-      ctx.fillText(`V = ${voltageV}V`, left - 20, batY + 4);
-
-      // Resistors on Top or Branches
-      if (mode === 'single') {
-        const rX = (left + right) / 2;
-        drawResistor(ctx, rX, top, r1Ohm, 'R₁', circuitResult.resistorVoltagesV[0], circuitResult.branchCurrentsA[0]);
-      } else if (mode === 'series') {
-        const count = activeResistances.length;
-        const span = (right - left) / (count + 1);
-        activeResistances.forEach((r, idx) => {
-          const rx = left + span * (idx + 1);
-          drawResistor(
-            ctx,
-            rx,
-            top,
-            r,
-            `R${idx + 1}`,
-            circuitResult.resistorVoltagesV[idx],
-            circuitResult.branchCurrentsA[idx]
-          );
-        });
-      } else {
-        // Parallel Mode: Draw branches
-        const rX = (left + right) / 2;
-        const branchGap = 65;
-        const branchY1 = (top + bottom) / 2 - (hasR3 ? branchGap : branchGap / 2);
-        const branchY2 = (top + bottom) / 2 + (hasR3 ? 0 : branchGap / 2);
-        const branchY3 = (top + bottom) / 2 + branchGap;
-
-        // Vertical split wires
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 2.5;
-
-        // Middle wire branch 1
-        ctx.beginPath();
-        ctx.moveTo(left + 100, branchY1);
-        ctx.lineTo(right - 100, branchY1);
-        ctx.stroke();
-
-        // Middle wire branch 2
-        ctx.beginPath();
-        ctx.moveTo(left + 100, branchY2);
-        ctx.lineTo(right - 100, branchY2);
-        ctx.stroke();
-
-        if (hasR3) {
-          ctx.beginPath();
-          ctx.moveTo(left + 100, branchY3);
-          ctx.lineTo(right - 100, branchY3);
-          ctx.stroke();
-        }
-
-        // Connection verticals
-        ctx.beginPath();
-        ctx.moveTo(left + 100, branchY1);
-        ctx.lineTo(left + 100, hasR3 ? branchY3 : branchY2);
-        ctx.moveTo(right - 100, branchY1);
-        ctx.lineTo(right - 100, hasR3 ? branchY3 : branchY2);
-        ctx.stroke();
-
-        drawResistor(ctx, rX, branchY1, r1Ohm, 'R₁', circuitResult.resistorVoltagesV[0], circuitResult.branchCurrentsA[0]);
-        drawResistor(ctx, rX, branchY2, r2Ohm, 'R₂', circuitResult.resistorVoltagesV[1], circuitResult.branchCurrentsA[1]);
-        if (hasR3) {
-          drawResistor(ctx, rX, branchY3, r3Ohm, 'R₃', circuitResult.resistorVoltagesV[2], circuitResult.branchCurrentsA[2]);
-        }
-      }
-
-      // Draw Electron dots moving in circuit (conventional current from + to -)
-      const offset = animOffsetRef.current;
-      ctx.fillStyle = '#fef08a';
-      // Top wire dots (moving right)
-      for (let x = left + 20; x < right - 20; x += 30) {
-        ctx.beginPath();
-        ctx.arc((x + offset) % (right - 20), top, 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      // Right wire dots (moving down)
-      for (let y = top + 20; y < bottom - 20; y += 30) {
-        ctx.beginPath();
-        ctx.arc(right, (y + offset) % (bottom - 20), 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      animFrameRef.current = requestAnimationFrame(render);
-    };
-
-    animFrameRef.current = requestAnimationFrame(render);
-
-    return () => {
-      isMounted = false;
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    };
-  }, [mode, voltageV, r1Ohm, r2Ohm, r3Ohm, hasR3, activeResistances, circuitResult]);
-
-  function drawResistor(
-    ctx: CanvasRenderingContext2D,
-    cx: number,
-    cy: number,
-    ohm: number,
-    label: string,
-    vDrop: number,
-    iBranch: number
-  ) {
-    const rw = 56;
-    const rh = 22;
-
-    // Resistor Box
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(cx - rw / 2, cy - rh / 2, rw, rh);
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(cx - rw / 2, cy - rh / 2, rw, rh);
-
-    // Resistor Bands (decorative color bands)
-    const bandWidth = 4;
-    const colors = ['#f59e0b', '#ef4444', '#10b981', '#a855f7'];
-    colors.forEach((c, idx) => {
-      ctx.fillStyle = c;
-      ctx.fillRect(cx - rw / 2 + 10 + idx * 10, cy - rh / 2 + 2, bandWidth, rh - 4);
-    });
-
-    // Label & Values
-    ctx.fillStyle = '#38bdf8';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${label} = ${ohm} Ω`, cx, cy - rh / 2 - 8);
-
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '10px monospace';
-    ctx.fillText(`${vDrop.toFixed(1)}V | ${iBranch.toFixed(2)}A`, cx, cy + rh / 2 + 15);
-  }
 
   const handleReset = () => {
     setVoltageV(12);
@@ -257,10 +53,28 @@ export const ElectricCurrentSimulation: React.FC = () => {
       color: 'slate',
     },
     {
-      label: 'القدرة الكهربائية الكلية (P)',
+      label: 'القدرة الكهربائية (P)',
       value: `${circuitResult.totalPowerW.toFixed(1)} W`,
       color: 'emerald',
     },
+  ];
+
+  const width = 600;
+  const height = 300;
+  const padding = 60;
+  const left = padding;
+  const right = width - padding;
+  const top = 60;
+  const bottom = height - 60;
+  const centerY = (top + bottom) / 2;
+
+  // Build circuit wires
+  const mainLoopPoints = [
+    { x: left, y: top },
+    { x: right, y: top },
+    { x: right, y: bottom },
+    { x: left, y: bottom },
+    { x: left, y: top },
   ];
 
   return (
@@ -271,242 +85,192 @@ export const ElectricCurrentSimulation: React.FC = () => {
       topic="التيار الكهربائي وقانون أوم"
     >
       <div className="space-y-6">
-        {/* Circuit Mode Selector */}
         <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
-          <button
-            type="button"
-            onClick={() => setMode('single')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-              mode === 'single'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
-            }`}
-          >
-            مقاومة منفردة (قانون أوم)
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('series')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-              mode === 'series'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
-            }`}
-          >
-            <ArrowRight className="w-3.5 h-3.5" />
-            <span>ربط التوالي (Series)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('parallel')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-              mode === 'parallel'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
-            }`}
-          >
-            <GitFork className="w-3.5 h-3.5" />
-            <span>ربط التوازي (Parallel)</span>
-          </button>
+          {(['single', 'series', 'parallel'] as CircuitMode[]).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                mode === m
+                  ? 'bg-cyan-600 text-white shadow-sm'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+              }`}
+            >
+              {m === 'single' ? 'قانون أوم' : m === 'series' ? 'ربط توالي' : 'ربط توازي'}
+            </button>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Visual & Graph */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="relative rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-inner flex flex-col items-center justify-center p-4">
-              <canvas
-                ref={canvasRef}
-                width={600}
-                height={280}
-                className="w-full max-w-[600px] h-auto aspect-[600/280] block select-none"
-              />
+            <LabSurface type="metallic" className="aspect-[600/300] p-0 relative overflow-hidden" data-testid="physics-visualization">
+              <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
+                <ScientificGrid width={width} height={height} />
+                
+                {/* Circuit Wires */}
+                <CircuitWire 
+                  points={mainLoopPoints} 
+                  currentA={circuitResult.totalCurrentA} 
+                  showElectrons={!prefersReducedMotion} 
+                />
 
-              <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-slate-700/60 px-3 py-1.5 rounded-xl text-xs font-mono text-cyan-400">
-                {circuitResult.formulaSummaryAr}
+                {/* Parallel Branches if mode is parallel */}
+                {mode === 'parallel' && (
+                  <>
+                    <CircuitWire points={[{x: left + 100, y: top}, {x: left + 100, y: bottom}]} currentA={0} showElectrons={false} />
+                    <CircuitWire points={[{x: right - 100, y: top}, {x: right - 100, y: bottom}]} currentA={0} showElectrons={false} />
+                    <CircuitWire 
+                      points={[{x: left + 100, y: centerY}, {x: right - 100, y: centerY}]} 
+                      currentA={circuitResult.branchCurrentsA[1] || 0} 
+                      showElectrons={!prefersReducedMotion} 
+                    />
+                    {hasR3 && (
+                      <CircuitWire 
+                        points={[{x: left + 100, y: bottom - 30}, {x: right - 100, y: bottom - 30}]} 
+                        currentA={circuitResult.branchCurrentsA[2] || 0} 
+                        showElectrons={!prefersReducedMotion} 
+                      />
+                    )}
+                  </>
+                )}
+
+                {/* Battery Symbol */}
+                <g transform={`translate(${left}, ${centerY})`}>
+                  <rect x="-15" y="-25" width="30" height="50" fill="#0f172a" stroke="#334155" strokeWidth="1" />
+                  <line x1="-12" y1="-10" x2="12" y2="-10" stroke="#ef4444" strokeWidth="3" />
+                  <line x1="-8" y1="10" x2="8" y2="10" stroke="#3b82f6" strokeWidth="5" />
+                  <text x="18" y="-8" fill="#ef4444" fontSize="10" fontWeight="bold">+</text>
+                  <text x="18" y="15" fill="#3b82f6" fontSize="10" fontWeight="bold">−</text>
+                  <text x="-25" y="5" fill="#f1f5f9" fontSize="10" fontWeight="bold" textAnchor="end">{voltageV}V</text>
+                </g>
+
+                {/* Resistors */}
+                {mode === 'single' && (
+                  <ResistorSVG x={(left + right) / 2} y={top} label="R₁" ohm={r1Ohm} vDrop={voltageV} i={circuitResult.totalCurrentA} />
+                )}
+                {mode === 'series' && activeResistances.map((r, i) => (
+                  <ResistorSVG 
+                    key={i} 
+                    x={left + (i + 1) * ((right - left) / (activeResistances.length + 1))} 
+                    y={top} 
+                    label={`R${i+1}`} 
+                    ohm={r} 
+                    vDrop={circuitResult.resistorVoltagesV[i]} 
+                    i={circuitResult.totalCurrentA} 
+                  />
+                ))}
+                {mode === 'parallel' && (
+                  <>
+                    <ResistorSVG x={(left + right) / 2} y={top} label="R₁" ohm={r1Ohm} vDrop={voltageV} i={circuitResult.branchCurrentsA[0]} />
+                    <ResistorSVG x={(left + right) / 2} y={centerY} label="R₂" ohm={r2Ohm} vDrop={voltageV} i={circuitResult.branchCurrentsA[1]} />
+                    {hasR3 && (
+                      <ResistorSVG x={(left + right) / 2} y={bottom - 30} label="R₃" ohm={r3Ohm} vDrop={voltageV} i={circuitResult.branchCurrentsA[2]} />
+                    )}
+                  </>
+                )}
+              </svg>
+
+              <div className="absolute top-4 right-4">
+                <SimulationStatus status="nominal" message={voltageV > 0 ? 'دائرة مغلقة' : 'دائرة مفتوحة'} />
               </div>
+            </LabSurface>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ScientificGraph
+                data={viPoints.map(p => ({ x: p.voltage, y: p.current }))}
+                xLabel="الجهد (V)"
+                yLabel="التيار (A)"
+                xRange={[0, 24]}
+                yRange={[0, 24 / circuitResult.equivalentResistanceOhm]}
+                currentPoint={{ x: voltageV, y: circuitResult.totalCurrentA }}
+                color="#06b6d4"
+              />
+              
+              <FormulaSubstitution
+                formula={mode === 'series' ? 'Req = R₁ + R₂ + ...' : mode === 'parallel' ? '1/Req = 1/R₁ + 1/R₂ + ...' : 'I = V / R'}
+                substitutions={[
+                  { symbol: 'V', value: voltageV, unit: 'V' },
+                  { symbol: 'Req', value: circuitResult.equivalentResistanceOhm.toFixed(2), unit: 'Ω' },
+                ]}
+                result={circuitResult.totalCurrentA.toFixed(3)}
+                unit="A"
+              />
             </div>
 
             <SimulationHUD metrics={hudMetrics} />
 
-            {/* V-I Ohm's Law Graph */}
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-cyan-600" />
-                  <span>منحنى العلاقة البيانية بين الجهد والتيار (V - I)</span>
-                </span>
-                <span className="text-[11px] font-mono text-slate-400">
-                  ميل الخط = المقاومة R = {(1 / (circuitResult.totalCurrentA / (voltageV || 1))).toFixed(1)} Ω
-                </span>
-              </div>
-
-              {/* SVG Line Graph */}
-              <div className="h-32 w-full flex items-end gap-1 pt-4 pb-2 px-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 relative">
-                <svg className="w-full h-full overflow-visible" viewBox="0 0 400 100">
-                  {/* Axis */}
-                  <line x1="20" y1="90" x2="380" y2="90" stroke="#475569" strokeWidth="1.5" />
-                  <line x1="20" y1="10" x2="20" y2="90" stroke="#475569" strokeWidth="1.5" />
-
-                  {/* Labels */}
-                  <text x="375" y="98" fill="#94a3b8" fontSize="9" textAnchor="end">الجهد V</text>
-                  <text x="25" y="15" fill="#94a3b8" fontSize="9">التيار I</text>
-
-                  {/* Graph Line */}
-                  <polyline
-                    fill="none"
-                    stroke="#06b6d4"
-                    strokeWidth="2.5"
-                    points={viPoints
-                      .map((p) => {
-                        const x = 20 + (p.voltage / 24) * 350;
-                        const maxI = 24 / circuitResult.equivalentResistanceOhm;
-                        const y = 90 - (p.current / (maxI || 1)) * 75;
-                        return `${x},${y}`;
-                      })
-                      .join(' ')}
-                  />
-
-                  {/* Operating Point */}
-                  {(() => {
-                    const opX = 20 + (voltageV / 24) * 350;
-                    const maxI = 24 / circuitResult.equivalentResistanceOhm;
-                    const opY = 90 - (circuitResult.totalCurrentA / (maxI || 1)) * 75;
-                    return (
-                      <g>
-                        <circle cx={opX} cy={opY} r="5" fill="#ef4444" />
-                        <text x={opX} y={opY - 8} fill="#ef4444" fontSize="9" fontWeight="bold" textAnchor="middle">
-                          ({voltageV}V, {circuitResult.totalCurrentA.toFixed(2)}A)
-                        </text>
-                      </g>
-                    );
-                  })()}
-                </svg>
-              </div>
-            </div>
-
-            {/* Physics Explanation Callout */}
-            <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-900 dark:text-cyan-200 space-y-1">
-              <p className="font-bold flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-                <span>الاستنتاج العلمي وفق المنهاج الوزاري:</span>
+            <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 space-y-2">
+              <p className="font-bold flex items-center gap-1.5 text-cyan-900 dark:text-cyan-200">
+                <Sparkles className="w-4 h-4" />
+                <span>التحليل الفيزيائي:</span>
               </p>
-              <p>{circuitResult.descriptionAr}</p>
+              <p className="text-xs leading-relaxed text-slate-700 dark:text-slate-300">
+                {circuitResult.descriptionAr}
+              </p>
             </div>
           </div>
 
-          {/* Controls */}
           <div className="space-y-4">
-            <SimulationControls
-              title="معاملات الدائرة الكهربائية"
-              onReset={handleReset}
-            >
-              <div className="space-y-4">
+            <SimulationControls title="التحكم بالدائرة" onReset={handleReset}>
+              <div className="space-y-6">
                 <div>
-                  <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                    <span>فرق جهد المصدر (V)</span>
-                    <span className="font-mono text-cyan-600 dark:text-cyan-400">{voltageV} V</span>
+                  <div className="flex justify-between text-xs font-bold mb-2">
+                    <span>جهد البطارية</span>
+                    <span className="text-cyan-600">{voltageV} V</span>
                   </div>
                   <input
-                    type="range"
-                    min={1}
-                    max={24}
-                    step={1}
+                    type="range" min={1} max={24} step={1}
                     value={voltageV}
                     onChange={(e) => setVoltageV(Number(e.target.value))}
-                    className="w-full accent-cyan-600 cursor-pointer"
-                  />
-                  <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
-                    <span>1 V</span>
-                    <span>12 V</span>
-                    <span>24 V</span>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                    <span>المقاومة الأولى (R₁)</span>
-                    <span className="font-mono text-cyan-600 dark:text-cyan-400">{r1Ohm} Ω</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={1}
-                    max={50}
-                    step={1}
-                    value={r1Ohm}
-                    onChange={(e) => setR1Ohm(Number(e.target.value))}
-                    className="w-full accent-cyan-600 cursor-pointer"
+                    className="w-full accent-cyan-600"
                   />
                 </div>
 
-                {mode !== 'single' && (
-                  <div>
-                    <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      <span>المقاومة الثانية (R₂)</span>
-                      <span className="font-mono text-cyan-600 dark:text-cyan-400">{r2Ohm} Ω</span>
+                <div className="space-y-4 pt-2">
+                  <span className="text-xs font-bold block">المقاومات المتصلة:</span>
+                  {[
+                    { val: r1Ohm, set: setR1Ohm, label: 'R₁' },
+                    ...(mode !== 'single' ? [{ val: r2Ohm, set: setR2Ohm, label: 'R₂' }] : []),
+                    ...(hasR3 && mode !== 'single' ? [{ val: r3Ohm, set: setR3Ohm, label: 'R₃' }] : []),
+                  ].map((r, i) => (
+                    <div key={i}>
+                      <div className="flex justify-between text-[11px] mb-1">
+                        <span>قيمة {r.label}</span>
+                        <span className="font-mono text-cyan-600">{r.val} Ω</span>
+                      </div>
+                      <input
+                        type="range" min={1} max={50} step={1}
+                        value={r.val}
+                        onChange={(e) => r.set(Number(e.target.value))}
+                        className="w-full accent-cyan-600 h-1.5"
+                      />
                     </div>
-                    <input
-                      type="range"
-                      min={1}
-                      max={50}
-                      step={1}
-                      value={r2Ohm}
-                      onChange={(e) => setR2Ohm(Number(e.target.value))}
-                      className="w-full accent-cyan-600 cursor-pointer"
-                    />
-                  </div>
-                )}
+                  ))}
+                </div>
 
                 {mode !== 'single' && (
                   <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
-                    <label className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer mb-2">
-                      <span>إضافة مقاومة ثالثة (R₃)</span>
+                    <label className="flex items-center justify-between text-xs font-bold cursor-pointer">
+                      <span>إضافة مقاومة R₃</span>
                       <input
-                        type="checkbox"
-                        checked={hasR3}
+                        type="checkbox" checked={hasR3}
                         onChange={(e) => setHasR3(e.target.checked)}
-                        className="rounded accent-cyan-600"
+                        className="rounded accent-cyan-600 w-4 h-4"
                       />
                     </label>
-
-                    {hasR3 && (
-                      <div className="space-y-1.5">
-                        <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
-                          <span>قيمة المقاومة الثالثة (R₃)</span>
-                          <span className="font-mono text-cyan-600 dark:text-cyan-400">{r3Ohm} Ω</span>
-                        </div>
-                        <input
-                          type="range"
-                          min={1}
-                          max={50}
-                          step={1}
-                          value={r3Ohm}
-                          onChange={(e) => setR3Ohm(Number(e.target.value))}
-                          className="w-full accent-cyan-600 cursor-pointer"
-                        />
-                      </div>
-                    )}
                   </div>
                 )}
-
-                {/* Table of branch values */}
-                <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
-                  <p className="text-[11px] font-bold text-slate-500 mb-2">توزيع الجهود والتيارات:</p>
+                
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase block mb-2">توزيع القيم:</span>
                   <div className="space-y-1.5">
                     {activeResistances.map((r, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs"
-                      >
-                        <span className="font-bold text-slate-700 dark:text-slate-300">
-                          R{i + 1} ({r} Ω)
-                        </span>
-                        <div className="flex items-center gap-3 font-mono text-[11px]">
-                          <span className="text-cyan-600 dark:text-cyan-400">
-                            V = {circuitResult.resistorVoltagesV[i]?.toFixed(1)} V
-                          </span>
-                          <span className="text-amber-600 dark:text-amber-400">
-                            I = {circuitResult.branchCurrentsA[i]?.toFixed(2)} A
-                          </span>
+                      <div key={i} className="flex items-center justify-between p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[10px]">
+                        <span className="font-bold">R{i+1}</span>
+                        <div className="flex gap-2">
+                          <span className="text-cyan-600 font-bold">{circuitResult.resistorVoltagesV[i]?.toFixed(1)}V</span>
+                          <span className="text-amber-600 font-bold">{circuitResult.branchCurrentsA[i]?.toFixed(2)}A</span>
                         </div>
                       </div>
                     ))}
@@ -520,3 +284,18 @@ export const ElectricCurrentSimulation: React.FC = () => {
     </SimulationShell>
   );
 };
+
+const ResistorSVG: React.FC<{x: number, y: number, label: string, ohm: number, vDrop: number, i: number}> = ({
+  x, y, label, ohm, vDrop, i
+}) => (
+  <g transform={`translate(${x}, ${y})`}>
+    <rect x="-25" y="-10" width="50" height="20" fill="#1e293b" stroke="#f1f5f9" strokeWidth="1.5" rx="2" />
+    <text x="0" y="-15" fill="#38bdf8" fontSize="10" fontWeight="bold" textAnchor="middle">{label}: {ohm}Ω</text>
+    <text x="0" y="22" fill="#94a3b8" fontSize="8" textAnchor="middle">{vDrop.toFixed(1)}V | {i.toFixed(2)}A</text>
+    {/* Decorative bands */}
+    <rect x="-18" y="-8" width="4" height="16" fill="#f59e0b" />
+    <rect x="-8" y="-8" width="4" height="16" fill="#ef4444" />
+    <rect x="2" y="-8" width="4" height="16" fill="#10b981" />
+  </g>
+);
+

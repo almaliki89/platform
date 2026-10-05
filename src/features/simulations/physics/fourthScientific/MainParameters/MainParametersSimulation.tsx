@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { SimulationShell } from '../../../core/SimulationShell';
 import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
@@ -8,7 +9,10 @@ import {
   calculateMeasurementError,
 } from './calculations';
 import { MainParametersMode } from './types';
-import { Ruler, Scale, Percent, CheckCircle2, Sparkles, BookOpen, Layers, RotateCcw } from 'lucide-react';
+import { Ruler, Scale, Percent, CheckCircle2, Sparkles } from 'lucide-react';
+import { MeasurementScale } from '../../../visuals/MeasurementScale';
+import { ScientificGrid } from '../../../visuals/ScientificGrid';
+import { FormulaSubstitution } from '../../../visuals/FormulaSubstitution';
 
 export const MainParametersSimulation: React.FC = () => {
   const [mode, setMode] = useState<MainParametersMode>('error-analysis');
@@ -74,7 +78,7 @@ export const MainParametersSimulation: React.FC = () => {
             }`}
           >
             <Percent className="w-4 h-4" />
-            <span>حساب الخطأ في القياس (المطلق والنسبي والمئوي)</span>
+            <span>حساب الخطأ في القياس</span>
           </button>
           <button
             type="button"
@@ -86,7 +90,7 @@ export const MainParametersSimulation: React.FC = () => {
             }`}
           >
             <Scale className="w-4 h-4" />
-            <span>معادلات الأبعاد والتحقق من صحة القوانين</span>
+            <span>معادلات الأبعاد</span>
           </button>
           <button
             type="button"
@@ -98,15 +102,15 @@ export const MainParametersSimulation: React.FC = () => {
             }`}
           >
             <Ruler className="w-4 h-4" />
-            <span>النظام الدولي للوحدات الأساسية (SI)</span>
+            <span>النظام الدولي للوحدات</span>
           </button>
         </div>
 
         {mode === 'error-analysis' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-6">
               {/* Visual Error Gauge Card */}
-              <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 shadow-inner text-white space-y-6">
+              <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 shadow-inner text-white space-y-6 overflow-hidden">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-800 pb-4">
                   <div className="flex items-center gap-3">
                     <div className="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
@@ -138,70 +142,55 @@ export const MainParametersSimulation: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Formulas Comparison Visual */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
-                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-                    <span className="text-[11px] text-slate-400 block">١. الخطأ المطلق</span>
-                    <span className="text-xs font-mono font-bold text-cyan-400">Δx = |x - x₀|</span>
-                    <p className="text-sm font-bold font-mono text-white mt-1">
-                      {errorResult.absoluteError.toFixed(4)}
-                    </p>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-                    <span className="text-[11px] text-slate-400 block">٢. الخطأ النسبي</span>
-                    <span className="text-xs font-mono font-bold text-amber-400">
-                      الخطأ النسبي = Δx / |x₀|
-                    </span>
-                    <p className="text-sm font-bold font-mono text-white mt-1">
-                      {errorResult.relativeError.toFixed(5)}
-                    </p>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-                    <span className="text-[11px] text-slate-400 block">٣. الخطأ المئوي</span>
-                    <span className="text-xs font-mono font-bold text-emerald-400">
-                      الخطأ المئوي = النسبي × 100
-                    </span>
-                    <p className="text-sm font-bold font-mono text-white mt-1">
-                      {errorResult.percentageError.toFixed(2)} %
-                    </p>
-                  </div>
+                {/* Error Scale SVG */}
+                <div className="relative aspect-[4/1] w-full bg-slate-900 rounded-2xl border border-slate-800 p-4 overflow-hidden">
+                  <svg viewBox="0 0 400 100" className="w-full h-full">
+                    <ScientificGrid width={400} height={100} />
+                    <MeasurementScale x={50} y={60} width={300} minVal={acceptedVal * 0.8} maxVal={acceptedVal * 1.2} step={acceptedVal * 0.04} color="#64748b" />
+                    
+                    {/* Accepted Value Marker */}
+                    <g transform="translate(200, 60)">
+                      <line x1="0" y1="-30" x2="0" y2="0" stroke="#10b981" strokeWidth="3" />
+                      <circle cx="0" cy="-30" r="4" fill="#10b981" />
+                      <text y="-40" textAnchor="middle" fill="#10b981" className="text-[10px] font-bold">Accepted</text>
+                    </g>
+
+                    {/* Measured Value Marker */}
+                    {(() => {
+                      const range = acceptedVal * 0.4; // 0.8 to 1.2
+                      const diff = measuredVal - acceptedVal;
+                      const xOffset = (diff / range) * 300;
+                      return (
+                        <motion.g 
+                          animate={{ x: 200 + xOffset }}
+                          transition={{ type: 'spring', damping: 15 }}
+                        >
+                          <line x1="0" y1="-15" x2="0" y2="0" stroke="#06b6d4" strokeWidth="3" />
+                          <circle cx="0" cy="-15" r="4" fill="#06b6d4" />
+                          <text y="-25" textAnchor="middle" fill="#06b6d4" className="text-[10px] font-bold">Measured</text>
+                        </motion.g>
+                      );
+                    })()}
+                  </svg>
                 </div>
 
-                {/* Visual Scale Difference */}
-                <div className="space-y-2 pt-2">
-                  <div className="flex justify-between text-xs text-slate-300">
-                    <span>مقارنة الموضع على خط القياس:</span>
-                    <span className="font-mono text-slate-400">
-                      مقبولة: {acceptedVal} | مقاسة: {measuredVal}
-                    </span>
-                  </div>
-                  <div className="w-full h-8 bg-slate-900 rounded-xl relative border border-slate-800 overflow-hidden flex items-center px-4">
-                    <div className="w-full h-1 bg-slate-700 relative">
-                      {/* Accepted marker (Green) */}
-                      <div
-                        className="absolute -top-3 w-3 h-7 bg-emerald-500 rounded-full shadow"
-                        style={{ left: '50%' }}
-                        title="القيمة المقبولة x₀"
-                      />
-                      {/* Measured marker (Cyan/Amber) */}
-                      {(() => {
-                        const diffPct = ((measuredVal - acceptedVal) / (acceptedVal || 1)) * 100;
-                        const markerLeft = Math.max(5, Math.min(95, 50 + diffPct * 2.5));
-                        return (
-                          <div
-                            className="absolute -top-3 w-3 h-7 bg-amber-400 rounded-full shadow transition-all duration-200"
-                            style={{ left: `${markerLeft}%` }}
-                            title="القيمة المقاسة x"
-                          />
-                        );
-                      })()}
-                    </div>
-                  </div>
-                  <div className="flex justify-between text-[10px] text-slate-400">
-                    <span>أقل من المقبول</span>
-                    <span className="text-emerald-400 font-bold">القيمة الحقيقية المقبولة (x₀)</span>
-                    <span>أعلى من المقبول</span>
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormulaSubstitution
+                    formula="Δx = |x - x₀|"
+                    substitutions={[
+                      { symbol: 'x', value: measuredVal },
+                      { symbol: 'x₀', value: acceptedVal },
+                    ]}
+                    result={errorResult.absoluteError.toFixed(4)}
+                  />
+                  <FormulaSubstitution
+                    formula="Err% = (Δx / x₀) × 100"
+                    substitutions={[
+                      { symbol: 'Δx', value: errorResult.absoluteError.toFixed(4) },
+                      { symbol: 'x₀', value: acceptedVal },
+                    ]}
+                    result={`${errorResult.percentageError.toFixed(2)}%`}
+                  />
                 </div>
               </div>
 
@@ -232,52 +221,30 @@ export const MainParametersSimulation: React.FC = () => {
                       تجارب قياس منهجية شائعة:
                     </span>
                     <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAcceptedVal(9.8);
-                          setMeasuredVal(9.65);
-                        }}
-                        className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-right hover:bg-slate-200"
-                      >
-                        التعجيل الأرضي (g = 9.8)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAcceptedVal(340);
-                          setMeasuredVal(348);
-                        }}
-                        className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-right hover:bg-slate-200"
-                      >
-                        سرعة الصوت (v = 340)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAcceptedVal(100);
-                          setMeasuredVal(102.5);
-                        }}
-                        className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-right hover:bg-slate-200"
-                      >
-                        غليان الماء (T = 100°C)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAcceptedVal(1000);
-                          setMeasuredVal(992);
-                        }}
-                        className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-right hover:bg-slate-200"
-                      >
-                        كثافة الماء (ρ = 1000)
-                      </button>
+                      {[
+                        { label: 'التعجيل الأرضي (g)', acc: 9.8, meas: 9.65 },
+                        { label: 'سرعة الصوت (v)', acc: 340, meas: 348 },
+                        { label: 'غليان الماء (T)', acc: 100, meas: 102.5 },
+                        { label: 'كثافة الماء (ρ)', acc: 1000, meas: 992 },
+                      ].map((p, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => {
+                            setAcceptedVal(p.acc);
+                            setMeasuredVal(p.meas);
+                          }}
+                          className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-right hover:bg-slate-200 transition-colors"
+                        >
+                          {p.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
 
                   <div>
                     <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      <span>القيمة المقبولة الحقيقية (x_accepted)</span>
+                      <span>القيمة المقبولة الحقيقية (x₀)</span>
                       <span className="font-mono text-emerald-600 dark:text-emerald-400">
                         {acceptedVal}
                       </span>
@@ -293,7 +260,7 @@ export const MainParametersSimulation: React.FC = () => {
 
                   <div>
                     <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      <span>القيمة المقاسة في التجربة (x_measured)</span>
+                      <span>القيمة المقاسة في التجربة (x)</span>
                       <span className="font-mono text-cyan-600 dark:text-cyan-400">
                         {measuredVal}
                       </span>
@@ -381,7 +348,7 @@ export const MainParametersSimulation: React.FC = () => {
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
             <div>
               <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">
-                الوحدات الأساسية السبع في النظام الدولي (Le Système International d'Unités - SI)
+                الوحدات الأساسية السبع في النظام الدولي (SI)
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 جميع الكميات الفيزيائية الأخرى هي كميات مشتقة تُعرّف بدلالة هذه الوحدات الأساسية السبع.

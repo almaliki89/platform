@@ -120,7 +120,7 @@ export const ForceLabSimulation: React.FC = () => {
       visualization={
         <div className="space-y-4">
           {/* Visual Interactive Canvas */}
-          <LabSurface type="dark">
+          <LabSurface type="dark" data-testid="physics-visualization">
             <div className="relative w-full h-64 sm:h-72 bg-slate-950 border border-slate-850 rounded-2xl p-4 overflow-hidden flex flex-col justify-between select-none shadow-inner">
               {/* Track Floor */}
               <div className="absolute bottom-12 left-0 right-0 h-3 bg-slate-800 border-t border-slate-700">

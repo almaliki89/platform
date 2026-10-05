@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface LabSurfaceProps {
+interface LabSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
   type?: 'wooden' | 'metallic' | 'dark' | 'grid';
   className?: string;
   children?: React.ReactNode;
@@ -10,6 +10,7 @@ export const LabSurface: React.FC<LabSurfaceProps> = ({
   type = 'dark',
   className = '',
   children,
+  ...rest
 }) => {
   const getBgStyle = () => {
     switch (type) {
@@ -25,6 +26,7 @@ export const LabSurface: React.FC<LabSurfaceProps> = ({
 
   return (
     <div
+      {...rest}
       className={`relative w-full rounded-3xl border overflow-hidden p-4 sm:p-6 transition-all duration-300 ${getBgStyle()} ${className}`}
     >
       {/* Visual lab details */}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { SimulationShell } from '../../../core/SimulationShell';
 import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
@@ -9,7 +10,12 @@ import {
   calculateFloatingState,
 } from './calculations';
 import { StaticFluidsMode } from './types';
-import { Droplets, ArrowDown, Scale, Sparkles, Layers, RotateCcw } from 'lucide-react';
+import { Droplets, ArrowDown, Scale, Sparkles } from 'lucide-react';
+import { ScientificGrid } from '../../../visuals/ScientificGrid';
+import { MeasurementScale } from '../../../visuals/MeasurementScale';
+import { FormulaSubstitution } from '../../../visuals/FormulaSubstitution';
+import { DiagramLabel } from '../../../visuals/DiagramLabel';
+import { PhysicsVector } from '../../../visuals/PhysicsVector';
 
 export const StaticFluidsSimulation: React.FC = () => {
   const [mode, setMode] = useState<StaticFluidsMode>('hydrostatic-pressure');
@@ -38,289 +44,6 @@ export const StaticFluidsSimulation: React.FC = () => {
     objectVolumeCm3
   );
 
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  // Canvas drawing
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    ctx.clearRect(0, 0, width, height);
-
-    // Subtle grid
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < width; x += 25) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
-      ctx.stroke();
-    }
-    for (let y = 0; y < height; y += 25) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
-    }
-
-    if (mode === 'hydrostatic-pressure') {
-      // Tank visual
-      const tankLeft = 70;
-      const tankW = width - 140;
-      const tankTop = 50;
-      const tankH = height - 80;
-
-      // Tank Walls
-      ctx.strokeStyle = '#64748b';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(tankLeft, tankTop);
-      ctx.lineTo(tankLeft, tankTop + tankH);
-      ctx.lineTo(tankLeft + tankW, tankTop + tankH);
-      ctx.lineTo(tankLeft + tankW, tankTop);
-      ctx.stroke();
-
-      // Fluid Fill
-      ctx.fillStyle = activeFluid.color + '44';
-      ctx.fillRect(tankLeft + 2, tankTop + 10, tankW - 4, tankH - 10);
-
-      // Liquid Surface Line
-      ctx.strokeStyle = activeFluid.color;
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.moveTo(tankLeft, tankTop + 10);
-      ctx.lineTo(tankLeft + tankW, tankTop + 10);
-      ctx.stroke();
-
-      // Depth Probe (Vertical rod with sensor)
-      const maxDepth = 10;
-      const probeY = tankTop + 10 + (depthM / maxDepth) * (tankH - 25);
-      const probeX = tankLeft + tankW * 0.45;
-
-      ctx.strokeStyle = '#e2e8f0';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(probeX, tankTop - 20);
-      ctx.lineTo(probeX, probeY);
-      ctx.stroke();
-
-      // Sensor Head
-      ctx.fillStyle = '#ef4444';
-      ctx.beginPath();
-      ctx.arc(probeX, probeY, 7, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Digital Pressure Readout box
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(probeX + 20, probeY - 18, 140, 36);
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(probeX + 20, probeY - 18, 140, 36);
-
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 11px monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText(`P = ${pressureResult.gaugePressureKPa.toFixed(2)} kPa`, probeX + 28, probeY + 4);
-
-      // Depth scale ticks
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '10px monospace';
-      ctx.textAlign = 'right';
-      for (let d = 0; d <= 10; d += 2) {
-        const y = tankTop + 10 + (d / 10) * (tankH - 25);
-        ctx.fillText(`${d}m`, tankLeft - 10, y + 4);
-        ctx.beginPath();
-        ctx.moveTo(tankLeft - 5, y);
-        ctx.lineTo(tankLeft, y);
-        ctx.stroke();
-      }
-    } else if (mode === 'pascal-press') {
-      // Hydraulic Press U-tube
-      const cx = width / 2;
-      const botY = height - 50;
-
-      // Left narrow cylinder
-      const leftW = 40;
-      const leftH = 120;
-      const leftX = cx - 110;
-
-      // Right wide cylinder
-      const rightW = 100;
-      const rightH = 120;
-      const rightX = cx + 80;
-
-      // Fluid connection
-      ctx.fillStyle = '#0284c744';
-      // Left fluid
-      ctx.fillRect(leftX - leftW / 2, botY - leftH + 20, leftW, leftH - 20);
-      // Bottom connector
-      ctx.fillRect(leftX - leftW / 2, botY - 30, rightX - leftX + rightW / 2 + leftW / 2, 30);
-      // Right fluid
-      ctx.fillRect(rightX - rightW / 2, botY - rightH + 35, rightW, rightH - 35);
-
-      // Tubes borders
-      ctx.strokeStyle = '#64748b';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      // Outer border
-      ctx.moveTo(leftX - leftW / 2, botY - leftH);
-      ctx.lineTo(leftX - leftW / 2, botY);
-      ctx.lineTo(rightX + rightW / 2, botY);
-      ctx.lineTo(rightX + rightW / 2, botY - rightH);
-      // Inner border
-      ctx.moveTo(leftX + leftW / 2, botY - leftH);
-      ctx.lineTo(leftX + leftW / 2, botY - 30);
-      ctx.lineTo(rightX - rightW / 2, botY - 30);
-      ctx.lineTo(rightX - rightW / 2, botY - rightH);
-      ctx.stroke();
-
-      // Left Piston (F1)
-      const p1Y = botY - leftH + 18;
-      ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(leftX - leftW / 2, p1Y, leftW, 14);
-
-      // Force 1 Down Arrow
-      drawArrow(ctx, leftX, p1Y - 35, leftX, p1Y, '#f59e0b', `F₁ = ${inputForceN}N`);
-
-      // Right Piston (F2)
-      const p2Y = botY - rightH + 33;
-      ctx.fillStyle = '#10b981';
-      ctx.fillRect(rightX - rightW / 2, p2Y, rightW, 16);
-
-      // Force 2 Up Arrow
-      drawArrow(ctx, rightX, p2Y, rightX, p2Y - 45, '#10b981', `F₂ = ${pascalResult.outputForceN.toFixed(0)}N`);
-
-      // Car on right piston (lifting load)
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(rightX - 35, p2Y - 14, 70, 14);
-      ctx.fillStyle = '#f8fafc';
-      ctx.font = 'bold 9px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('حمل مرفوع (Car)', rightX, p2Y - 4);
-    } else {
-      // Archimedes Principle Visual
-      const beakerLeft = width * 0.28;
-      const beakerW = width * 0.44;
-      const beakerTop = 45;
-      const beakerH = height - 70;
-
-      // Beaker
-      ctx.strokeStyle = '#64748b';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(beakerLeft, beakerTop);
-      ctx.lineTo(beakerLeft, beakerTop + beakerH);
-      ctx.lineTo(beakerLeft + beakerW, beakerTop + beakerH);
-      ctx.lineTo(beakerLeft + beakerW, beakerTop);
-      ctx.stroke();
-
-      // Fluid
-      ctx.fillStyle = activeFluid.color + '44';
-      ctx.fillRect(beakerLeft + 2, beakerTop + 30, beakerW - 4, beakerH - 32);
-
-      const surfaceY = beakerTop + 30;
-      ctx.strokeStyle = activeFluid.color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(beakerLeft, surfaceY);
-      ctx.lineTo(beakerLeft + beakerW, surfaceY);
-      ctx.stroke();
-
-      // Object Cube
-      const cubeSize = 56;
-      const cubeX = beakerLeft + beakerW / 2 - cubeSize / 2;
-      let cubeY = surfaceY - cubeSize * (1 - archimedesResult.submergedFraction);
-      if (archimedesResult.state === 'sinking') {
-        cubeY = beakerTop + beakerH - cubeSize - 4;
-      }
-
-      ctx.fillStyle = objectDensityKg_m3 < 900 ? '#b45309' : '#475569';
-      ctx.fillRect(cubeX, cubeY, cubeSize, cubeSize);
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(cubeX, cubeY, cubeSize, cubeSize);
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 10px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(`${objectDensityKg_m3}`, cubeX + cubeSize / 2, cubeY + cubeSize / 2 - 2);
-      ctx.fillText('kg/m³', cubeX + cubeSize / 2, cubeY + cubeSize / 2 + 10);
-
-      // Force Vectors on object
-      // Buoyant Force (Up)
-      drawArrow(
-        ctx,
-        cubeX + cubeSize + 20,
-        cubeY + cubeSize / 2,
-        cubeX + cubeSize + 20,
-        cubeY - 25,
-        '#38bdf8',
-        `Fb = ${archimedesResult.buoyantForceN.toFixed(2)} N`
-      );
-
-      // Weight Force (Down)
-      drawArrow(
-        ctx,
-        cubeX - 20,
-        cubeY + cubeSize / 2,
-        cubeX - 20,
-        cubeY + cubeSize + 25,
-        '#ef4444',
-        `w = ${archimedesResult.objectWeightN.toFixed(2)} N`
-      );
-    }
-  }, [
-    mode,
-    selectedFluidId,
-    depthM,
-    inputForceN,
-    area1Cm2,
-    area2Cm2,
-    objectDensityKg_m3,
-    objectVolumeCm3,
-    activeFluid,
-    pressureResult,
-    pascalResult,
-    archimedesResult,
-  ]);
-
-  function drawArrow(
-    ctx: CanvasRenderingContext2D,
-    fromX: number,
-    fromY: number,
-    toX: number,
-    toY: number,
-    color: string,
-    label: string
-  ) {
-    const headLen = 8;
-    const angle = Math.atan2(toY - fromY, toX - fromX);
-
-    ctx.strokeStyle = color;
-    ctx.fillStyle = color;
-    ctx.lineWidth = 2.5;
-
-    ctx.beginPath();
-    ctx.moveTo(fromX, fromY);
-    ctx.lineTo(toX, toY);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(toX, toY);
-    ctx.lineTo(toX - headLen * Math.cos(angle - Math.PI / 6), toY - headLen * Math.sin(angle - Math.PI / 6));
-    ctx.lineTo(toX - headLen * Math.cos(angle + Math.PI / 6), toY - headLen * Math.sin(angle + Math.PI / 6));
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.font = 'bold 10px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(label, (fromX + toX) / 2, Math.min(fromY, toY) - 8);
-  }
-
   const handleReset = () => {
     setSelectedFluidId('water');
     setDepthM(3.5);
@@ -335,12 +58,12 @@ export const StaticFluidsSimulation: React.FC = () => {
     mode === 'hydrostatic-pressure'
       ? [
           {
-            label: 'الضغط القياسي للسائل (Gauge P)',
+            label: 'الضغط القياسي (Gauge P)',
             value: `${pressureResult.gaugePressureKPa.toFixed(2)} kPa`,
             color: 'cyan',
           },
           {
-            label: 'الضغط الكلي مع الجوي (Total P)',
+            label: 'الضغط الكلي (Total P)',
             value: `${pressureResult.totalPressureKPa.toFixed(2)} kPa`,
             color: 'amber',
           },
@@ -358,7 +81,7 @@ export const StaticFluidsSimulation: React.FC = () => {
       : mode === 'pascal-press'
       ? [
           {
-            label: 'القوة الناتجة المضاعفة (F₂)',
+            label: 'القوة الناتجة (F₂)',
             value: `${pascalResult.outputForceN.toFixed(0)} N`,
             color: 'emerald',
           },
@@ -368,12 +91,12 @@ export const StaticFluidsSimulation: React.FC = () => {
             color: 'amber',
           },
           {
-            label: 'قوة الدخل المسلطة (F₁)',
+            label: 'قوة الدخل (F₁)',
             value: `${inputForceN} N`,
             color: 'cyan',
           },
           {
-            label: 'نسبة المساحتين (A₂ / A₁)',
+            label: 'نسبة المساحتين (A₂/A₁)',
             value: `${(area2Cm2 / area1Cm2).toFixed(1)}`,
             color: 'slate',
           },
@@ -385,17 +108,17 @@ export const StaticFluidsSimulation: React.FC = () => {
             color: 'cyan',
           },
           {
-            label: 'وزن الجسم في الهواء (w)',
+            label: 'وزن الجسم (w)',
             value: `${archimedesResult.objectWeightN.toFixed(2)} N`,
             color: 'amber',
           },
           {
-            label: 'حالة الطفو / الغمر',
+            label: 'حالة الجسم',
             value: archimedesResult.stateAr.split('(')[0],
             color: archimedesResult.state === 'floating' ? 'emerald' : 'red',
           },
           {
-            label: 'نسبة الجزء المغمور',
+            label: 'الجزء المغمور',
             value: `${(archimedesResult.submergedFraction * 100).toFixed(0)} %`,
             color: 'slate',
           },
@@ -421,7 +144,7 @@ export const StaticFluidsSimulation: React.FC = () => {
             }`}
           >
             <Droplets className="w-4 h-4" />
-            <span>١. ضغط السائل الساكن (P = ρ · g · h)</span>
+            <span>ضغط السائل الساكن</span>
           </button>
           <button
             type="button"
@@ -433,7 +156,7 @@ export const StaticFluidsSimulation: React.FC = () => {
             }`}
           >
             <ArrowDown className="w-4 h-4" />
-            <span>٢. مبدأ باسكال والمكبس الهيدروليكي</span>
+            <span>مبدأ باسكال</span>
           </button>
           <button
             type="button"
@@ -445,19 +168,92 @@ export const StaticFluidsSimulation: React.FC = () => {
             }`}
           >
             <Scale className="w-4 h-4" />
-            <span>٣. قاعدة أرخميدس وقوة الطفو (Buoyancy)</span>
+            <span>قاعدة أرخميدس</span>
           </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4">
-            <div className="relative rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-inner flex flex-col items-center justify-center p-4">
-              <canvas
-                ref={canvasRef}
-                width={600}
-                height={290}
-                className="w-full max-w-[600px] h-auto aspect-[600/290] block select-none"
-              />
+          <div className="lg:col-span-2 space-y-6">
+            {/* Visual Display */}
+            <div className="relative aspect-video rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-inner flex flex-col items-center justify-center p-4">
+              <svg viewBox="0 0 600 300" className="w-full h-full">
+                <ScientificGrid width={600} height={300} />
+
+                {mode === 'hydrostatic-pressure' && (
+                  <g>
+                    {/* Tank */}
+                    <rect x="100" y="50" width="400" height="200" fill={activeFluid.color} fillOpacity="0.2" stroke="#64748b" strokeWidth="3" />
+                    <line x1="100" y1="50" x2="500" y2="50" stroke={activeFluid.color} strokeWidth="3" />
+                    
+                    {/* Depth Gauge */}
+                    <MeasurementScale x={80} y={50} width={200} minVal={0} maxVal={10} unit="m" color="#94a3b8" />
+                    
+                    {/* Probe */}
+                    <motion.g animate={{ y: 50 + depthM * 20 }}>
+                      <line x1="280" y1="-100" x2="280" y2="0" stroke="#e2e8f0" strokeWidth="3" />
+                      <circle cx="280" cy="0" r="8" fill="#ef4444" />
+                      <rect x="300" y="-20" width="140" height="40" fill="#0f172a" stroke="#38bdf8" strokeWidth="2" rx="8" />
+                      <text x="310" y="5" fill="#38bdf8" className="text-[12px] font-mono font-bold">
+                        P = {pressureResult.gaugePressureKPa.toFixed(2)} kPa
+                      </text>
+                    </motion.g>
+                    <DiagramLabel x={300} y={260} text={activeFluid.nameAr.split('(')[0]} color="cyan" />
+                  </g>
+                )}
+
+                {mode === 'pascal-press' && (
+                  <g>
+                    {/* Pascal Press U-tube approximation */}
+                    <path d="M 150 100 L 150 250 L 450 250 L 450 100" fill="none" stroke="#64748b" strokeWidth="40" strokeLinecap="round" />
+                    <path d="M 150 110 L 150 250 L 450 250 L 450 110" fill="none" stroke={activeFluid.color} strokeWidth="30" strokeOpacity="0.3" />
+                    
+                    {/* Piston 1 */}
+                    <motion.g animate={{ y: 110 }}>
+                      <rect x="130" y="-10" width="40" height="15" fill="#f59e0b" rx="2" />
+                      <PhysicsVector startX={150} startY={-40} endX={150} endY={-10} color="#f59e0b" label="F1" />
+                    </motion.g>
+
+                    {/* Piston 2 */}
+                    <motion.g animate={{ y: 110 }}>
+                      <rect x="420" y="-10" width="60" height="20" fill="#10b981" rx="2" />
+                      <PhysicsVector startX={450} startY={-10} endX={450} endY={-70} color="#10b981" label="F2" />
+                      <rect x="430" y="-35" width="40" height="25" fill="#334155" rx="2" />
+                      <text x="450" y="-20" textAnchor="middle" fill="white" className="text-[8px] font-bold">Load</text>
+                    </motion.g>
+
+                    <DiagramLabel x={150} y={150} text="A1" color="amber" />
+                    <DiagramLabel x={450} y={150} text="A2" color="emerald" />
+                  </g>
+                )}
+
+                {mode === 'archimedes' && (
+                  <g>
+                    {/* Beaker */}
+                    <rect x="200" y="50" width="200" height="200" fill={activeFluid.color} fillOpacity="0.2" stroke="#64748b" strokeWidth="3" />
+                    <line x1="200" y1="80" x2="400" y2="80" stroke={activeFluid.color} strokeWidth="2" />
+
+                    {/* Object Cube */}
+                    {(() => {
+                      const cubeSize = 60;
+                      const surfaceY = 80;
+                      let cubeY = surfaceY - cubeSize * (1 - archimedesResult.submergedFraction);
+                      if (archimedesResult.state === 'sinking') {
+                        cubeY = 250 - cubeSize;
+                      }
+                      return (
+                        <motion.g animate={{ y: cubeY }}>
+                          <rect x="270" y="0" width={cubeSize} height={cubeSize} fill={objectDensityKg_m3 < 900 ? "#b45309" : "#475569"} stroke="white" strokeWidth="2" />
+                          <text x="300" y={cubeSize/2 + 5} textAnchor="middle" fill="white" className="text-[10px] font-bold">{objectDensityKg_m3} kg/m³</text>
+                          
+                          {/* Force Vectors */}
+                          <PhysicsVector startX={270} startY={cubeSize/2} endX={270} endY={cubeSize/2 + archimedesResult.objectWeightN * 10} color="#ef4444" label="w" />
+                          <PhysicsVector startX={330} startY={cubeSize/2} endX={330} endY={cubeSize/2 - archimedesResult.buoyantForceN * 10} color="#38bdf8" label="Fb" />
+                        </motion.g>
+                      );
+                    })()}
+                  </g>
+                )}
+              </svg>
 
               <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-slate-700/60 px-3 py-1.5 rounded-xl text-xs font-mono text-cyan-400">
                 {mode === 'hydrostatic-pressure'
@@ -470,24 +266,45 @@ export const StaticFluidsSimulation: React.FC = () => {
 
             <SimulationHUD metrics={hudMetrics} />
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormulaSubstitution
+                formula={mode === 'hydrostatic-pressure' ? 'P = ρ · g · h' : mode === 'pascal-press' ? 'F₂ = F₁ · (A₂ / A₁)' : 'Fb = ρ · g · V_sub'}
+                substitutions={mode === 'hydrostatic-pressure' ? [
+                  { symbol: 'ρ', value: activeFluid.densityKg_m3, unit: 'kg/m³' },
+                  { symbol: 'g', value: 9.8, unit: 'm/s²' },
+                  { symbol: 'h', value: depthM, unit: 'm' },
+                ] : mode === 'pascal-press' ? [
+                  { symbol: 'F₁', value: inputForceN, unit: 'N' },
+                  { symbol: 'A₁', value: area1Cm2, unit: 'cm²' },
+                  { symbol: 'A₂', value: area2Cm2, unit: 'cm²' },
+                ] : [
+                  { symbol: 'ρ', value: activeFluid.densityKg_m3, unit: 'kg/m³' },
+                  { symbol: 'g', value: 9.8, unit: 'm/s²' },
+                  { symbol: 'V_sub', value: (objectVolumeCm3 * archimedesResult.submergedFraction).toFixed(0), unit: 'cm³' },
+                ]}
+                result={mode === 'hydrostatic-pressure' ? `${pressureResult.gaugePressureKPa.toFixed(2)} kPa` : mode === 'pascal-press' ? `${pascalResult.outputForceN.toFixed(0)} N` : `${archimedesResult.buoyantForceN.toFixed(2)} N`}
+              />
+              
+              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-center">
+                 <p className="text-[11px] text-slate-400 font-bold mb-2">الاستنتاج العلمي:</p>
+                 <p className="text-xs text-slate-300 leading-relaxed">
+                   {mode === 'hydrostatic-pressure' && 'يزداد ضغط السائل طردياً مع العمق h ومع كثافة السائل ρ ولا يعتمد على شكل الإناء.'}
+                   {mode === 'pascal-press' && 'الضغط المسلط على مائع محصور ينتقل بالتساوي إلى جميع أجزاء المائع وجدران الإناء.'}
+                   {mode === 'archimedes' && 'قاعدة أرخميدس: يفقد الجسم المغمور من وزنه بقدر وزن المائع المزاح.'}
+                 </p>
+              </div>
+            </div>
+
             {/* Educational Callout */}
             <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-900 dark:text-cyan-200 space-y-1">
               <p className="font-bold flex items-center gap-1.5 text-cyan-600 dark:text-cyan-400">
                 <Sparkles className="w-4 h-4" />
-                <span>الاستنتاج العلمي وفق المنهاج الوزاري:</span>
+                <span>التحليل العلمي المنهجي:</span>
               </p>
               <p>
                 {mode === 'hydrostatic-pressure' && pressureResult.formulaNoteAr}
                 {mode === 'pascal-press' && pascalResult.formulaNoteAr}
                 {mode === 'archimedes' && archimedesResult.explanationAr}
-              </p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                {mode === 'hydrostatic-pressure' &&
-                  'يزداد ضغط السائل طردياً مع العمق h ومع كثافة السائل ρ ولا يعتمد على شكل الإناء أو مساحة سطحه.'}
-                {mode === 'pascal-press' &&
-                  'مبدأ باسكال: الضغط المسلط على مائع محصور ينتقل بالتساوي إلى جميع أجزاء المائع وجدران الإناء.'}
-                {mode === 'archimedes' &&
-                  'قاعدة أرخميدس: إذا غمر جسم كلياً أو جزئياً في مائع فإنه يفقد من وزنه بقدر وزن المائع المزاح.'}
               </p>
             </div>
           </div>
@@ -528,7 +345,7 @@ export const StaticFluidsSimulation: React.FC = () => {
                 {mode === 'hydrostatic-pressure' && (
                   <div>
                     <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      <span>عمق نقطة القياس داخل السائل (h)</span>
+                      <span>عمق نقطة القياس (h)</span>
                       <span className="font-mono text-cyan-600 dark:text-cyan-400">{depthM.toFixed(1)} m</span>
                     </div>
                     <input
@@ -540,11 +357,6 @@ export const StaticFluidsSimulation: React.FC = () => {
                       onChange={(e) => setDepthM(Number(e.target.value))}
                       className="w-full accent-cyan-600 cursor-pointer"
                     />
-                    <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
-                      <span>السطح (0m)</span>
-                      <span>5m</span>
-                      <span>10m (أقصى عمق)</span>
-                    </div>
                   </div>
                 )}
 
@@ -552,7 +364,7 @@ export const StaticFluidsSimulation: React.FC = () => {
                   <>
                     <div>
                       <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                        <span>القوة المسلطة على المكبس الصغير (F₁)</span>
+                        <span>القوة المسلطة (F₁)</span>
                         <span className="font-mono text-amber-500">{inputForceN} N</span>
                       </div>
                       <input
@@ -568,7 +380,7 @@ export const StaticFluidsSimulation: React.FC = () => {
 
                     <div>
                       <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                        <span>مساحة المكبس الصغير (A₁)</span>
+                        <span>المساحة (A₁)</span>
                         <span className="font-mono text-cyan-600 dark:text-cyan-400">{area1Cm2} cm²</span>
                       </div>
                       <input
@@ -584,7 +396,7 @@ export const StaticFluidsSimulation: React.FC = () => {
 
                     <div>
                       <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                        <span>مساحة المكبس الكبير (A₂)</span>
+                        <span>المساحة (A₂)</span>
                         <span className="font-mono text-emerald-500">{area2Cm2} cm²</span>
                       </div>
                       <input
@@ -604,7 +416,7 @@ export const StaticFluidsSimulation: React.FC = () => {
                   <>
                     <div>
                       <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                        <span>كثافة الجسم المغمور (ρ_object)</span>
+                        <span>كثافة الجسم (ρ_obj)</span>
                         <span className="font-mono text-amber-500">{objectDensityKg_m3} kg/m³</span>
                       </div>
                       <input
@@ -616,16 +428,11 @@ export const StaticFluidsSimulation: React.FC = () => {
                         onChange={(e) => setObjectDensityKg_m3(Number(e.target.value))}
                         className="w-full accent-amber-500 cursor-pointer"
                       />
-                      <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
-                        <span>خشب (500)</span>
-                        <span>ماء (1000)</span>
-                        <span>ألمنيوم (2700)</span>
-                      </div>
                     </div>
 
                     <div>
                       <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                        <span>حجم الجسم (V_object)</span>
+                        <span>حجم الجسم (V_obj)</span>
                         <span className="font-mono text-cyan-600 dark:text-cyan-400">{objectVolumeCm3} cm³</span>
                       </div>
                       <input

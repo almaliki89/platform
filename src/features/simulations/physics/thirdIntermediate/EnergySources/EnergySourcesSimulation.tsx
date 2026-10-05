@@ -4,7 +4,9 @@ import { SimulationControls } from '../../../core/SimulationControls';
 import { SimulationHUD, HUDMetric } from '../../../core/SimulationHUD';
 import { calculateSourceOutput, ENERGY_SOURCES_INFO } from './calculations';
 import { EnergySourceType } from './types';
-import { Sun, Wind, Droplets, Flame, Trees, ArrowLeft, Leaf, ShieldCheck, RotateCcw, Sparkles } from 'lucide-react';
+import { Sun, Wind, Droplets, Flame, Trees, Sparkles } from 'lucide-react';
+import { FormulaSubstitution } from '../../../visuals/FormulaSubstitution';
+import { EnergyFlow } from '../../../visuals/EnergyFlow';
 
 export const EnergySourcesSimulation: React.FC = () => {
   const [selectedSource, setSelectedSource] = useState<EnergySourceType>('solar');
@@ -83,6 +85,60 @@ export const EnergySourcesSimulation: React.FC = () => {
     },
   ];
 
+  const getSubstitution = () => {
+    if (selectedSource === 'solar') {
+      return {
+        formula: 'P = G × A × η',
+        substitutions: [
+          { symbol: 'G', value: param1, unit: 'W/m²' },
+          { symbol: 'A', value: param2, unit: 'm²' },
+          { symbol: 'η', value: result.efficiencyPercent / 100 },
+        ],
+        result: `${result.outputPowerKW.toFixed(1)} kW`,
+      };
+    }
+    if (selectedSource === 'wind') {
+      const area = Math.PI * Math.pow(param2, 2);
+      return {
+        formula: 'P = 0.5 × ρ × A × v³ × Cp',
+        substitutions: [
+          { symbol: 'ρ', value: 1.225, unit: 'kg/m³' },
+          { symbol: 'A', value: area.toFixed(1), unit: 'm²' },
+          { symbol: 'v', value: param1, unit: 'm/s' },
+          { symbol: 'Cp', value: 0.40 },
+        ],
+        result: `${result.outputPowerKW.toFixed(1)} kW`,
+      };
+    }
+    if (selectedSource === 'hydro') {
+      return {
+        formula: 'P = ρ × g × Q × h × η',
+        substitutions: [
+          { symbol: 'ρ', value: 1000, unit: 'kg/m³' },
+          { symbol: 'g', value: 9.8, unit: 'm/s²' },
+          { symbol: 'Q', value: param1, unit: 'm³/s' },
+          { symbol: 'h', value: param2, unit: 'm' },
+          { symbol: 'η', value: result.efficiencyPercent / 100 },
+        ],
+        result: `${result.outputPowerKW.toFixed(1)} kW`,
+      };
+    }
+    if (selectedSource === 'fossil') {
+      return {
+        formula: 'P = ṁ × LHV × η',
+        substitutions: [
+          { symbol: 'ṁ', value: param1, unit: 'kg/s' },
+          { symbol: 'LHV', value: 42, unit: 'MJ/kg' },
+          { symbol: 'η', value: param2 / 100 },
+        ],
+        result: `${result.outputPowerKW.toFixed(1)} kW`,
+      };
+    }
+    return null;
+  };
+
+  const substitution = getSubstitution();
+
   return (
     <SimulationShell
       title="مختبر تكنولوجيا مصادر الطاقة المتجددة والأحفورية"
@@ -121,7 +177,7 @@ export const EnergySourcesSimulation: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Visual Energy Flow Area */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-6">
             {/* Energy Chain Diagram */}
             <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 shadow-inner text-white space-y-6">
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
@@ -167,6 +223,13 @@ export const EnergySourcesSimulation: React.FC = () => {
                 ))}
               </div>
 
+              {/* Energy Flow Visualization */}
+              <EnergyFlow
+                sourceLabel={selectedSource}
+                loadLabel="Grid"
+                powerW={Math.round(result.outputPowerKW * 1000)}
+              />
+
               {/* Dependability & Environment Info */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
                 <div className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
@@ -185,6 +248,14 @@ export const EnergySourcesSimulation: React.FC = () => {
             </div>
 
             <SimulationHUD metrics={hudMetrics} />
+
+            {substitution && (
+              <FormulaSubstitution
+                formula={substitution.formula}
+                substitutions={substitution.substitutions}
+                result={substitution.result}
+              />
+            )}
 
             {/* Curriculum Formula Callout */}
             <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-900 dark:text-cyan-200 space-y-1.5">
