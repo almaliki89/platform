@@ -445,5 +445,270 @@ export const ESSAYS_DATA: EssayItem[] = [
         options: ["desertification", "wealth", "education", "swimming"]
       }
     ]
+  },
+
+  // ================= UNIT 1 (ESSAY B - AB p. 19) =================
+  {
+    id: "essay-u1-accidents",
+    unitId: 1,
+    titleAr: "كيفية تقليل حوادث السير على الطرقات",
+    titleEn: "How to Reduce the Number of Car Accidents",
+    ministerialWeight: "20 درجة وزارية - تمرين كتاب النشاط ص 19 (وحدة 1)",
+    paragraphsEn: [
+      "Every year, thousands of people are tragically killed or seriously injured in car accidents worldwide. In Iraq, reckless driving and poorly maintained roads have caused immense grief for countless families. However, several practical and urgent steps can be taken to drastically reduce these accidents.",
+      "Firstly, drivers must strictly obey speed limits and road signs, as speeding is the leading cause of fatal collisions. Furthermore, motorists should never use mobile phones while driving; studies demonstrate that texting behind the wheel distracts attention and slows reaction times dangerously. Regular vehicle maintenance, particularly checking brakes, tires, and lights, is also essential for safe travel.",
+      "In conclusion, the government should deploy more traffic police officers, install advanced speed cameras, and impose severe fines on traffic violators. Stricter driving tests should also be required. By combining strict law enforcement with driver education, we can safeguard precious lives on our roads."
+    ],
+    paragraphsAr: [
+      "في كل عام، يُقتل آلاف الأشخاص أو يصابون بجروح خطيرة في حوادث السيارات حول العالم على نحو مأساوي. وفي العراق، تسببت القيادة المتهورة والطرق الرديئة بحزن عميق لعائلات لا حصر لها. ومع ذلك، يمكن اتخاذ خطوات عملية وعاجلة لتقليل هذه الحوادث بشكل جذري.",
+      "أولاً وقبل كل شيء، يجب على السائقين الالتزام الصارم بحدود السرعة وإشارات المرور، فالسرعة الزائدة هي المسبب الرئيس للاصطدامات المميتة. علاوة على ذلك، لا ينبغي للسائقين استخدام الهواتف المحمولة أثناء القيادة؛ إذ تثبت الدراسات أن كتابة الرسائل تشتت الانتباه وتبطئ رد الفعل بشكل خطير. وتعد الصيانة الدورية للمركبة، ولا سيما فحص المكابح والإطارات والأنوار، أمراً جوهرياً لسلامة السير.",
+      "ختاماً، يجب على الحكومة نشر المزيد من شرطة المرور، وتركيب كاميرات مراقبة السرعة الحديثة، وفرض غرامات باهظة على المخالفين. كما يجب فرض اختبارات قيادة أكثر صرامة. ومن خلال الجمع بين تطبيق القانون بصرامة وتوعية السائقين، يمكننا حماية الأرواح الغالية على طرقاتنا."
+    ],
+    keywords: [
+      { word: "Fatal collisions", meaning: "اصطدامات مميتة" },
+      { word: "Speed limit", meaning: "الحد الأقصى للسرعة" },
+      { word: "Distract attention", meaning: "تشتيت الانتباه" },
+      { word: "Vehicle maintenance", meaning: "صيانة المركبة" },
+      { word: "Severe fines", meaning: "غرامات باهظة / مشددة" },
+      { word: "Stricter driving tests", meaning: "اختبارات قيادة أكثر صرامة" }
+    ],
+    goldenTips: [
+      "استخدم روابط التعداد من درس الربط (Firstly, Furthermore, Last but not least, In conclusion).",
+      "قسّم المقال إلى فقرة للمسببات (السرعة، الهواتف، نقص الصيانة) وفقرة للحلول الحكومية والشخصية.",
+      "احرص على ألا يقل عدد الكلمات عن 100 إلى 120 كلمة لنيل العلامة الكاملة."
+    ],
+    clozeSentences: [
+      {
+        textWithBlanks: "Texting behind the wheel dangerously _____ driver attention.",
+        missingWord: "distracts",
+        options: ["distracts", "repairs", "improves", "decorates"]
+      },
+      {
+        textWithBlanks: "Authorities should install advanced _____ cameras on highways.",
+        missingWord: "speed",
+        options: ["speed", "water", "paint", "flower"]
+      }
+    ]
+  },
+
+  // ================= UNIT 2 (ESSAY B - AB p. 43) =================
+  {
+    id: "essay-u2-roadsafety",
+    unitId: 2,
+    titleAr: "أهمية السلامة المرورية: قيادة بأمان والحفاظ على المركبة",
+    titleEn: "The Importance of Road Safety",
+    ministerialWeight: "20 درجة وزارية - تمرين كتاب النشاط ص 43 (وحدة 2)",
+    paragraphsEn: [
+      "Road safety is a vital matter that directly concerns every member of our society. Driving safely and protecting one's vehicle are crucial responsibilities that ensure the protection of motorists and pedestrians alike.",
+      "To drive safely, motorists must always fasten their seat belts before moving, as seat belts dramatically reduce serious injuries during accidents. Drivers should never exceed the posted speed limit and must signal well in advance when turning or changing lanes. In addition, checking brakes, tires, and lights before any journey is essential, especially when traveling long distances or in adverse weather conditions.",
+      "Keeping your car secure is equally important. You should never leave keys in the ignition or keep valuable possessions, such as laptops and wallets, visible on the seats. Always lock all doors and park in well-lit, secure areas. By exercising caution and vigilance, we can transform our roads into safer pathways for everyone."
+    ],
+    paragraphsAr: [
+      "تعد السلامة المرورية مسألة حيوية تهم كل فرد في مجتمعنا بصورة مباشرة. وتعتبر القيادة بأمان وحماية المركبة من المسؤوليات الأساسية التي تضمن حماية السائقين والمشاة على حد سواء.",
+      "للقيادة بأمان، يجب على السائقين دائماً ربط أحزمة الأمان قبل التحرك، حيث تقلل أحزمة الأمان الإصابات البالغة أثناء الحوادث بشكل مذهل. ولا يجوز للسائقين تجاوز السرعة المحددة، ويجب إعطاء إشارات التنبيه قبل الانعطاف أو تغيير المسارات بوقت كافٍ. بالإضافة إلى ذلك، يعد فحص الفرامل والإطارات والأضواء قبل أي رحلة أمراً أساسياً، خاصة عند السفر لمسافات طويلة أو في أحوال جوية صعبة.",
+      "كما أن الحفاظ على أمان السيارة لا يقل أهمية؛ فلا ينبغي أبداً ترك المفاتيح في مكان التشغيل أو ترك المقتنيات الثمينة مثل الحواسيب والمحافظ ظاهرة على المقاعد. اقفل الأبواب دائماً واركن في أماكن مضاءة وآمنة. وبالحذر واليقظة، يمكننا جعل طرقنا أكثر أماناً للجميع."
+    ],
+    keywords: [
+      { word: "Road safety", meaning: "السلامة المرورية" },
+      { word: "Fasten seat belts", meaning: "ربط أحزمة الأمان" },
+      { word: "Change lanes", meaning: "تغيير المسارات" },
+      { word: "Keys in ignition", meaning: "المفاتيح في مكان التشغيل" },
+      { word: "Valuable possessions", meaning: "مقتنيات ثمينة" },
+      { word: "Well-lit areas", meaning: "أماكن مضاءة جيداً" }
+    ],
+    goldenTips: [
+      "قسّم المقال لفقرتين كما حدد كتاب النشاط: Drive safely ثم Keep your car safe.",
+      "استخدم أفعال الإلزام والنصيحة من الوحدة الثانية: You must, You should, You mustn't.",
+      "اذكر أمثلة واقعية: حزام الأمان، عدم ترك المفاتيح، وركن السيارة في أماكن مضاءة."
+    ],
+    clozeSentences: [
+      {
+        textWithBlanks: "Drivers must always fasten their _____ belts before driving.",
+        missingWord: "seat",
+        options: ["seat", "shoe", "bag", "hat"]
+      },
+      {
+        textWithBlanks: "Never leave your car keys in the _____.",
+        missingWord: "ignition",
+        options: ["ignition", "fridge", "pocket", "classroom"]
+      }
+    ]
+  },
+
+  // ================= UNIT 3 (ESSAY B - AB p. 67) =================
+  {
+    id: "essay-u3-invite",
+    unitId: 3,
+    titleAr: "دعوة صديق لدراسة اللغة الإنجليزية في بريطانيا هذا الصيف",
+    titleEn: "Inviting a Friend to Study English in the UK",
+    ministerialWeight: "20 درجة وزارية - تمرين كتاب النشاط ص 67 (وحدة 3)",
+    paragraphsEn: [
+      "Dear Ali, I am writing to invite you to join me on an exciting English language course in the UK this summer at Birchwood International College. I believe it would be a fantastic adventure for both of us to travel and study together.",
+      "I propose that we go for four weeks in July. The college has twenty-four branches in wonderful city and countryside locations. Personally, I would prefer a location in London or Cambridge because there are vibrant museums, bookstores, and famous historical landmarks to explore after classes. As for accommodation, staying with an English host family is the best choice, as it will give us daily opportunities to practise speaking English with native speakers in the evenings.",
+      "The course fee is around £150 per week, and accommodation is very reasonable. Although it is an investment, the rapid improvement in our language skills and the unforgettable cultural experience will be worth every penny. Let me know your thoughts soon. Best wishes, Omar."
+    ],
+    paragraphsAr: [
+      "عزيزي علي، أكتب إليك لأدعوك لمرافقتي في دورة رائعة لتعلم اللغة الإنجليزية في المملكة المتحدة هذا الصيف في كلية بيرتشوود الدولية. أعتقد أنها ستكون مغامرة استثنائية لكلينا أن نسافر ونتعلم سوياً.",
+      "أقترح أن نذهب لمدة أربعة أسابيع في شهر تموز. تمتلك الكلية أربعة وعشرين فرعاً في مواقع رائعة بالمدن والريف. وشخصياً، أفضل موقعاً في لندن أو كامبريدج لوجود متاحف حيوية ومكتبات ومعالم تاريخية شهيرة لاستكشافها بعد الدروس. أما بالنسبة للإقامة، فإن السكن مع عائلة إنجليزية مضيفة هو الخيار الأفضل لأنه سيتيح لنا فرصاً يومية لممارسة التحدث بالإنجليزية مع متحدثين أصليين في الأمسيات.",
+      "تبلغ رسوم الدورة حوالي 150 جنيهاً في الأسبوع وتكاليف الإقامة مناسبة جداً. ومع أنها تتطلب مصاريف، فإن التطور السريع في مهاراتنا اللغوية والتجربة الثقافية الفريدة تستحق كل قرش. أطلعني على رأيك قريباً. مع أطيب التمنيات، عمر."
+    ],
+    keywords: [
+      { word: "Language course", meaning: "دورة لغوية" },
+      { word: "Host family", meaning: "عائلة مضيفة" },
+      { word: "Native speakers", meaning: "متحدثون أصليون" },
+      { word: "Historical landmarks", meaning: "معالم تاريخية" },
+      { word: "Worth every penny", meaning: "يستحق كل فلس / قرش" },
+      { word: "Cultural experience", meaning: "تجربة ثقافية" }
+    ],
+    goldenTips: [
+      "الصيغة إيميل لدعوة صديق: ابدأ بـ Dear [Friend] واختم بـ Best wishes.",
+      "حدد مدة السفر (4 أسابيع في تموز) واذكر تفاصيل الكلية (Birchwood College).",
+      "اذكر أسباب تفضيل الإقامة مع عائلة مضيفة (homestay) لممارسة المحادثة."
+    ],
+    clozeSentences: [
+      {
+        textWithBlanks: "Living with a host family gives you the chance to speak with _____ speakers.",
+        missingWord: "native",
+        options: ["native", "silent", "sleeping", "rude"]
+      },
+      {
+        textWithBlanks: "Birchwood International College offers courses in 24 _____ across the UK.",
+        missingWord: "locations",
+        options: ["locations", "cars", "planes", "ships"]
+      }
+    ]
+  },
+
+  // ================= UNIT 6 (ESSAY B - AB p. 125) =================
+  {
+    id: "essay-u6-atm",
+    unitId: 6,
+    titleAr: "رسالة شكوى للمصرف بشأن نقص أجهزة الصراف الآلي",
+    titleEn: "A Letter of Complaint About the Lack of ATM Machines",
+    ministerialWeight: "20 درجة وزارية - تمرين كتاب النشاط ص 125 (وحدة 6)",
+    paragraphsEn: [
+      "Dear Bank Manager, I am writing this letter to bring to your attention a serious inconvenience experienced by hundreds of your loyal customers residing in the Al-Karkh district of Baghdad: the lack of ATM machines.",
+      "Currently, there is only one ATM machine operating in our densely populated neighbourhood, and it is frequently out of service or emptied of cash by midday. Consequently, customers, including university students and elderly pensioners, are forced to travel several kilometres to distant branches or endure lengthy queues inside bank halls just to make simple cash withdrawals.",
+      "I kindly request your bank management to install at least two new ATM machines in central shopping areas and near the local medical clinic. Providing reliable cash machines will significantly enhance customer satisfaction and reduce pressure on branch staff. I look forward to your prompt response. Yours sincerely, Zaid Tariq."
+    ],
+    paragraphsAr: [
+      "سيدي مدير المصرف، أكتب هذه الرسالة لألفت انتباهكم إلى معاناة شديدة يواجهها مئات من عملائكم المخلصين المقيمين في جانب الكرخ ببغداد، والمتمثلة في النقص الحاد في أجهزة الصراف الآلي (ATM).",
+      "في الوقت الحالي، لا يوجد سوى صراف آلي واحد يعمل في حيّنا السكني المكتظ، وغالباً ما يكون خارج الخدمة أو ينفد منه النقد بحلول الظهيرة. ونتيجة لذلك، يضطر العملاء، بما فيهم طلبة الجامعات والمتقاعدون كبار السن، لقطع مسافات طويلة لفروع بعيدة أو الانتظار في طوابير طويلة داخل قاعات المصرف لإجراء سحوبات نقدية بسيطة.",
+      "أرجو من إدارة مصرفكم الموقرة التفضل بتركيب جهازي صراف آلي جديدين على الأقل في المناطق التجارية المركزية وقرب العيادة الصحية المحلية. إن توفير صرافات موثوقة سيرفع رضا العملاء كثيراً ويخفف الضغط عن موظفي الفروع. أتطلع لردكم السريع. المخلص لكم، زيد طارق."
+    ],
+    keywords: [
+      { word: "Inconvenience", meaning: "إزعاج / مشقة" },
+      { word: "Loyal customers", meaning: "عملاء مخلصون" },
+      { word: "Out of service", meaning: "خارج الخدمة" },
+      { word: "Lengthy queues", meaning: "طوابير طويلة" },
+      { word: "Cash withdrawals", meaning: "سحوبات نقدية" },
+      { word: "Customer satisfaction", meaning: "رضا العملاء" }
+    ],
+    goldenTips: [
+      "هذه رسالة شكوى رسمية: ابدأ بـ Dear Bank Manager واختم بـ Yours sincerely متبوعة باسمك.",
+      "استخدم مصطلحات مصرفية دقيقة: ATM machines, cash withdrawals, customer satisfaction.",
+      "اطرح المشكلة في الفقرة الأولى والحلول المقترحة (تركيب جهازين جديدين) في الفقرة الثانية."
+    ],
+    clozeSentences: [
+      {
+        textWithBlanks: "Customers have to wait in long queues to make a cash _____.",
+        missingWord: "withdrawal",
+        options: ["withdrawal", "accident", "damage", "storm"]
+      },
+      {
+        textWithBlanks: "The only ATM machine in the neighbourhood is often out of _____.",
+        missingWord: "service",
+        options: ["service", "sugar", "water", "paint"]
+      }
+    ]
+  },
+
+  // ================= UNIT 7 (ESSAY B - AB p. 148-149) =================
+  {
+    id: "essay-u7-distance",
+    unitId: 7,
+    titleAr: "التعليم عن بُعد مقارنة بالتعليم الصفي المباشر",
+    titleEn: "Distance Learning vs. Classroom Learning",
+    ministerialWeight: "20 درجة وزارية - تمرين كتاب النشاط ص 148-149 (وحدة 7)",
+    paragraphsEn: [
+      "In our contemporary digital era, the debate between distance learning and traditional classroom education has become increasingly prominent. While many argue that distance learning offers unmatched flexibility, others maintain that classroom interaction remains irreplaceable.",
+      "On the one hand, distance learning offers outstanding convenience. Students can attend recorded lectures from the comfort of their homes, eliminating exhausting commute times and reducing transport expenses. It also allows individuals to study at their own pace and balance academic studies with part-time jobs. However, it requires rigorous self-discipline, and students may feel isolated due to the lack of direct human connection.",
+      "On the other hand, classroom learning fosters immediate feedback from teachers, lively group debates, and crucial social skills. In conclusion, while distance learning is highly advantageous for busy professionals, traditional classrooms remain essential for young learners. The ultimate ideal is a blended approach combining the best of both worlds."
+    ],
+    paragraphsAr: [
+      "في عصرنا الرقمي المعاصر، تصاعد النقاش حول المفاضلة بين التعليم عن بُعد والتعليم الصفي التقليدي. فبينما يرى كثيرون أن التعليم عن بُعد يمنح مرونة لا تضاهى، يؤكد آخرون أن التفاعل الصفي المباشر لا يمكن تعويضه.",
+      "من جهة، يقدم التعليم عن بُعد راحة استثنائية؛ إذ يستطيع الطلاب حضور المحاضرات المسجلة من منازلهم، مما يلغي مشقة المواصلات ويوفر تكاليف التنقل. كما يتيح للأفراد الدراسة وفق وتيرتهم الخاصة والجمع بين الدراسة والعمل الجزئي. ومع ذلك، فإنه يتطلب انضباطاً ذاتياً صارماً، وقد يشعر الطالب بالعزلة لغياب التواصل البشري المباشر.",
+      "ومن جهة أخرى، يعزز التعليم الصفي التغذية الراجعة الفورية من المعلمين، والنقاشات الجماعية الحيوية، واكتساب المهارات الاجتماعية الهامة. ختاماً، بالرغم من أن التعليم عن بُعد مفيد جداً للموظفين، إلا أن الفصل التقليدي يظل أساسياً للمتعلمين الصغار، والحل الأمثل هو النهج المدمج الذي يجمع مزايا النظامين معاً."
+    ],
+    keywords: [
+      { word: "Distance learning", meaning: "التعليم عن بُعد" },
+      { word: "Classroom education", meaning: "التعليم الصفي التقليدي" },
+      { word: "Unmatched flexibility", meaning: "مرونة لا تضاهى" },
+      { word: "Self-discipline", meaning: "الانضباط الذاتي" },
+      { word: "Immediate feedback", meaning: "تغذية راجعة فورية" },
+      { word: "Blended approach", meaning: "نهج تعليمي مدمج" }
+    ],
+    goldenTips: [
+      "استخدم روابط المقارنة والتوازن: On the one hand, On the other hand, In conclusion.",
+      "قارن بموضوعية بين المزايا (المرونة والراحة) والعيوب (العزلة والحاجة لانضباط ذاتي).",
+      "أنهِ المقال برأي متوازن يفضل التعليم المدمج (Blended learning)."
+    ],
+    clozeSentences: [
+      {
+        textWithBlanks: "Studying online from home requires strong self-_____.",
+        missingWord: "discipline",
+        options: ["discipline", "anger", "danger", "noise"]
+      },
+      {
+        textWithBlanks: "Traditional classrooms foster direct and immediate _____ from teachers.",
+        missingWord: "feedback",
+        options: ["feedback", "pollution", "traffic", "darkness"]
+      }
+    ]
+  },
+
+  // ================= UNIT 8 (ESSAY B - AB p. 167) =================
+  {
+    id: "essay-u8-globalwarming",
+    unitId: 8,
+    titleAr: "ظاهرة الاحتباس الحراري: الأسباب والآثار والحلول",
+    titleEn: "Global Warming: Causes, Effects and Solutions",
+    ministerialWeight: "20 درجة وزارية - تمرين كتاب النشاط ص 167 (وحدة 8)",
+    paragraphsEn: [
+      "Global warming is one of the most perilous crises confronting humanity in the twenty-first century. Scientific data proves that the Earth's average temperature has been steadily rising due to excessive greenhouse gas emissions, primarily carbon dioxide.",
+      "The primary causes of this phenomenon include burning fossil fuels for transport and industry, rapid deforestation, and overflowing landfills. The consequences are already catastrophic: melting polar glaciers cause rising sea levels, leading to devastating coastal flooding, while extreme droughts and erratic weather patterns severely threaten agriculture and food supplies globally.",
+      "To combat global warming, mankind must act decisively. We should shift immediately to renewable sources of energy such as wind and solar power, carpool to save fuel, and practice extensive recycling. Moreover, planting billions of trees will absorb carbon emissions. In conclusion, preserving our planet is a shared moral duty to ensure a habitable world for posterity."
+    ],
+    paragraphsAr: [
+      "يعد الاحتباس الحراري واحداً من أخطر الأزمات التي تواجه البشرية في القرن الحادي والعشرين. وتؤكد البيانات العلمية أن متوسط درجة حرارة الأرض يرتفع باطراد بسبب انبعاثات الغازات الدفيئة المفرطة، ولا سيما غاز ثاني أكسيد الكربون.",
+      "تشمل الأسباب الرئيسة لهذه الظاهرة حرق الوقود الأحفوري لأغراض النقل والصناعة، وقطع الغابات المتسارع، ومكبات النفايات المتراكمة. والنتائج كارثية بالفعل: إذ يؤدي ذوبان الأنهار الجليدية القطبية لارتفاع منسوب البحار مسبباً فيضانات ساحلية مدمرة، بينما تهدد موجات الجفاف القاسية والتقلبات الجوية غير المعتادة الزراعة وإمدادات الغذاء عالمياً.",
+      "ولمكافحة الاحتباس الحراري، يجب على الإنسانية التحرك بحزم. ينبغي أن نتحول فوراً نحو مصادر الطاقة المتجددة كالرياح والشمس، ونشارك ركوب السيارات لتوفير الوقود، ونمارس إعادة التدوير على نطاق واسع. كما أن زراعة مليارات الأشجار ستساعد في امتصاص الكربون. ختاماً، حماية كوكبنا واجب أخلاقي مشترك لضمان بقاء عالم صالح للحياة لأجيال المستقبل."
+    ],
+    keywords: [
+      { word: "Global warming", meaning: "الاحتباس الحراري" },
+      { word: "Greenhouse gases", meaning: "الغازات الدفيئة" },
+      { word: "Melting glaciers", meaning: "ذوبان الأنهار الجليدية" },
+      { word: "Coastal flooding", meaning: "فيضانات ساحلية" },
+      { word: "Erratic weather", meaning: "طقس متقلب وغير منتظم" },
+      { word: "Shared moral duty", meaning: "واجب أخلاقي مشترك" }
+    ],
+    goldenTips: [
+      "اتبع المخطط البياني في كتاب النشاط ص 167: (Definition -> Causes -> Effects -> Solutions).",
+      "استخدم مصطلحات علمية دقيقة: greenhouse gases, carbon dioxide, glaciers, renewable energy.",
+      "احرص على ألا يقل المقال عن 100 إلى 120 كلمة مع تقسيم واضح للفقرات."
+    ],
+    clozeSentences: [
+      {
+        textWithBlanks: "Burning fossil fuels releases massive amounts of _____ dioxide into the air.",
+        missingWord: "carbon",
+        options: ["carbon", "sugar", "salt", "water"]
+      },
+      {
+        textWithBlanks: "Melting polar glaciers cause sea levels to _____ dangerously.",
+        missingWord: "rise",
+        options: ["rise", "freeze", "sleep", "disappear"]
+      }
+    ]
   }
 ];
+

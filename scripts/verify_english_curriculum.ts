@@ -63,6 +63,8 @@ assert(THIRD_INTERMEDIATE_ESSAYS.length >= 3, `3rd Intermediate Essays must cont
 const literatureContent = fs.readFileSync(path.resolve('src/data/literatureData.ts'), 'utf8');
 assert(literatureContent.includes('Pride and Prejudice') && literatureContent.includes('Jane Austen'), '6th Prep Literature must contain Pride and Prejudice');
 assert(literatureContent.includes('As You Like It') && literatureContent.includes('William Shakespeare'), '6th Prep Literature must contain As You Like It');
+const sectionsContent = fs.readFileSync(path.resolve('src/data/literatureSectionsData.ts'), 'utf8');
+assert(sectionsContent.includes('PRIDE_AND_PREJUDICE_SECTIONS') && sectionsContent.includes('AS_YOU_LIKE_IT_SECTIONS'), 'Must have literature sections data');
 assert(THIRD_INTERMEDIATE_STORIES.length >= 3, `3rd Intermediate Stories must contain story times, got ${THIRD_INTERMEDIATE_STORIES.length}`);
 
 // 7. Irregular Verbs Lab

@@ -3,6 +3,7 @@ import prideSceneImg from '../assets/images/pride_prejudice_scene_1789805723711.
 import darcyPemberleyImg from '../assets/images/darcy_pemberley_1789806586209.jpg';
 import ardenForestImg from '../assets/images/forest_of_arden_1789805734536.jpg';
 import rosalindArdenImg from '../assets/images/rosalind_arden_1789806603896.jpg';
+import { PRIDE_AND_PREJUDICE_SECTIONS, AS_YOU_LIKE_IT_SECTIONS } from './literatureSectionsData';
 
 export const LITERATURE_DATA: LiteratureItem[] = [
   {
@@ -290,7 +291,8 @@ export const LITERATURE_DATA: LiteratureItem[] = [
         year: "2023 تمهيدي • 2024 دور ثانٍ",
         keyHint: "His letter / housekeeper's praise at Pemberley / saving Lydia"
       }
-    ]
+    ],
+    sections: PRIDE_AND_PREJUDICE_SECTIONS
   },
   {
     id: "lit-asyoulikeit",
@@ -577,6 +579,7 @@ export const LITERATURE_DATA: LiteratureItem[] = [
         year: "2023 تمهيدي • 2024 دور ثانٍ",
         keyHint: "Court vs. country, forgiveness, true romantic love"
       }
-    ]
+    ],
+    sections: AS_YOU_LIKE_IT_SECTIONS
   }
 ];

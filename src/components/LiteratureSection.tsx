@@ -18,7 +18,11 @@ import {
   Languages,
   Calendar,
   Image as ImageIcon,
-  Check
+  Check,
+  Layers,
+  ChevronLeft,
+  ChevronRight,
+  FileText
 } from 'lucide-react';
 import { getStoriesForGrade, getGradeMeta, ORDERED_GRADES, ALL_GRADES_META } from '../data/gradeContentResolver';
 import { LiteratureItem, LiteratureQA, EducationalGrade } from '../types';
@@ -50,8 +54,19 @@ export const LiteratureSection: React.FC<LiteratureSectionProps> = ({
   // Language Display Preference: 'bilingual' | 'ar' | 'en'
   const [langMode, setLangMode] = useState<'bilingual' | 'ar' | 'en'>('bilingual');
 
-  // Active view section tab: 'overview' | 'author' | 'characters' | 'ministerialQA' | 'quiz'
-  const [subTab, setSubTab] = useState<'overview' | 'author' | 'characters' | 'ministerialQA' | 'quiz'>('overview');
+  // Active view section tab: 'overview' | 'sections' | 'author' | 'characters' | 'ministerialQA' | 'quiz'
+  const [subTab, setSubTab] = useState<'overview' | 'sections' | 'author' | 'characters' | 'ministerialQA' | 'quiz'>('overview');
+
+  // Selected book section index (1 to 6)
+  const [selectedSectionIdx, setSelectedSectionIdx] = useState(0);
+  const [revealedSectionExercises, setRevealedSectionExercises] = useState<Record<number, boolean>>({});
+  const [sectionTextMode, setSectionTextMode] = useState<'original' | 'modern' | 'ar'>('modern');
+
+  // Reset section state when active literature changes
+  useEffect(() => {
+    setSelectedSectionIdx(0);
+    setRevealedSectionExercises({});
+  }, [activeLiterature.id]);
 
   // Ministerial Q&A state
   const [revealedQA, setRevealedQA] = useState<Record<number, boolean>>({});
@@ -206,7 +221,7 @@ export const LiteratureSection: React.FC<LiteratureSectionProps> = ({
             {grade === 'third-intermediate' && 'دراسة شاملة ومبسطة للقصص الوزارية المقررة للثالث المتوسط (كريم والزبون 50، الغزالة، أسطورة كرم، سلام أحمد وبر الوالدين) مع الأسئلة الوزارية النموذجية.'}
             {grade === 'fourth-preparatory' && 'دراسة نقدية وأكاديمية للمسرحية المقررة «تاجر البندقية» لويليام شكسبير، وقصيدة «الطريق الذي لم يُسلك» لروبرت فروست مع الشرح والتحليل.'}
             {grade === 'fifth-preparatory' && 'دراسة تحليلية لقصيدة «هجوم اللواء الخفيف» للورد ألفريد تينيسون، وقصة «بيت الدمية» لكاثرين مانسفيلد مع أهم الأسئلة والنماذج المقررة.'}
-            {grade === 'sixth-preparatory' && 'المنهج الأدبي الوزاري المعتمد: دراسة تحليلية شاملة للكاتب العراقي محمد خضير وقصة «الأرجوحة» (The Swing)، والكاتبة النيوزيلندية كاثرين مانسفيلد وقصة «الكناري» (The Canary) مع الأسئلة الوزارية النموذجية.'}
+            {grade === 'sixth-preparatory' && 'المنهج الأدبي الوزاري المعتمد: دراسة تحليلية شاملة للرواية المقررة «كبرياء وتحامل» (Pride and Prejudice) للكاتبة جين أوستن، ومسرحية «كما تشاء» (As You Like It) للكاتب وليم شكسبير، مع تفاصيل الأقسام الستة والأسئلة والتمارين المقررة في كتاب الطالب والنشاط 2024.'}
           </p>
         </div>
 
@@ -259,6 +274,21 @@ export const LiteratureSection: React.FC<LiteratureSectionProps> = ({
           <BookOpen className="w-4 h-4 text-amber-400 shrink-0" />
           <span>القصة والحبكة والصور</span>
         </button>
+
+        {activeLiterature.sections && activeLiterature.sections.length > 0 && (
+          <button
+            id="subtab-sections"
+            onClick={() => setSubTab('sections')}
+            className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl transition-all flex items-center gap-2 whitespace-nowrap shrink-0 ${
+              subTab === 'sections'
+                ? 'bg-amber-600 text-white shadow-sm font-black'
+                : 'text-stone-600 hover:bg-stone-100'
+            }`}
+          >
+            <Layers className="w-4 h-4 text-amber-200 shrink-0" />
+            <span>الأقسام الستة المعتمدة ({activeLiterature.sections.length})</span>
+          </button>
+        )}
 
         <button
           id="subtab-author"
@@ -604,6 +634,379 @@ export const LiteratureSection: React.FC<LiteratureSectionProps> = ({
             </div>
           )}
 
+        </div>
+      )}
+
+      {/* VIEW: 6 OFFICIAL SECTIONS (STUDENT'S BOOK & ACTIVITY BOOK 2024) */}
+      {subTab === 'sections' && activeLiterature.sections && (
+        <div className="space-y-6">
+          {/* Section Selector Bar */}
+          <div className="p-4 sm:p-5 rounded-3xl bg-white border border-stone-200 shadow-xs space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 pb-3">
+              <div>
+                <span className="text-xs font-black text-amber-700 block">الأقسام الستة المقررة في كتاب الطالب والنشاط 2024</span>
+                <h3 className="text-base sm:text-lg font-black text-stone-900">
+                  اختر القسم الدراسي (Sections 1 to 6)
+                </h3>
+              </div>
+              <span className="text-xs text-stone-500 font-medium">
+                الصفحات المعتمدة: {activeLiterature.sections[selectedSectionIdx]?.bookPages}
+              </span>
+            </div>
+
+            {/* Horizontal Section Pills */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-1">
+              {activeLiterature.sections.map((sec, sIdx) => {
+                const isSelected = selectedSectionIdx === sIdx;
+                return (
+                  <button
+                    key={sec.sectionNumber}
+                    onClick={() => {
+                      setSelectedSectionIdx(sIdx);
+                      setRevealedSectionExercises({});
+                    }}
+                    className={`p-3 rounded-2xl text-right transition-all border flex flex-col justify-between ${
+                      isSelected
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-md scale-[1.02]'
+                        : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${
+                        isSelected ? 'bg-black/20 text-white' : 'bg-amber-100 text-amber-900'
+                      }`}>
+                        Section {sec.sectionNumber}
+                      </span>
+                    </div>
+                    <span className="text-xs font-black line-clamp-1">
+                      {sec.titleAr.replace(/القسم.*: /, '')}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Active Section Main Content */}
+          {activeLiterature.sections[selectedSectionIdx] && (() => {
+            const currentSection = activeLiterature.sections[selectedSectionIdx];
+
+            return (
+              <div className="space-y-6">
+                {/* Section Header Card */}
+                <div className="p-6 rounded-3xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-950 text-white shadow-md space-y-3 border border-stone-700">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="px-3 py-1 rounded-full bg-amber-500 text-stone-950 font-black text-xs">
+                      {currentSection.bookPages}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        disabled={selectedSectionIdx === 0}
+                        onClick={() => setSelectedSectionIdx(prev => Math.max(0, prev - 1))}
+                        className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-40 text-xs font-bold flex items-center gap-1"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" />
+                        <span>السابق</span>
+                      </button>
+                      <button
+                        disabled={selectedSectionIdx === activeLiterature.sections!.length - 1}
+                        onClick={() => setSelectedSectionIdx(prev => Math.min(activeLiterature.sections!.length - 1, prev + 1))}
+                        className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-40 text-xs font-bold flex items-center gap-1"
+                      >
+                        <span>التالي</span>
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <h2 className="text-xl sm:text-2xl font-black text-amber-50">
+                    {currentSection.titleAr}
+                  </h2>
+                  <p dir="ltr" className="text-xs sm:text-sm text-stone-300 text-left font-serif">
+                    {currentSection.title}
+                  </p>
+                </div>
+
+                {/* 1. The Story So Far */}
+                <div className="p-6 sm:p-7 rounded-3xl bg-white border border-stone-200 shadow-xs space-y-4">
+                  <h3 className="text-sm sm:text-base font-black text-stone-900 flex items-center gap-2">
+                    <Bookmark className="w-4 h-4 text-amber-600" />
+                    <span>ملخص ما جرى حتى الآن (The Story So Far)</span>
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/70 space-y-2">
+                      <span className="text-[11px] font-black text-amber-900 block">الملخص باللغة العربية</span>
+                      <p className="text-xs sm:text-sm text-stone-800 leading-relaxed font-normal">
+                        {currentSection.storySoFarAr}
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-2" dir="ltr">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-black text-stone-700">Official Student's Book Summary</span>
+                        <button
+                          onClick={() => playAudio(currentSection.storySoFarEn)}
+                          className="text-stone-500 hover:text-amber-700 flex items-center gap-1 text-[11px] font-bold"
+                        >
+                          <Volume2 className="w-3.5 h-3.5" />
+                          <span>Listen</span>
+                        </button>
+                      </div>
+                      <p className="text-xs sm:text-sm text-stone-700 leading-relaxed text-left font-normal">
+                        {currentSection.storySoFarEn}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Reading Passage / Dialogue Extract */}
+                {(currentSection.extractOriginal || currentSection.extractModern) && (
+                  <div className="p-6 sm:p-7 rounded-3xl bg-white border border-stone-200 shadow-xs space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-3">
+                      <h3 className="text-sm sm:text-base font-black text-stone-900 flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-amber-600" />
+                        <span>نص الحوار والمشهد المقرّر (Reading Extract)</span>
+                      </h3>
+
+                      {/* Text version toggles for Shakespeare */}
+                      {currentSection.extractModern && currentSection.extractOriginal && (
+                        <div className="inline-flex items-center bg-stone-100 p-1 rounded-xl text-xs font-bold">
+                          <button
+                            onClick={() => setSectionTextMode('modern')}
+                            className={`px-3 py-1 rounded-lg transition-all ${
+                              sectionTextMode === 'modern' ? 'bg-amber-600 text-white shadow-xs font-black' : 'text-stone-600'
+                            }`}
+                          >
+                            إنجليزية حديثة (Modern)
+                          </button>
+                          <button
+                            onClick={() => setSectionTextMode('original')}
+                            className={`px-3 py-1 rounded-lg transition-all ${
+                              sectionTextMode === 'original' ? 'bg-stone-900 text-white shadow-xs font-black' : 'text-stone-600'
+                            }`}
+                          >
+                            النص الأصلي (Original)
+                          </button>
+                          <button
+                            onClick={() => setSectionTextMode('ar')}
+                            className={`px-3 py-1 rounded-lg transition-all ${
+                              sectionTextMode === 'ar' ? 'bg-amber-600 text-white shadow-xs font-black' : 'text-stone-600'
+                            }`}
+                          >
+                            الترجمة العربية
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Extract Content */}
+                    <div className="space-y-4">
+                      {/* For Austen (where only extractOriginal & extractAr are present) */}
+                      {!currentSection.extractModern && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-2" dir="ltr">
+                            <div className="flex items-center justify-between border-b border-stone-200 pb-2">
+                              <span className="text-xs font-black text-stone-800">English Text (Jane Austen)</span>
+                              <button
+                                onClick={() => playAudio(currentSection.extractOriginal || '')}
+                                className="text-amber-700 hover:text-amber-900 flex items-center gap-1 text-xs font-bold"
+                              >
+                                <Volume2 className="w-3.5 h-3.5" />
+                                <span>استماع</span>
+                              </button>
+                            </div>
+                            <p className="text-xs sm:text-sm text-stone-800 leading-relaxed whitespace-pre-line text-left font-serif">
+                              {currentSection.extractOriginal}
+                            </p>
+                          </div>
+
+                          <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/50 border border-amber-200 space-y-2">
+                            <div className="border-b border-amber-200 pb-2">
+                              <span className="text-xs font-black text-amber-900">الترجمة العربية النموذجية</span>
+                            </div>
+                            <p className="text-xs sm:text-sm text-stone-800 leading-relaxed whitespace-pre-line">
+                              {currentSection.extractAr}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* For Shakespeare (with Modern vs Original toggles) */}
+                      {currentSection.extractModern && currentSection.extractOriginal && (
+                        <div className="space-y-3">
+                          {sectionTextMode === 'modern' && (
+                            <div className="p-5 rounded-2xl bg-amber-50/50 border border-amber-200 space-y-2" dir="ltr">
+                              <div className="flex items-center justify-between border-b border-amber-200 pb-2">
+                                <span className="text-xs font-black text-amber-950">Modern English Version (Student's Book)</span>
+                                <button
+                                  onClick={() => playAudio(currentSection.extractModern || '')}
+                                  className="text-amber-800 hover:text-amber-950 flex items-center gap-1 text-xs font-bold"
+                                >
+                                  <Volume2 className="w-3.5 h-3.5" />
+                                  <span>Listen</span>
+                                </button>
+                              </div>
+                              <p className="text-xs sm:text-sm text-stone-800 leading-relaxed whitespace-pre-line text-left font-serif">
+                                {currentSection.extractModern}
+                              </p>
+                            </div>
+                          )}
+
+                          {sectionTextMode === 'original' && (
+                            <div className="p-5 rounded-2xl bg-stone-900 text-white border border-stone-800 space-y-2" dir="ltr">
+                              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                                <span className="text-xs font-black text-amber-400">Shakespeare's Original Poetic Text (First Folio)</span>
+                                <button
+                                  onClick={() => playAudio(currentSection.extractOriginal || '')}
+                                  className="text-amber-300 hover:text-amber-200 flex items-center gap-1 text-xs font-bold"
+                                >
+                                  <Volume2 className="w-3.5 h-3.5" />
+                                  <span>Listen</span>
+                                </button>
+                              </div>
+                              <p className="text-xs sm:text-sm text-stone-200 leading-relaxed whitespace-pre-line text-left font-serif">
+                                {currentSection.extractOriginal}
+                              </p>
+                            </div>
+                          )}
+
+                          {sectionTextMode === 'ar' && (
+                            <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
+                              <div className="border-b border-stone-200 pb-2">
+                                <span className="text-xs font-black text-stone-800">الترجمة العربية للشعر والحوار</span>
+                              </div>
+                              <p className="text-xs sm:text-sm text-stone-800 leading-relaxed whitespace-pre-line">
+                                {currentSection.extractAr}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. Official Glossary Card */}
+                {currentSection.glossary && currentSection.glossary.length > 0 && (
+                  <div className="p-6 sm:p-7 rounded-3xl bg-white border border-stone-200 shadow-xs space-y-4">
+                    <h3 className="text-sm sm:text-base font-black text-stone-900 flex items-center gap-2">
+                      <Languages className="w-4 h-4 text-amber-600" />
+                      <span>معجم مفردات القسم الرسمي (Official Section Glossary)</span>
+                    </h3>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {currentSection.glossary.map((g, gi) => (
+                        <div
+                          key={gi}
+                          className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 space-y-1 hover:border-amber-400 transition-colors"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono font-bold text-sm text-stone-900">{g.word}</span>
+                            <div className="flex items-center gap-1">
+                              {g.pos && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-stone-200 text-stone-600">
+                                  {g.pos}
+                                </span>
+                              )}
+                              <button
+                                onClick={() => playAudio(g.word)}
+                                className="text-stone-400 hover:text-amber-700 p-0.5"
+                                title="استمع للنطق"
+                              >
+                                <Volume2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                          <p className="text-xs font-bold text-amber-800">{g.meaningAr}</p>
+                          <p dir="ltr" className="text-[11px] text-stone-600 font-medium text-left border-t border-stone-200/60 pt-1">
+                            {g.meaningEn}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. Activity Book Official Exercises */}
+                {currentSection.exercises && currentSection.exercises.length > 0 && (
+                  <div className="p-6 sm:p-7 rounded-3xl bg-white border border-stone-200 shadow-xs space-y-4">
+                    <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                      <h3 className="text-sm sm:text-base font-black text-stone-900 flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        <span>تمارين كتاب النشاط الرسمية للقسم ({currentSection.exercises.length})</span>
+                      </h3>
+                      <button
+                        onClick={() => {
+                          const all: Record<number, boolean> = {};
+                          currentSection.exercises.forEach((_, ei) => { all[ei] = true; });
+                          setRevealedSectionExercises(all);
+                        }}
+                        className="text-xs font-bold text-amber-700 hover:text-amber-900"
+                      >
+                        كشف جميع الإجابات
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      {currentSection.exercises.map((ex, ei) => {
+                        const isRevealed = revealedSectionExercises[ei];
+
+                        return (
+                          <div
+                            key={ei}
+                            className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-3 hover:border-emerald-300 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-900 font-black text-xs flex items-center justify-center shrink-0">
+                                {ei + 1}
+                              </span>
+                              <div className="flex-1 space-y-1">
+                                <p dir="ltr" className="text-xs sm:text-sm font-bold text-stone-900 text-left font-sans">
+                                  {ex.question}
+                                </p>
+                                {ex.questionAr && (
+                                  <p className="text-xs text-stone-600 font-medium">
+                                    {ex.questionAr}
+                                  </p>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => setRevealedSectionExercises(prev => ({ ...prev, [ei]: !prev[ei] }))}
+                                className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-colors flex items-center gap-1 shrink-0 ${
+                                  isRevealed
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-white border border-stone-300 text-stone-700 hover:bg-stone-100'
+                                }`}
+                              >
+                                {isRevealed ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                                <span>{isRevealed ? 'إخفاء' : 'كشف الإجابة'}</span>
+                              </button>
+                            </div>
+
+                            {isRevealed && (
+                              <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1.5 animate-fadeIn">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[11px] font-black text-emerald-900">الإجابة المعتمدة:</span>
+                                </div>
+                                <p dir="ltr" className="text-xs sm:text-sm font-bold text-emerald-950 text-left">
+                                  {ex.answer}
+                                </p>
+                                {ex.answerAr && (
+                                  <p className="text-xs text-emerald-800 font-medium">
+                                    {ex.answerAr}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
 

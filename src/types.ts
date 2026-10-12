@@ -90,6 +90,29 @@ export interface LiteratureVocabulary {
   contextAr: string;
 }
 
+export interface LiteratureSectionExercise {
+  type: 'tf' | 'qa' | 'vocab' | 'matching';
+  question: string;
+  questionAr?: string;
+  answer: string;
+  answerAr?: string;
+  options?: string[];
+}
+
+export interface LiteratureSectionInfo {
+  sectionNumber: number;
+  title: string;
+  titleAr: string;
+  bookPages: string;
+  storySoFarEn: string;
+  storySoFarAr: string;
+  extractOriginal?: string;
+  extractModern?: string;
+  extractAr?: string;
+  glossary: { word: string; pos?: string; meaningEn: string; meaningAr: string }[];
+  exercises: LiteratureSectionExercise[];
+}
+
 export interface LiteratureItem {
   id: string;
   title: string;
@@ -122,6 +145,7 @@ export interface LiteratureItem {
     speaker: string;
   }[];
   ministerialQA: LiteratureQA[];
+  sections?: LiteratureSectionInfo[];
 }
 
 export interface EssayItem {

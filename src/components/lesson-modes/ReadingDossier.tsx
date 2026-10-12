@@ -269,31 +269,103 @@ export const ReadingDossier: React.FC<ReadingDossierProps> = ({ lesson }) => {
     const id = lesson.id;
     if (id.includes('u1-l3')) {
       return [
-        { q: 'Zaid Tariq was bitten by six dolphins.', correct: false, reason: 'False: He was bitten by a shark; six dolphins protected him.' },
-        { q: 'Jameel Elalawi heard Tariq\'s screams and rescued him by boat.', correct: true, reason: 'True: Jameel Elalawi was the coastguard who rescued him.' },
+        { q: 'Ammar decided to jump off the bridge because he did not want to feel embarrassed in front of his friends.', correct: true, reason: 'True: His friends were watching, so he did not want to give up.' },
+        { q: 'An exoskeleton is a machine worn by Ammar that helped him stand up and walk again.', correct: true, reason: 'True: After nearly six months with the exoskeleton, he was walking again.' },
       ];
     }
-    if (id.includes('u1-l10')) {
+    if (id.includes('u1-l7')) {
       return [
-        { q: 'Mustafa\'s mother suffered from high blood pressure.', correct: false, reason: 'False: She suffered from diabetes (مرض السكر).' },
-        { q: 'Mustafa told the emergency operator that his mother was sick and needed a doctor.', correct: true, reason: 'True: He spoke calmly to operator Safia Khouri.' },
+        { q: 'Dr Samir Ramzi states that 60% of British people are overweight and at risk of becoming diabetic.', correct: true, reason: 'True: 60% of British people are overweight due to bad diet with too much fat, sugar and salt.' },
+        { q: 'Smokers generally need less medical attention than non-smokers.', correct: false, reason: 'False: Smokers need more medical attention because smoking damages the lungs and heart.' },
       ];
     }
-    if (id.includes('u2-l8')) {
+    if (id.includes('u1-l9')) {
       return [
-        { q: 'Radar can only detect moving objects towards it.', correct: false, reason: 'False: It can detect vehicles moving towards or away from it.' },
-        { q: 'Police officers must be trained to use radar guns properly.', correct: true, reason: 'True: Proper training ensures accurate speed readings.' },
+        { q: 'Najla Imad Lafta won the gold medal at the Paris 2024 Paralympics.', correct: true, reason: 'True: At 19 years old, she beat Tokyo champion Maryna Lytovchenko 3-1.' },
+        { q: 'Najla was born left-handed and always played table tennis with her left hand.', correct: false, reason: 'False: She was born right-handed and had to train to use her left hand after losing her right arm.' },
       ];
     }
-    if (id.includes('u3-l3')) {
+    if (id.includes('u2-l2')) {
       return [
-        { q: 'A good conference interpreter translates every single word literally.', correct: false, reason: 'False: An interpreter translates the idea, not literal words.' },
-        { q: 'Samira Al-Mahmoud reads newspapers to have good general knowledge.', correct: true, reason: 'True: Daily reading helps in translating diverse international topics.' },
+        { q: 'Police officers direct traffic to make sure drivers can use roads easily without accidents.', correct: true, reason: 'True: Directing traffic and checking seat belts are key police duties.' },
+        { q: 'Police officers have to recognize fingerprints at crime scenes themselves.', correct: false, reason: 'False: There are fingerprint experts who analyze and recognize the fingerprints.' },
+      ];
+    }
+    if (id.includes('u2-l9')) {
+      return [
+        { q: 'Radar speed guns only work when a vehicle is moving towards them.', correct: false, reason: 'False: They work whether the vehicle is moving towards or away from them.' },
+        { q: 'Police officers started using radar speed guns over 70 years ago.', correct: true, reason: 'True: Radar speed guns have been used by police for over 70 years.' },
+      ];
+    }
+    if (id.includes('u3-l4')) {
+      return [
+        { q: 'Zaha Hadid was the first woman ever to win the prestigious Pritzker Prize in 2004.', correct: true, reason: 'True: She was the first woman ever to win the Pritzker Prize in 2004.' },
+        { q: 'Zaha Hadid was born in London and studied only in Britain.', correct: false, reason: 'False: She was born in Baghdad and studied Mathematics at the American University of Beirut before London.' },
+      ];
+    }
+    if (id.includes('u3-l9') || id.includes('u3-l10')) {
+      return [
+        { q: 'Samira Al Mahmoud translated the Arabic proverb "Akl il-inab habba habba" literally into English.', correct: false, reason: 'False: She translated it quickly as "One step at a time" to convey the true sense.' },
+        { q: 'Conference interpreters often work in pairs in the booth to reduce stress and take turns.', correct: true, reason: 'True: One interprets while the colleague writes down figures and technical terms.' },
+      ];
+    }
+    if (id.includes('u4-l1')) {
+      return [
+        { q: 'Rashid & Rana Designs produces shirts and jeans.', correct: true, reason: 'True: Rana is the designer and Rashid handles marketing.' },
+        { q: 'Rashid and Rana signed contracts with three London department stores at Fashion Week.', correct: true, reason: 'True: Their designs attracted huge interest in London.' },
+      ];
+    }
+    if (id.includes('u4-l2')) {
+      return [
+        { q: 'Modern workout mirrors can teach people how to exercise at home or in smart gyms.', correct: true, reason: 'True: Hi-tech workout mirrors provide guided interactive exercises.' },
+        { q: 'AI systems in gyms build ideal workout plans and track client progress.', correct: true, reason: 'True: Personal trainers now use AI systems to analyze client data.' },
+      ];
+    }
+    if (id.includes('u5-l3')) {
+      return [
+        { q: 'Safar Tours is one of Iraq\'s longest established travel companies, started in 1976.', correct: true, reason: 'True: Ahmed\'s father started Safar Tours in 1976 on Al Rasheed Street.' },
+        { q: 'Steve Harper has visited Iraq 15 times on business since 2009.', correct: true, reason: 'True: He extends his stay each time for sightseeing tours with Safar Tours.' },
+      ];
+    }
+    if (id.includes('u5-l6')) {
+      return [
+        { q: 'Anna Johnson stayed on the Tunisian Kerkennah Islands on a package deal that cost £300.', correct: true, reason: 'True: The package included flight, transfers, ferry, hotel and meals.' },
+        { q: 'In Kerkennah, octopus is caught in plastic nets.', correct: false, reason: 'False: Local fishermen catch octopus in traditional clay pots.' },
+      ];
+    }
+    if (id.includes('u5-l9')) {
+      return [
+        { q: 'Chronic stress from modern work can cause high blood pressure, strokes, and heart attacks.', correct: true, reason: 'True: The body and brain cannot continue indefinitely without breaks and holidays.' },
+        { q: 'Workaholics are people who take too many long holidays.', correct: false, reason: 'False: Workaholics think their work is too important to leave and delay holidays.' },
+      ];
+    }
+    if (id.includes('u6-l3')) {
+      return [
+        { q: 'Being a banker requires being good at Maths and able to read graphs and charts.', correct: true, reason: 'True: A banker must also be a good communicator to explain complex plans clearly.' },
+        { q: 'Bankers approve loans without consulting any other specialists.', correct: false, reason: 'False: They work with experts such as property evaluators when clients buy homes.' },
+      ];
+    }
+    if (id.includes('u7-l9')) {
+      return [
+        { q: 'The Central Library of Baghdad provides books on different careers, CV writing, and interview advice.', correct: true, reason: 'True: The narrator researched new careers and borrowed language DVDs.' },
+        { q: 'The narrator used the library to find information about evening and summer classes.', correct: true, reason: 'True: The library had catalogues and computers to check course details.' },
+      ];
+    }
+    if (id.includes('u8-l3')) {
+      return [
+        { q: 'Wind power produces zero greenhouse gases and is a 100% renewable energy source.', correct: true, reason: 'True: Wind power is clean and the wind is caused by changing temperatures in the air.' },
+        { q: 'Farmers cannot use the land under wind turbines for agriculture or animals.', correct: false, reason: 'False: Because wind turbines are tall, land under them can still be used for farming and grazing.' },
+      ];
+    }
+    if (id.includes('u8-l4')) {
+      return [
+        { q: 'The Euphrates River is 2,800 km long, making it the longest river in the Middle East.', correct: true, reason: 'True: It begins in the Caucasus Mountains and flows through Turkey, Syria, and Iraq.' },
+        { q: 'The ruins of ancient Babylon are located along the banks of the Euphrates.', correct: true, reason: 'True: Ancient Babylon and modern cities like An Najaf lie along the river.' },
       ];
     }
     return [
-      { q: 'Reading comprehension questions require accurate spelling in ministerial exams.', correct: true, reason: 'True: Clear answers prevent mark deductions.' },
-      { q: 'Understanding the key characters helps answer Question 1 Branch B directly.', correct: true, reason: 'True: Almost every exam tests the character roles.' },
+      { q: 'Ministerial exam reading comprehension questions require precise keywords from the official text.', correct: true, reason: 'True: Accurate keywords ensure full marks in Question 1 Branch B.' },
+      { q: 'Understanding the main theme and character actions is crucial for high exam scores.', correct: true, reason: 'True: Ministerial questions test key events and characters directly.' },
     ];
   };
 
