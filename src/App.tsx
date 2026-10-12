@@ -23,7 +23,6 @@ import { SmartReviewSection } from './components/SmartReviewSection';
 import { AuthGate } from './components/AuthGate';
 import { SubjectDetailView } from './components/SubjectDetailView';
 import { GradePageView } from './components/GradePageView';
-import { GradeSelectorBar } from './components/GradeSelectorBar';
 import { NotFound } from './components/NotFound';
 
 import { getUnitsForGrade, getGradeMeta, ORDERED_GRADES } from './data/gradeContentResolver';
@@ -402,10 +401,6 @@ function MainAppContent() {
         onSelectGrade={handleSelectGrade}
         onOpenProfile={() => setIsProfileOpen(true)}
         onOpenAuth={() => setIsProfileOpen(true)}
-      />
-      <GradeSelectorBar
-        selectedGrade={selectedGrade}
-        onSelectGrade={handleSelectGrade}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 overflow-x-hidden">

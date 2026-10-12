@@ -1,15 +1,8 @@
 import React from 'react';
-import { 
-  BookOpen, Sparkles, Trophy, CheckCircle2, ChevronLeft, ArrowRight,
-  HelpCircle, Compass, FileText, Bookmark, Star, ArrowUpRight, Flame,
-  Target, GraduationCap, Clock, Award, CheckCircle, ShieldCheck, Eye,
-  Languages
-} from 'lucide-react';
-import { SUBJECTS } from '../data/subjectsData';
+import { EducationalGrade, StudentState, Unit, Lesson } from '../types';
 import { SubjectId } from '../types/subject';
-import { getUnitsForGrade, getGradeMeta, ORDERED_GRADES, ALL_GRADES_META } from '../data/gradeContentResolver';
-import { StudentState, Unit, Lesson, EducationalGrade } from '../types';
 import { PinterestPlatformFeed } from './PinterestPlatformFeed';
+import { GradeSelectorBar } from './GradeSelectorBar';
 
 interface DashboardProps {
   studentState: StudentState;
@@ -34,6 +27,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="w-full">
+      <GradeSelectorBar
+        selectedGrade={effectiveGrade}
+        onSelectGrade={onSelectGrade}
+      />
       <PinterestPlatformFeed
         selectedGrade={effectiveGrade}
         onSelectGrade={onSelectGrade}

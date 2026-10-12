@@ -13,7 +13,9 @@ import {
   CloudCheck,
   UserCheck,
   LogOut,
-  LogIn
+  LogIn,
+  Type,
+  Check
 } from 'lucide-react';
 import { StudentState } from '../types';
 import { INITIAL_BADGES } from '../utils/storage';
@@ -43,6 +45,20 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
   const { user, logout, syncStatus } = useAuth();
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(studentState.name);
+  const [currentFont, setCurrentFont] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('mustafa_turki_font') || 'plex';
+    }
+    return 'plex';
+  });
+
+  const handleSelectFont = (fontId: string) => {
+    setCurrentFont(fontId);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('mustafa_turki_font', fontId);
+      document.documentElement.setAttribute('data-font', fontId);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -170,13 +186,12 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                 </div>
               )}
               <div className="flex flex-col gap-2 mt-2">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">
-                    {getGradeMeta(studentState.selectedGrade || 'sixth-preparatory').nameAr}
-                  </span>
-                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-                    {getGradeMeta(studentState.selectedGrade || 'sixth-preparatory').isMinisterial ? 'مرشح للـ 100 الوزارية 🌟' : 'منهج العراق الرسمي 🌟'}
-                  </span>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 mt-1">
+                  <span className="font-bold text-slate-900">{getGradeMeta(studentState.selectedGrade || 'sixth-preparatory').nameAr}</span>
+                  <span aria-hidden="true" className="text-slate-300">·</span>
+                  <span>الفئة العمرية: {getGradeMeta(studentState.selectedGrade || 'sixth-preparatory').ageRangeAr}</span>
+                  <span aria-hidden="true" className="text-slate-300">·</span>
+                  <span>{getGradeMeta(studentState.selectedGrade || 'sixth-preparatory').isMinisterial ? 'مرشح للوزاري' : 'المنهج الرسمي'}</span>
                 </div>
 
                 {onSelectGrade && (
@@ -189,13 +204,16 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                           key={gId}
                           type="button"
                           onClick={() => onSelectGrade(gId)}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
                             isSelected
                               ? 'bg-indigo-600 text-white font-black shadow-xs'
                               : 'text-slate-600 hover:bg-slate-100'
                           }`}
                         >
-                          {meta.shortName}
+                          <span>{meta.shortName}</span>
+                          <span className={`text-[10px] ${isSelected ? 'text-indigo-200' : 'text-slate-400'}`}>
+                            ({meta.typicalAge}س)
+                          </span>
                         </button>
                       );
                     })}
@@ -275,6 +293,79 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                       </p>
                     </div>
                   </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Arabic Typography Style Selector */}
+          <div className="space-y-3 pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <Type className="w-4 h-4 text-indigo-600" />
+                <span>نمط الخط العربي للمنصة (Typography)</span>
+              </h3>
+              <span className="text-[11px] text-slate-400 font-medium">تغيير فوري لكامل الشاشات والدروس</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {[
+                { 
+                  id: 'plex', 
+                  nameAr: 'خط بلكس الأكاديمي', 
+                  nameEn: 'IBM Plex Sans Arabic', 
+                  desc: 'خط أكاديمي عالي الدقة، مريح للعين في القراءة المركزة ومطابق للملازم الحديثة.',
+                  tag: 'الافتراضي الموصى به'
+                },
+                { 
+                  id: 'readex', 
+                  nameAr: 'خط ريدكس الهندسي', 
+                  nameEn: 'Readex Pro', 
+                  desc: 'خط هندسي عصري نقي متوازن تماماً مع المصطلحات والجمل الإنكليزية.',
+                  tag: 'هندسي عصري'
+                },
+                { 
+                  id: 'cairo', 
+                  nameAr: 'خط القاهرة الوزاري', 
+                  nameEn: 'Cairo', 
+                  desc: 'خط عربي كلاسيكي عريض ذو حضور بارز في الأسئلة الوزارية والامتحانات.',
+                  tag: 'بارز ورسمي'
+                },
+                { 
+                  id: 'tajawal', 
+                  nameAr: 'خط تجوال الأنيق', 
+                  nameEn: 'Tajawal', 
+                  desc: 'خط انسيابي ناعم ومريح للمطالعة الطويلة والاستيعاب السريع.',
+                  tag: 'انسيابي ناعم'
+                },
+              ].map((fontItem) => {
+                const isSelected = currentFont === fontItem.id;
+                return (
+                  <button
+                    key={fontItem.id}
+                    type="button"
+                    onClick={() => handleSelectFont(fontItem.id)}
+                    className={`p-3.5 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+                      isSelected
+                        ? 'bg-indigo-50/80 border-indigo-500 shadow-xs ring-1 ring-indigo-500'
+                        : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${
+                          isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400'
+                        }`}>
+                          {isSelected ? <Check className="w-3.5 h-3.5" /> : 'Aa'}
+                        </div>
+                        <span className="font-bold text-xs sm:text-sm text-slate-900">{fontItem.nameAr}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-medium">{fontItem.tag}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 leading-relaxed font-normal">
+                      {fontItem.desc}
+                    </p>
+                  </button>
                 );
               })}
             </div>

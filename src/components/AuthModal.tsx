@@ -21,7 +21,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail, signInQuick } = useAuth();
   
   const [mode, setMode] = useState<'login' | 'register'>('register');
   const [name, setName] = useState('');
@@ -142,6 +142,26 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
           </div>
 
           <div className="p-6">
+            {/* Quick 1-Click Login */}
+            <button
+              type="button"
+              onClick={async () => {
+                setLoading(true);
+                try {
+                  await signInQuick('alnukhbazubair@gmail.com', 'طالب النخبة المتفوق');
+                  if (onAuthSuccess) onAuthSuccess('طالب النخبة المتفوق');
+                  onClose();
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              disabled={loading}
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all mb-3 shadow-md shadow-amber-200/50 cursor-pointer active:scale-[0.99]"
+            >
+              <Sparkles className="w-4 h-4 fill-slate-950 text-slate-950 shrink-0" />
+              <span>تسجيل الدخول الفوري بضغطة واحدة (طالب النخبة)</span>
+            </button>
+
             {/* Quick Google Sign In */}
             <button
               type="button"

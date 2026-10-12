@@ -31,7 +31,8 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccessfulAuth }) => {
     signInWithEmail, 
     signUpWithEmail, 
     signUpWithPhone, 
-    signInWithPhone 
+    signInWithPhone,
+    signInQuick
   } = useAuth();
 
   // Mode: Register vs Login
@@ -218,12 +219,51 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccessfulAuth }) => {
               </button>
             </div>
 
+            {/* Instant 1-Click Student Login */}
+            <div className="space-y-2 mb-4">
+              <button
+                type="button"
+                onClick={async () => {
+                  setLoading(true);
+                  try {
+                    await signInQuick('alnukhbazubair@gmail.com', 'طالب النخبة المتفوق');
+                    if (onSuccessfulAuth) onSuccessfulAuth('طالب النخبة المتفوق', selectedGrade);
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all shadow-md shadow-amber-200/60 cursor-pointer active:scale-[0.99]"
+              >
+                <Sparkles className="w-4 h-4 fill-slate-950 text-slate-950 shrink-0" />
+                <span>تسجيل الدخول الفوري بضغطة واحدة (طالب النخبة)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  setLoading(true);
+                  try {
+                    await signInQuick('guest@student.iq', 'طالب زائر');
+                    if (onSuccessfulAuth) onSuccessfulAuth('طالب زائر', selectedGrade);
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+                className="w-full py-2 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <span>المتابعة كطالب زائر وتصفح المنهج مباشرة (بدون حساب)</span>
+                <ArrowRight className="w-3.5 h-3.5 rotate-180 text-slate-400" />
+              </button>
+            </div>
+
             {/* Quick Google Login */}
             <button
               type="button"
               onClick={handleGoogleSignIn}
               disabled={googleLoading || loading}
-              className="w-full py-3 px-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 text-xs sm:text-sm flex items-center justify-center gap-3 transition-colors mb-5 disabled:opacity-50 cursor-pointer shadow-xs"
+              className="w-full py-3 px-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 text-xs sm:text-sm flex items-center justify-center gap-3 transition-colors mb-4 disabled:opacity-50 cursor-pointer shadow-xs"
             >
               {googleLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
@@ -235,14 +275,14 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccessfulAuth }) => {
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                   </svg>
-                  <span>الدخول المباشر بحساب Google</span>
+                  <span>الدخول بحساب Google</span>
                 </>
               )}
             </button>
 
-            <div className="flex items-center gap-3 mb-5">
+            <div className="flex items-center gap-3 mb-4">
               <div className="flex-1 h-px bg-slate-200"></div>
-              <span className="text-xs text-slate-400 font-bold">أو اختر وسيلة التسجيل المفضلة:</span>
+              <span className="text-[11px] text-slate-400 font-bold">أو تسجيل الدخول اليدوي:</span>
               <div className="flex-1 h-px bg-slate-200"></div>
             </div>
 

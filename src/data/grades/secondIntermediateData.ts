@@ -3,14 +3,18 @@ import { MockExamPaper } from '../mockExamPapers';
 
 // =========================================================================
 // وحدات الثاني المتوسط - منهج English for Iraq (2nd Intermediate)
+// معتمد رسمياً وحصرياً من كتاب الطالب (Student's Book) وكتاب النشاط (Activity Book)
 // =========================================================================
 export const SECOND_INTERMEDIATE_UNITS: Unit[] = [
+  // -------------------------------------------------------------------------
+  // UNIT 1: A School Magazine
+  // -------------------------------------------------------------------------
   {
     id: 21,
     number: 1,
-    titleAr: "الوحدة الأولى: مجلة المدرسة وتقديم النصائح والاقتراحات (A School Magazine)",
+    titleAr: "الوحدة الأولى: مجلة المدرسة (Unit 1: A School Magazine)",
     titleEn: "Unit 1: A School Magazine, Advice & Suggestions",
-    description: "أس الملكية (Possessive 's / s')، تقديم الاقتراحات (Suggestions)، إعطاء النصائح باستخدام should / shouldn't، وإجراء مقابلات المجلات.",
+    description: "معتمد من كتاب الطالب (SB ص 4-15) وكتاب النشاط (AB ص 3-18): أقسام المجلة، أس التملك، إعطاء النصيحة بـ should، الاقتراحات بـ Why not / Shall we / Let's، والمقابلة الصحفية.",
     accentColor: "from-cyan-600 to-blue-600",
     bgGradient: "bg-gradient-to-r from-cyan-50 to-blue-50 border-cyan-200",
     lessons: [
@@ -18,46 +22,61 @@ export const SECOND_INTERMEDIATE_UNITS: Unit[] = [
         id: "2nd-u1-l1",
         unitId: 21,
         lessonNumber: 1,
-        titleAr: "الدرس الأول: إس التملك (Possessive 's & s')",
-        titleEn: "Lesson 1: Possessive Apostrophe ('s / s')",
+        titleAr: "الدرس الأول: أقسام مجلة المدرسة وإس التملك (Possessive 's & s')",
+        titleEn: "Lesson 1: School Magazine Sections & Possessive Apostrophe",
         category: "grammar",
-        summary: "وضع الفاصلة العليا للتملك مع الاسم المفرد والجمع النظامي والشاذ.",
-        grammarRuleFormula: "Singular (مفرد):\nNoun + 's (e.g., the boy's bag = حقيبة الولد الواحد)\nRegular Plural (جمع ينتهي بـ s):\nNoun-s + ' (e.g., the boys' bags = حقائب الأولاد)\nIrregular Plural (جمع شاذ لا ينتهي بـ s):\nPlural Noun + 's (e.g., children's books, men's room)",
+        summary: "كتاب الطالب ص 4-5 وكتاب النشاط ص 3-5: أقسام مجلة المدرسة (articles, interviews, jokes, poetry, cartoons) والتمييز الدقيق بين التملك للمفرد والجمع النظامي والشاذ.",
+        grammarRuleFormula: "1) Singular (اسم مفرد):\n   Noun + 's -> boy's bag, teacher's desk\n2) Regular Plural (جمع ينتهي بـ s):\n   Noun-s + ' -> boys' bags, teachers' room\n3) Irregular Plural (جمع شاذ لا ينتهي بـ s):\n   Plural Noun + 's -> men's shoes, women's club, children's magazine",
         detailedContent: [
-          "تستخدم الفاصلة العليا ('s) لبيان ملكية الشيء لشخص أو جهة معينة.",
-          "مع الاسم المفرد نضع ('s) قبل الـ s: the girl's coat.",
-          "مع الاسم الجمع الذي ينتهي بحرف s نضع الفاصلة فقط بعد الـ s: the girls' coats.",
-          "مع الجمع الشاذ (الذي لا ينتهي بـ s مثل men, women, children) نضع ('s): the children's magazine."
+          "كتاب الطالب (SB p. 4): أقسام مجلة المدرسة تشمل: School News (أخبار المدرسة), Town Events (أحداث المدينة), Interviews (مقابلات), Cartoons (رسوم كاريكاتيرية), Jokes (نكات), Poetry (شعر), Letters (رسائل), Problems page (صفحة المشاكل).",
+          "قاعدة التملك (SB p. 5 & AB p. 4): نضع الفاصلة العليا قبل الـ s عندما يعود الشيء لشخص واحد (the girl's notebook).",
+          "إذا كان المالك جمعاً ينتهي بـ s نكتفي بوضع الفاصلة بعد الـ s (the girls' notebooks).",
+          "في الجمع الشاذ (men, women, children, people) يُعامل معاملة المفرد تماماً ونضع 's (the children's playground)."
         ],
         teacherNotes: [
-          "ملاحظة الأستاذ مصطفى تركي: انتبه لسؤال الجمع الشاذ (men, women, children)، يُعامل معاملة المفرد ونضع له ('s) وليس (s').",
-          "سؤال امتحاني متكرر: The teacher picked up the (students' / student's) exam papers."
+          "ملاحظة منهجية وزارية: احفظ أسماء أقسام المجلة لأنها تأتي في سؤال الإسقاطات (Matching / Fill in blanks).",
+          "قاعدة ذهبية: انظر للفاعل أو سياق الجملة، إذا ذُكر 'all the boys' فالفاصلة بعد الـ s (boys'). وإذا ذُكر 'one boy' فالفاصلة قبل الـ s (boy's)."
         ],
         commonMistakes: [
-          "كتابة childrens' (خطأ فادح، الصحيح children's).",
-          "نسيان موقع الفاصلة مع جمع s النظامي."
+          "كتابة childrens' (خطأ جسيم؛ الصحيح دائماً هو children's).",
+          "نسيان الفاصلة في كلمة girls' عندما يكون الحديث عن مجموعة فتيات."
         ],
         examples: [
           {
-            en: "This is the doctor's bag.",
-            ar: "هذه حقيبة الطبيب (مفرد).",
-            highlight: "doctor's",
+            en: "The headmaster's office is at the end of the corridor.",
+            ar: "مكتب المدير (مدير واحد مفرد) في نهاية الممر.",
+            highlight: "headmaster's",
             note: "مفرد + 's"
           },
           {
-            en: "The teachers' room is on the second floor.",
-            ar: "غرفة المعلمين (جمع) في الطابق الثاني.",
-            highlight: "teachers'",
-            note: "جمع ينتهي بـ s + فاصلة فقط"
+            en: "The students' magazine won first prize in the national contest.",
+            ar: "مجلة الطلاب (مجموعة طلاب) فازت بالجائزة الأولى.",
+            highlight: "students'",
+            note: "جمع قياسي ينتهي بـ s + فاصلة فقط"
+          },
+          {
+            en: "We published the children's poetry in our monthly edition.",
+            ar: "نشرنا قصائد الأطفال (جمع شاذ) في طبعتنا الشهرية.",
+            highlight: "children's",
+            note: "جمع شاذ + 's"
           }
         ],
         exercises: [
           {
             id: "2u1-ex1",
-            question: "These are the ______ (girls' / girl's) books; all three girls forgot them here.",
+            question: "These are the ______ (girls' / girl's) coats; all four sisters left them in the car.",
             options: ["girls'", "girl's", "girls", "girles'"],
             correctAnswer: "girls'",
-            explanation: "الحديث عن 3 فتيات (جمع ينتهي بـ s) لذا نضع الفاصلة بعد الـ s: girls'.",
+            explanation: "الحديث عن أربع أخوات (جمع ينتهي بـ s)، فالفاصلة تأتي بعد حرف الـ s: girls'.",
+            type: "mcq",
+            ministerialYear: "كتاب النشاط ص 4"
+          },
+          {
+            id: "2u1-ex2",
+            question: "The ______ (men's / mens') clothes are sold on the second floor.",
+            options: ["men's", "mens'", "men", "mens"],
+            correctAnswer: "men's",
+            explanation: "كلمة men جمع شاذ لا ينتهي بـ s، لذا يأخذ الفاصلة ثم s: men's.",
             type: "mcq",
             ministerialYear: "امتحان الفصل الأول"
           }
@@ -67,44 +86,55 @@ export const SECOND_INTERMEDIATE_UNITS: Unit[] = [
         id: "2nd-u1-l2",
         unitId: 21,
         lessonNumber: 2,
-        titleAr: "الدرس الثاني: تقديم الاقتراحات وإعطاء النصائح (Suggestions & Advice)",
-        titleEn: "Lesson 2: Making Suggestions & Giving Advice",
+        titleAr: "الدرس الثاني: تقديم الاقتراحات وإعطاء النصائح (Suggestions & Giving Advice)",
+        titleEn: "Lesson 2: Making Suggestions & Giving Advice with Should",
         category: "grammar",
-        summary: "استخدام Why not / Shall we / Let's للاقتراح، واستخدام You should / shouldn't للنصيحة.",
-        grammarRuleFormula: "Suggestions (الاقتراحات):\nWhy not + base verb...?\nShall we + base verb...?\nLet's + base verb.\n\nGiving Advice (النصيحة):\nYou should + base verb (ينبغي أن)\nYou shouldn't + base verb (لا ينبغي أن)",
+        summary: "كتاب الطالب ص 6-9 وكتاب النشاط ص 6-10: صيغ الاقتراح الثلاث (Why not, Shall we, Let's) وقاعدة إعطاء النصيحة باستخدام should و shouldn't ومشاكل المراهقين (Aunt Sally).",
+        grammarRuleFormula: "1) Suggestions (الاقتراحات):\n   - Why not + base verb ... ? (Why not write a story?)\n   - Shall we + base verb ... ? (Shall we start a magazine?)\n   - Let's + base verb . (Let's help each other.)\n\n2) Giving Advice (النصيحة):\n   - Positive: Subject + should + base verb\n   - Negative: Subject + shouldn't + base verb",
         detailedContent: [
-          "لتقديم اقتراح لصديق نستخدم صيغاً قياسية يتبعها جميعاً مصدر مجرد (base verb).",
-          "انتبه: Why not و Shall we تنتهيان بعلامة استفهام (?)، بينما Let's تنتهي بنقطة (.).",
-          "لإعطاء نصيحة طبية أو دراسية نستخدم should للإيجاب و shouldn't للتحذير من سلوك خاطئ."
+          "كتاب الطالب ص 6: صفحة مشاكل القراء والرد عليها (Aunt Sally's advice column) لتقديم حلول للمشاكل المدرسية مثل الخجل وضعف التركيز.",
+          "صيغ الاقتراحات: Why not و Shall we تتطلبان علامة استفهام (?) في النهاية، بينما Let's تنتهي بنقطة (.).",
+          "بعد should و shouldn't يأتي دائماً فعل مضارع مجرد خالٍ من أي إضافة (بدون to، وبدون ing، وبدون ed).",
+          "نستخدم should للتوجيه السليم (You should study for exams)، ونستخدم shouldn't للتحذير من الخطأ (You shouldn't stay up late)."
         ],
         teacherNotes: [
-          "ملاحظة الأستاذ مصطفى تركي: تذكر دائماً أن الفعل بعد should و shouldn't و Let's يكون مجرداً خالياً من أي إضافة."
+          "ملاحظة امتحانية: في سؤال القواعد انتبه للفعل بعد Let's أو should، يجب أن يكون مجرداً: (go / going / to go) -> الاختيار الصحيح هو go.",
+          "نمط امتحاني: 'You look tired. (Give advice)' -> الحل: 'You should go to sleep early.'"
         ],
         commonMistakes: [
-          "إضافة to بعد should مثل: You should to study (الصحيح You should study).",
-          "وضع ing بعد Let's مثل: Let's going (الصحيح Let's go)."
+          "إضافة to بعد should: You should to rest (خطأ فادح؛ الصحيح You should rest).",
+          "وضع علامة استفهام بعد Let's: Let's play? (خطأ؛ جملة Let's تنتهي بنقطة)."
         ],
         examples: [
           {
-            en: "Why not start a school poetry corner?",
-            ar: "لم لا نبدأ ركناً للشعر في مجلة المدرسة؟",
-            highlight: "Why not start",
-            note: "صيغة اقتراح مع مصدر مجرد"
+            en: "Why not interview our new headmistress for the magazine?",
+            ar: "لم لا نجري مقابلة مع مديرتنا الجديدة للمجلة؟",
+            highlight: "Why not interview",
+            note: "صيغة اقتراح + مصدر مجرد + علامة استفهام"
           },
           {
-            en: "You should brush your teeth twice a day.",
-            ar: "ينبغي عليك تنظيف أسنانك مرتين يومياً.",
-            highlight: "should brush",
-            note: "نصيحة إيجابية"
+            en: "You have an exam tomorrow; you shouldn't play video games now.",
+            ar: "لديك امتحان غداً؛ لا ينبغي أن تلعب ألعاب الفيديو الآن.",
+            highlight: "shouldn't play",
+            note: "نصيحة بالامتناع عن فعل شيء سلبي"
           }
         ],
         exercises: [
           {
-            id: "2u1-ex2",
-            question: "You look tired. You ______ go to bed early tonight. (should / shouldn't / must to)",
-            options: ["should", "shouldn't", "must to", "can't"],
-            correctAnswer: "should",
-            explanation: "الشخص يبدو متعباً، النصيحة الملائمة هي الذهاب للنوم مبكراً باستخدام should.",
+            id: "2u1-ex3",
+            question: "Why not ______ a poem about our school? (write / writing / wrote)",
+            options: ["write", "writing", "wrote", "to write"],
+            correctAnswer: "write",
+            explanation: "بعد Why not نستخدم الفعل المجرد الخالي من الإضافات: write.",
+            type: "mcq",
+            ministerialYear: "كتاب النشاط ص 7"
+          },
+          {
+            id: "2u1-ex4",
+            question: "You have a bad cough. You ______ drink cold water. (should / shouldn't / must)",
+            options: ["shouldn't", "should", "don't", "can"],
+            correctAnswer: "shouldn't",
+            explanation: "الشخص يسعل بشدة، لذا النصيحة المنطقية هي عدم شرب الماء البارد (shouldn't).",
             type: "mcq",
             ministerialYear: "امتحان نصف السنة"
           }
@@ -112,12 +142,16 @@ export const SECOND_INTERMEDIATE_UNITS: Unit[] = [
       }
     ]
   },
+
+  // -------------------------------------------------------------------------
+  // UNIT 2: Health and Fitness
+  // -------------------------------------------------------------------------
   {
     id: 22,
     number: 2,
-    titleAr: "الوحدة الثانية: اللياقة البدنية والنمط الغذائي الصحي (Keep Fit & Nutrition)",
+    titleAr: "الوحدة الثانية: الصحة واللياقة البدنية (Unit 2: Keep Fit & Nutrition)",
     titleEn: "Unit 2: Health, Fitness & Quantifiers",
-    description: "محددات الكمية (too much, too many, a few, a little)، وأفعال الإلزام have to / don't have to، وأهمية التمارين الرياضية والطعام الصحي.",
+    description: "معتمد من كتاب الطالب (SB ص 16-27) وكتاب النشاط (AB ص 19-35): أدوات ومحددات الكمية (too much / too many / a few / a little)، وأفعال الإلزام have to / don't have to، وأسماء الأمراض الشائعة وطرق الوقاية.",
     accentColor: "from-emerald-600 to-green-600",
     bgGradient: "bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200",
     lessons: [
@@ -125,58 +159,127 @@ export const SECOND_INTERMEDIATE_UNITS: Unit[] = [
         id: "2nd-u2-l1",
         unitId: 22,
         lessonNumber: 1,
-        titleAr: "الدرس الأول: أدوات الكمية والعدد (Quantifiers)",
-        titleEn: "Lesson 1: Quantifiers (too much / too many / a few / a little)",
+        titleAr: "الدرس الأول: محددات الكمية (too much / too many / a few / a little)",
+        titleEn: "Lesson 1: Quantifiers for Countable and Uncountable Nouns",
         category: "grammar",
-        summary: "التمييز بين الأسماء المعدودة (Countable) وغير المعدودة (Uncountable) واستخدام محددات الكمية الدقيقة.",
-        grammarRuleFormula: "Countable Nouns (الأسماء المعدودة - التي تجمع):\ntoo many (أكثر من اللازم للكثرة)\na few (قليل ويكفي)\n\nUncountable Nouns (الأسماء غير المعدودة - الكميات كالسكر والماء والدهون):\ntoo much (أكثر من اللازم للكمية)\na little (كمية قليلة)",
+        summary: "كتاب الطالب ص 17-19 وكتاب النشاط ص 20-24: التمييز القاطع بين الأسماء المعدودة (Countable) وغير المعدودة (Uncountable) في وصف الأطعمة ونمط الحياة الصحي.",
+        grammarRuleFormula: "1) Countable Nouns (الأسماء المعدودة - تجمع ولها جمع):\n   - للكثرة المفرطة: too many (too many crisps / apples / sweets)\n   - للقلة الإيجابية: a few (a few biscuits / hours / vegetables)\n\n2) Uncountable Nouns (الأسماء غير المعدودة - كميات وسوائل):\n   - للكثرة المفرطة: too much (too much sugar / salt / fat / time / water)\n   - للقلة: a little (a little salt / a little sleep)",
         detailedContent: [
-          "نستخدم too many و a few مع الأسماء المعدودة التي لها جمع (crisps, apples, sweets, biscuits).",
-          "نستخدم too much و a little مع الأسماء غير المعدودة (sugar, salt, fat, water, money, time).",
-          "نصيحة صحية منهجية: You should eat a little sugar and not too much fat.",
-          "Eat a few vegetables every day."
+          "كتاب الطالب (SB p. 18): استشارة طبيب التغذية؛ الأطعمة الصحية وغير الصحية.",
+          "الأسماء المعدودة تقبل s الجمع ويمكن عدها (apples, crisps, people, cars, hours). نستخدم معها too many للكثرة الزائدة و a few للعدد القليل.",
+          "الأسماء غير المعدودة هي سوائل أو مساحيق أو مفاهيم مجردة (sugar, salt, fat, meat, milk, money, water, time). نستخدم معها too much للكمية الزائدة و a little للكمية القليلة.",
+          "نصيحة غذائية وزارية: You should eat a little sugar, but not too much. You should eat a few apples every day."
         ],
         teacherNotes: [
-          "ملاحظة الأستاذ مصطفى تركي: انتبه للأسماء التالية غير معدودة في الامتحانات: fruit (إذا عنت فاكهة عامة), salt, sugar, time, money, fat."
+          "تنبيه امتحاني: كلمة (fruit) تعامل غالباً كاسم غير معدود (too much fruit)، وكلمة (sleep) غير معدود (a little sleep).",
+          "قاعدة ذهبية: ابحث عن الـ s في نهاية الاسم بعد الفراغ؛ إذا وُجدت s الجمع فالاسم معدود (too many / a few)، وإذا لم توجد s فالاسم كمية غير معدودة (too much / a little)."
         ],
         commonMistakes: [
-          "استخدام too much مع اسم جمع: too much crisps (الصحيح too many crisps).",
-          "استخدام a few مع sugar (الصحيح a little sugar)."
+          "قول too much crisps (خطأ؛ crisps اسم معدود جمع يأخذ too many).",
+          "قول a few water (خطأ؛ الماء سائل غير معدود يأخذ a little water)."
         ],
         examples: [
           {
-            en: "You shouldn't drink too much fizzy soda.",
-            ar: "لا ينبغي أن تشرب الكثير جداً من المياه الغازية (غير معدود).",
-            highlight: "too much",
-            note: "كمية غير معدودة"
+            en: "You shouldn't put too much sugar in your tea; it is bad for you.",
+            ar: "لا ينبغي أن تضع الكثير من السكر في الشاي؛ فهو ضار بصحتك.",
+            highlight: "too much sugar",
+            note: "كمية غير معدودة مفرطة"
           },
           {
-            en: "There are too many cars in the city centre.",
-            ar: "يوجد عدد كبير جداً من السيارات في مركز المدينة (معدود).",
+            en: "There were too many cars on the highway this morning.",
+            ar: "كان هناك عدد كبير جداً من السيارات على الطريق السريع هذا الصباح.",
             highlight: "too many cars",
             note: "اسم معدود جمع"
+          },
+          {
+            en: "I only need a little salt on my potatoes.",
+            ar: "أحتاج فقط إلى كمية قليلة من الملح على البطاطا.",
+            highlight: "a little salt",
+            note: "كمية قليلة غير معدودة"
           }
         ],
         exercises: [
           {
             id: "2u2-ex1",
-            question: "Eating ______ (too much / too many) chocolate is bad for your teeth.",
+            question: "Eating ______ chocolate is unhealthy because it contains a lot of sugar. (too much / too many / a few)",
             options: ["too much", "too many", "a few", "many"],
             correctAnswer: "too much",
-            explanation: "الشوكولاتة هنا كمية غير معدودة لذا نستخدم too much.",
+            explanation: "الشوكولاتة هنا كمية غير معدودة، لذا نستخدم too much.",
+            type: "mcq",
+            ministerialYear: "كتاب النشاط ص 21"
+          },
+          {
+            id: "2u2-ex2",
+            question: "There are only ______ students in the library today. (a little / a few / too much)",
+            options: ["a few", "a little", "too much", "much"],
+            correctAnswer: "a a few",
+            explanation: "الطلبة (students) اسم معدود جمع، فنستخدم معه a few.",
             type: "mcq",
             ministerialYear: "امتحان الفصل الأول"
+          }
+        ]
+      },
+      {
+        id: "2nd-u2-l2",
+        unitId: 22,
+        lessonNumber: 2,
+        titleAr: "الدرس الثاني: الأوجاع والأمراض والإلزام (Illnesses & have to / don't have to)",
+        titleEn: "Lesson 2: Common Aches, Illnesses & Obligation (have to)",
+        category: "grammar",
+        summary: "كتاب الطالب ص 20-23 وكتاب النشاط ص 25-28: التعبير عن الأوجاع الصحية (headache, stomach ache, toothache, sore throat) وقواعد الإلزام بـ have to ونفيها بـ don't have to.",
+        grammarRuleFormula: "1) Expressing Pain (التعبير عن الألم):\n   - I have got a headache / toothache / earache / stomach ache.\n   - My arm / leg / back hurts.\n\n2) Obligation (الإلزام الضروري):\n   - Affirmative: Subject + have to / has to + base verb\n   - Negative: Subject + don't have to / doesn't have to + base verb (عدم الحاجة)",
+        detailedContent: [
+          "كتاب الطالب ص 20: زيارة عيادة الطبيب ومحادثات المرضى وأسماء الأمراض بالأمثلة الملونة.",
+          "المقطع -ache يعني ألم، مثل: head + ache = صداع، tooth + ache = ألم أسنان، stomach + ache = ألم معدة.",
+          "الفعل have to يعني (يجب أو مضطر إلى) لضرورة خارجية، بينما don't have to يعني (لست مضطراً إلى / ليس إلزامياً).",
+          "مع الضمائر المفردة (he, she, it) نستخدم has to ونفيها doesn't have to."
+        ],
+        teacherNotes: [
+          "تنبيه وزاري: don't have to لا تعني التحريم والمنع (mustn't)، بل تعني أن الأمر اختياري ولا داعي لفعله.",
+          "انتبه للسؤال الإملائي: head -> headache, tooth -> toothache, ear -> earache."
+        ],
+        commonMistakes: [
+          "كتابة doesn't has to (خطأ؛ بعد doesn't نرجع الفعل إلى أصله have to).",
+          "قول My teeth hurts (خطأ؛ teeth جمع فنقول teeth hurt بدون s الشخص الثالث)."
+        ],
+        examples: [
+          {
+            en: "I have got a severe stomach ache; I need to see the doctor.",
+            ar: "أعاني من ألم شديد في المعدة؛ أحتاج لرؤية الطبيب.",
+            highlight: "stomach ache",
+            note: "تعبير عن الألم الصحي"
+          },
+          {
+            en: "Tomorrow is Friday, so we don't have to go to school.",
+            ar: "غداً يوم الجمعة، لذا لسنا مضطرين للذهاب إلى المدرسة.",
+            highlight: "don't have to go",
+            note: "نفي الإلزام (عدم وجود ضرورة)"
+          }
+        ],
+        exercises: [
+          {
+            id: "2u2-ex3",
+            question: "My sister has got a toothache. She ______ visit the dentist. (has to / doesn't have to / haven't to)",
+            options: ["has to", "doesn't have to", "haven't to", "having to"],
+            correctAnswer: "has to",
+            explanation: "لأنها تعاني من ألم بالأسنان، فمن الضروري أن تزور طبيب الأسنان (has to للمفرد).",
+            type: "mcq",
+            ministerialYear: "كتاب النشاط ص 26"
           }
         ]
       }
     ]
   },
+
+  // -------------------------------------------------------------------------
+  // UNIT 3: Sports and Games
+  // -------------------------------------------------------------------------
   {
     id: 23,
     number: 3,
-    titleAr: "الوحدة الثالثة: الرياضة وظروف الحال (Sports & Adverbs of Manner)",
-    titleEn: "Unit 3: Sports, The Olympics & Adverbs",
-    description: "أفعال الرياضات (play, go, do)، وتكوين ظروف الحال بإضافة -ly والظروف الشاذة (well, fast, hard).",
+    titleAr: "الوحدة الثالثة: الرياضة والألعاب (Unit 3: Sports & Adverbs)",
+    titleEn: "Unit 3: Sports, The Olympics & Adverbs of Manner",
+    description: "معتمد من كتاب الطالب (SB ص 28-39) وكتاب النشاط (AB ص 36-52): أفعال الرياضة (play, go, do)، وتكوين ظروف الحال (Adverbs of Manner)، ومقارنة الصفات، والألعاب الأولمبية ومراكز الرياضة.",
     accentColor: "from-amber-600 to-yellow-600",
     bgGradient: "bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200",
     lessons: [
@@ -184,46 +287,63 @@ export const SECOND_INTERMEDIATE_UNITS: Unit[] = [
         id: "2nd-u3-l1",
         unitId: 23,
         lessonNumber: 1,
-        titleAr: "الدرس الأول: أفعال الرياضة (play / go / do with sports)",
-        titleEn: "Lesson 1: Using play, go & do with Sports",
+        titleAr: "الدرس الأول: أفعال الرياضة (play / go / do with Sports)",
+        titleEn: "Lesson 1: Using play, go, and do with Sports Activities",
         category: "vocabulary",
-        summary: "متى نستخدم play ومتى go ومتى do مع الأنشطة والرياضات المختلفة.",
-        grammarRuleFormula: "play: مع الرياضات التنافسية التي فيها كرة (football, basketball, tennis, volleyball)\ngo: مع الرياضات والأنشطة التي تنتهي بـ -ing (swimming, running, cycling, fishing)\ndo: مع رياضات القوة والقتال الفردية (judo, karate, gymnastics, boxing)",
+        summary: "كتاب الطالب ص 28-30 وكتاب النشاط ص 36-39: التوزيع الدقيق لأفعال الرياضة الثلاثة حسب نوع اللعبة (ألعاب كروية، أنشطة تنتهي بـ ing، وألعاب قتالية فردية).",
+        grammarRuleFormula: "1) PLAY (ألعاب تنافسية جماعية وفيها كرة):\n   football, basketball, tennis, volleyball, badminton\n2) GO (أنشطة حركية تنتهي بـ -ing خارج الصالات غالباً):\n   swimming, running, cycling, horse-riding, fishing\n3) DO (ألعاب قتالية وفنون دفاع عن النفس وجمباز وألعاب بدون كرة):\n   judo, karate, gymnastics, boxing",
         detailedContent: [
-          "نستخدم الفعل play للرياضات التنافسية التي تعتمد على الكرة أو الألعاب الجماعية.",
-          "نستخدم الفعل go مع الأنشطة المنتهية بـ ing (ما عدا boxing نستخدم معها do).",
-          "نستخدم الفعل do مع الفنون القتالية والجمباز وألعاب اللياقة البدنية الفردية."
+          "كتاب الطالب ص 28: المركز الرياضي الشبابي (The Sports Centre) وجدول الأنشطة الأسبوعية.",
+          "نستخدم play مع كل رياضة تتضمن فرقاً أو استخدام الكرة أو الشباك (We play tennis).",
+          "نستخدم go مع الأنشطة المنتهية بـ ing (ما عدا boxing نستخدم معها do).",
+          "نستخدم do مع رياضات الدفاع عن النفس والجمباز واللياقة الفردية (do judo, do karate, do gymnastics)."
         ],
         teacherNotes: [
-          "ملاحظة الأستاذ مصطفى تركي: تذكر قاعدة الـ ing = go (go swimming). ولكن كاراتيه وجيودو = do karate, do judo."
+          "ملاحظة امتحانية متكررة جداً: انتبه لـ judo و karate و gymnastics؛ هذه دائماً تأخذ do ولا تأخذ play مطلقاً.",
+          "قاعدة التذكر السريع: ing تأخذ go (باستثناء الملاكمة boxing تأخذ do)."
         ],
         commonMistakes: [
-          "قول I play swimming (الصحيح I go swimming).",
-          "قول I go karate (الصحيح I do karate)."
+          "قول I play swimming (خطأ؛ الصحيح I go swimming).",
+          "قول I play karate (خطأ؛ الصحيح I do karate)."
         ],
         examples: [
           {
-            en: "We play tennis every Friday afternoon.",
-            ar: "نلعب كرة التنس كل عصر جمعة.",
-            highlight: "play tennis",
-            note: "لعبة كرة تنافسية"
+            en: "My brother and I play volleyball on the beach every weekend.",
+            ar: "نلعب أنا وأخي كرة الطائرة على الشاطئ في كل عطلة نهاية أسبوع.",
+            highlight: "play volleyball",
+            note: "لعبة جماعية بكرة"
           },
           {
-            en: "My sister does gymnastics at school.",
-            ar: "تمارس أختي رياضة الجمباز في المدرسة.",
-            highlight: "does gymnastics",
-            note: "رياضة فردية ولياقة"
+            en: "She goes swimming at the community pool three times a week.",
+            ar: "هي تمارس السباحة في المسبح ثلاث مرات في الأسبوع.",
+            highlight: "goes swimming",
+            note: "نشاط ينتهي بـ -ing"
+          },
+          {
+            en: "Ali does judo to build his strength and self-discipline.",
+            ar: "يمارس علي رياضة الجودو لبناء قوته وانضباطه الذاتي.",
+            highlight: "does judo",
+            note: "فنون قتالية فردية"
           }
         ],
         exercises: [
           {
             id: "2u3-ex1",
-            question: "Ahmed likes to ______ judo twice a week. (play / go / do)",
+            question: "Karrar wants to ______ gymnastics at the local club. (play / go / do)",
             options: ["do", "play", "go", "make"],
             correctAnswer: "do",
-            explanation: "رياضة الجودو فن قتالي فردي يأخذ الفعل do.",
+            explanation: "رياضة الجمباز (gymnastics) رياضة لياقة فردية تأخذ الفعل do.",
             type: "mcq",
-            ministerialYear: "امتحان نصف السنة"
+            ministerialYear: "كتاب النشاط ص 38"
+          },
+          {
+            id: "2u3-ex2",
+            question: "In the summer, they love to ______ horse-riding. (go / play / do)",
+            options: ["go", "play", "do", "have"],
+            correctAnswer: "go",
+            explanation: "نشاط ركوب الخيل ينتهي بـ -ing لذا يأخذ الفعل go.",
+            type: "mcq",
+            ministerialYear: "امتحان الفصل الأول"
           }
         ]
       },
@@ -234,55 +354,68 @@ export const SECOND_INTERMEDIATE_UNITS: Unit[] = [
         titleAr: "الدرس الثاني: ظروف الحال (Adverbs of Manner)",
         titleEn: "Lesson 2: Adverbs of Manner (-ly & Irregulars)",
         category: "grammar",
-        summary: "تحويل الصفات إلى ظروف لوصف كيفية حدوث الفعل، والظروف الشاذة.",
-        grammarRuleFormula: "Adjective + -ly -> Adverb\nquick -> quickly, quiet -> quietly, careful -> carefully\nEnding in -y: easy -> easily, happy -> happily\n\nIrregular Adverbs (ظروف شاذة):\ngood -> well\nfast -> fast\nhard -> hard",
+        summary: "كتاب الطالب ص 32-34 وكتاب النشاط ص 40-44: تحويل الصفات إلى ظروف حال تصف طريقة وقوع الفعل، وقواعد الإملاء، والظروف الشاذة الأساسية (well, fast, hard).",
+        grammarRuleFormula: "Adjective (تصف الاسم) -> Adverb (يصف الفعل)\n1) صفات قياسية: نضيف -ly\n   quick -> quickly, quiet -> quietly, careful -> carefully, polite -> politely\n2) صفات تنتهي بـ y بعد حرف صحيح: تقلب إلى i ثم -ly\n   easy -> easily, happy -> happily, heavy -> heavily\n3) ظروف شاذة (Irregular Adverbs) تحفظ غيباً:\n   good -> well\n   fast -> fast (تبقى كما هي)\n   hard -> hard (تبقى كما هي)",
         detailedContent: [
-          "الصفة تصف الاسم (He is a careful driver)، بينما الظرف يصف طريقة حدوث الفعل (He drives carefully).",
-          "معظم الصفات نضيف لها -ly لتصبح ظرف حال.",
-          "إذا انتهت الصفة بـ y مسبوقة بحرف صحيح تقلب إلى i ونضيف ly: happy -> happily.",
-          "انتبه للظروف الشاذة: good تصبح well، و fast تبقى fast، و hard تبقى hard."
+          "كتاب الطالب ص 32: كيف يلعب الرياضيون؟ (How do they play?): The runner ran fast, the gymnast moved gracefully, the goalkeeper played well.",
+          "الصفة تصف الفاعل أو الاسم (He is a careful driver). الظرف يصف كيفية حدوث الفعل ويأتي بعد الفعل أو بعد المفعول به (He drives carefully).",
+          "سؤال الإملاء الوزاري الشهير: quiet : quietly / good : well / easy : easily."
         ],
         teacherNotes: [
-          "ملاحظة الأستاذ مصطفى تركي: انتبه لسؤال الإملاء: slow : slowly / good : well / fast : fast."
+          "تنبيه امتحاني حاسم: لا توجد كلمة في اللغة اسمها 'fastly' أو 'goodly'، الظرف من fast هو fast، ومن good هو well.",
+          "انتبه لتحويل y إلى i: noisy -> noisily."
         ],
         commonMistakes: [
-          "كتابة fastly (خطأ شائع؛ الظرف من fast هو fast بدون أي إضافة).",
-          "استخدام good لوصف الفعل: He speaks English good (الصحيح speaks English well)."
+          "استخدام good بدلاً من well مع الأفعال: He plays good (الصحيح He plays well).",
+          "إضافة ly إلى fast (الصحيح fast تبقى كما هي)."
         ],
         examples: [
           {
-            en: "The champion ran very fast and won the race.",
-            ar: "ركض البطل بسرعة فائقة وفاز بالسباق.",
-            highlight: "ran very fast",
-            note: "ظرف شاذ يصف فعل الركض"
+            en: "Our Iraqi football team played well and won the championship.",
+            ar: "لعب فريقنا العراقي لكرة القدم بشكل جيد وفاز بالبطولة.",
+            highlight: "played well",
+            note: "ظرف حال شاذ من good يصف طريقة اللعب"
           },
           {
-            en: "She answered all the difficult questions easily.",
-            ar: "أجابت عن جميع الأسئلة الصعبة بسهولة.",
+            en: "The athlete jumped easily over the high hurdles.",
+            ar: "قفز الرياضي بسهولة فوق الحواجز العالية.",
             highlight: "easily",
-            note: "ظرف حال منتهٍ بـ ily"
+            note: "قلبت y إلى i وأضيف ly"
           }
         ],
         exercises: [
           {
-            id: "2u3-ex2",
-            question: "Nour plays the piano very ______ (good / well / nicely good).",
+            id: "2u3-ex3",
+            question: "Ahmed speaks English very ______ (good / well / nicely good).",
             options: ["well", "good", "goodly", "better"],
             correctAnswer: "well",
-            explanation: "لوصف طريقة العزف (الفعل plays) نحتاج إلى ظرف الحال الشاذ من good وهو well.",
+            explanation: "لوصف فعل التحدث (speaks) نحتاج إلى ظرف حال؛ والظرف من good هو well.",
             type: "mcq",
-            ministerialYear: "امتحان نهاية الكورس الأول"
+            ministerialYear: "كتاب النشاط ص 42"
+          },
+          {
+            id: "2u3-ex4",
+            question: "Complete the spelling: slow -> slowly ; fast -> ______",
+            options: ["fast", "fastly", "faster", "fasted"],
+            correctAnswer: "fast",
+            explanation: "كلمة fast ظرف حال شاذ يبقى على حاله دون إضافة ly.",
+            type: "mcq",
+            ministerialYear: "امتحان نصف السنة"
           }
         ]
       }
     ]
   },
+
+  // -------------------------------------------------------------------------
+  // UNIT 5: Sending Information
+  // -------------------------------------------------------------------------
   {
     id: 25,
     number: 5,
-    titleAr: "الوحدة الخامسة: إرسال المعلومات والمبني للمجهول (Sending Information & Passive Voice)",
+    titleAr: "الوحدة الخامسة: إرسال واستقبال المعلومات (Unit 5: Sending Information)",
     titleEn: "Unit 5: Old Ways of Communication & Passive Voice",
-    description: "تاريخ نقل المعلومات والاتصالات، وقواعد المبني للمجهول في المضارع البسيط والماضي البسيط.",
+    description: "معتمد من كتاب الطالب (SB ص 48-59) وكتاب النشاط (AB ص 64-78): تاريخ وسائل الاتصال (الحمام الزاجل، إشارات الدخان، المنارات)، وقواعد المبني للمجهول (Present & Past Passive).",
     accentColor: "from-blue-600 to-indigo-600",
     bgGradient: "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200",
     lessons: [
@@ -290,58 +423,119 @@ export const SECOND_INTERMEDIATE_UNITS: Unit[] = [
         id: "2nd-u5-l1",
         unitId: 25,
         lessonNumber: 1,
-        titleAr: "الدرس الأول: المبني للمجهول في المضارع والماضي (Passive Voice)",
-        titleEn: "Lesson 1: Present & Past Simple Passive",
-        category: "grammar",
-        summary: "التركيز على الفعل والنتيجة بدلاً من الفاعل باستخدام is/are + P.P. أو was/were + P.P.",
-        grammarRuleFormula: "Present Simple Passive (المضارع البسيط):\nObject + is / are + Past Participle (P.P.)\n(e.g., Information is sent across the internet)\n\nPast Simple Passive (الماضي البسيط):\nObject + was / were + Past Participle (P.P.)\n(e.g., The telephone was invented by Alexander Graham Bell)",
+        titleAr: "الدرس الأول: تاريخ وسائل الاتصال القديمة (Old Ways of Communication)",
+        titleEn: "Lesson 1: History of Sending Information",
+        category: "reading",
+        summary: "كتاب الطالب ص 48-49 وكتاب النشاط ص 64-67: كيف كان الناس يرسلون الرسائل في العالم القديم باستخدام الفرسان، إشارات الدخان، الحمام الزاجل، والمنارات البحرية.",
+        grammarRuleFormula: "Past facts & Vocabulary:\n- Horse riders (الخيول والفرسان في العالم العربي - نظام البريد)\n- Smoke signals (إشارات الدخان للتواصل عبر التلال)\n- Pigeons (الحمام الزاجل لنقل الرسائل من سوريا ومصر إلى بغداد)\n- Lighthouses (المنارات لتحذير السفن في البحار)",
         detailedContent: [
-          "نستخدم المبني للمجهول عندما يكون المفعول به أو الفعل نفسه أكثر أهمية من الفاعل أو عندما يكون الفاعل مجهولاً.",
-          "خطوات التحويل: 1) نحذف الفاعل، 2) نضع المفعول به في بداية الجملة، 3) نستخدم فعل كينونة مناسب (is/are للمضارع، was/were للماضي)، 4) نحول الفعل الرئيسي إلى التصريف الثالث (P.P.).",
-          "أمثلة منهجية: Smoke signals were used to send messages in the past.",
-          "Newspapers are printed every morning."
+          "كتاب الطالب ص 48: في العالم العربي القديم، كان الناس يرسلون الرسائل عبر نظام البريد بالخيول الذي بدأ عام 670 م.",
+          "كان الحمام الزاجل يُربط به أنبوب صغير على ساقه لنقل الرسائل الحساسة والسرية.",
+          "المنارات (Lighthouses) استُخدمت لتحذير السفن من الصخور وتوجيهها للموانئ بأمان.",
+          "أسئلة قطعة الكتاب الوزارية تتكرر حول وظيفة الحمام والمنارات والفرسان."
         ],
         teacherNotes: [
-          "ملاحظة الأستاذ مصطفى تركي: احفظ التصريف الثالث للأفعال الشاذة: write -> written, send -> sent, make -> made, invent -> invented."
+          "احفظ معاني المفردات التالية: pigeon (حمامة), message (رسالة), lighthouse (منارة), signal (إشارة), warn (يحذر).",
+          "سؤال متكرر: What did lighthouses do? -> They warned ships of danger."
         ],
         commonMistakes: [
-          "نسيان فعل الكينونة: The letter written (الصحيح The letter was written).",
-          "استخدام was مع الجمع: Letters was sent (الصحيح Letters were sent)."
+          "الخلط بين smoke signals (إشارات الدخان) و lighthouses (المنارات البحرية)."
         ],
         examples: [
           {
-            en: "English is spoken in many countries around the world.",
-            ar: "يتم التحدث باللغة الإنكليزية في العديد من بلدان العالم.",
-            highlight: "is spoken",
-            note: "مضارع مبني للمجهول"
+            en: "Pigeons were used to carry messages from Egypt to Syria.",
+            ar: "كان الحمام يُستخدم لنقل الرسائل من مصر إلى سوريا.",
+            highlight: "Pigeons were used",
+            note: "حقيقة تاريخية مبنية للمجهول"
           },
           {
-            en: "The ancient fortress was built thousands of years ago.",
-            ar: "بُنيت القلعة القديمة قبل آلاف السنين.",
-            highlight: "was built",
-            note: "ماضٍ مبني للمجهول"
+            en: "Lighthouses warned ships of hidden rocks and dangerous shallows.",
+            ar: "حذرت المنارات السفن من الصخور المخفية والمياه الضحلة الخطيرة.",
+            highlight: "warned ships",
+            note: "وظيفة المنارة"
           }
         ],
         exercises: [
           {
             id: "2u5-ex1",
-            question: "Millions of mobile phones ______ (sell) every year worldwide.",
-            options: ["are sold", "sold", "is sold", "selling"],
-            correctAnswer: "are sold",
-            explanation: "فاعل المجهول جمع (mobile phones) في زمن المضارع البسيط، يأخذ are + التصريف الثالث sold.",
+            question: "Lighthouses were built to ______ ships of danger. (warn / catch / feed / play)",
+            options: ["warn", "catch", "feed", "play"],
+            correctAnswer: "warn",
+            explanation: "بُنيت المنارات لتحذير (warn) السفن من الأخطار والصخور.",
             type: "mcq",
-            ministerialYear: "امتحان نهاية الكورس الثاني"
+            ministerialYear: "كتاب النشاط ص 65"
+          }
+        ]
+      },
+      {
+        id: "2nd-u5-l2",
+        unitId: 25,
+        lessonNumber: 2,
+        titleAr: "الدرس الثاني: المبني للمجهول (Passive Voice - Present & Past Simple)",
+        titleEn: "Lesson 2: Passive Voice in Present Simple and Past Simple",
+        category: "grammar",
+        summary: "كتاب الطالب ص 50-53 وكتاب النشاط ص 68-72: التركيز على الحدث والمفعول به بدلاً من الفاعل باستخدام is/are + P.P. في المضارع، و was/were + P.P. في الماضي.",
+        grammarRuleFormula: "1) Present Simple Passive (المضارع البسيط للمجهول):\n   Object + is / are + Past Participle (P.P.)\n   (e.g., An article is written in Cairo. It is printed in Baghdad.)\n\n2) Past Simple Passive (الماضي البسيط للمجهول):\n   Object + was / were + Past Participle (P.P.)\n   (e.g., The telephone was invented by Alexander Graham Bell.)",
+        detailedContent: [
+          "كتاب الطالب ص 50-51: مراحل نشر المقال الصحفي من كتابته إلى بيعه في الأكشاك (How an article is published).",
+          "خطوات تحويل الجملة إلى المجهول: 1) نحذف الفاعل، 2) نضع المفعول به في بداية الجملة كفاعل جديد، 3) نضع فعل كينونة مناسب (is/are للمضارع و was/were للماضي)، 4) نحول الفعل الرئيسي إلى التصريف الثالث (P.P.).",
+          "أهم تصاريف الأفعال الشاذة المنهجية: write -> written, send -> sent, read -> read, sell -> sold, invent -> invented, print -> printed."
+        ],
+        teacherNotes: [
+          "ملاحظة امتحانية ذهبية: إذا بدأت الجملة بجماد أو مفعول به لا يستطيع القيام بالفعل بنفسه (مثل: The message, The car, Newspapers)، فهذه جملة مبني للمجهول تتطلب (فعل كينونة + P.P.).",
+          "انتبه للمفرد والجمع: The book was read / The books were read."
+        ],
+        commonMistakes: [
+          "نسيان فعل الكينونة: The message sent (خطأ؛ الصحيح The message was sent).",
+          "استخدام is مع اسم جمع: Newspapers is printed (خطأ؛ الصحيح Newspapers are printed)."
+        ],
+        examples: [
+          {
+            en: "An article is edited by the chief editor before printing.",
+            ar: "يتم تدقيق المقال من قِبل رئيس التحرير قبل الطباعة.",
+            highlight: "is edited",
+            note: "مضارع بسيط مبني للمجهول للمفرد"
+          },
+          {
+            en: "The ancient messages were sent by horse riders in the past.",
+            ar: "أُرسلت الرسائل القديمة بواسطة الفرسان في الماضي.",
+            highlight: "were sent",
+            note: "ماضٍ بسيط مبني للمجهول للجمع"
+          }
+        ],
+        exercises: [
+          {
+            id: "2u5-ex2",
+            question: "Every morning, newspapers ______ (print) in Baghdad. [Present Passive]",
+            options: ["are printed", "is printed", "were printed", "printed"],
+            correctAnswer: "are printed",
+            explanation: "الصحف (newspapers) جمع في زمن المضارع البسيط (Every morning)، فتأخذ are + التصريف الثالث printed.",
+            type: "mcq",
+            ministerialYear: "كتاب النشاط ص 69"
+          },
+          {
+            id: "2u5-ex3",
+            question: "The television was ______ by John Baird in 1926. (invent / invented / inventing)",
+            options: ["invented", "invent", "inventing", "invents"],
+            correctAnswer: "invented",
+            explanation: "بعد was في صيغة المبني للمجهول يأتي التصريف الثالث للفعل: invented.",
+            type: "mcq",
+            ministerialYear: "امتحان الفصل الثاني"
           }
         ]
       }
     ]
   },
+
+  // -------------------------------------------------------------------------
+  // UNIT 6: What will they be?
+  // -------------------------------------------------------------------------
   {
     id: 26,
     number: 6,
-    titleAr: "الوحدة السادسة: المهن والخطط المستقبلية (What will they be?)",
-    titleEn: "Unit 6: Careers, Jobs, be going to & Relative Pronouns",
-    description: "الوظائف والمهن والخطط المستقبلية باستخدام be going to، وضمائر الوصل (who / which).",
+    titleAr: "الوحدة السادسة: المهن والخطط المستقبلية (Unit 6: Careers & Future)",
+    titleEn: "Unit 6: Careers, Jobs, Future Plans & Relative Pronouns",
+    description: "معتمد من كتاب الطالب (SB ص 60-71) وكتاب النشاط (AB ص 80-96): المهن والوظائف، التعبير عن النوايا المستقبلية باستخدام be going to، وضمائر الوصل (who للعاقل و which/that لغير العاقل).",
     accentColor: "from-violet-600 to-purple-600",
     bgGradient: "bg-gradient-to-r from-violet-50 to-purple-50 border-violet-200",
     lessons: [
@@ -349,40 +543,47 @@ export const SECOND_INTERMEDIATE_UNITS: Unit[] = [
         id: "2nd-u6-l1",
         unitId: 26,
         lessonNumber: 1,
-        titleAr: "الدرس الأول: التعبير عن النوايا والخطط المستقبلية (be going to)",
-        titleEn: "Lesson 1: Future Plans with (be going to)",
+        titleAr: "الدرس الأول: التعبير عن الخطط المستقبلية (Future Plans with be going to)",
+        titleEn: "Lesson 1: Talking about Career Plans with (be going to)",
         category: "grammar",
-        summary: "التعبير عن خطط ونوايا مستقبلية مؤكدة ومخطط لها مسبقاً.",
-        grammarRuleFormula: "Subject + am / is / are + going to + base verb\n(e.g., I am going to be a doctor when I finish school)",
+        summary: "كتاب الطالب ص 60-63 وكتاب النشاط ص 80-84: التعبير عن النوايا والخطط المهنية المسبقة والقرارات المستقبلية المدروسة باستخدام am/is/are + going to + مصدر مجرد.",
+        grammarRuleFormula: "Subject + (am / is / are) + going to + base verb\n- I am going to be a teacher.\n- He / She is going to study medicine at college.\n- We / They are going to build new schools.",
         detailedContent: [
-          "نستخدم (be going to) عندما نكون قد اتخذنا قراراً أو خطة مسبقة للقيام بالشيء.",
-          "بعد going to يأتي دائماً فعل مجرد (infinitive).",
-          "تستخدم بكثرة عند الحديث عن الطموح المهني: What are you going to be?",
-          "I am going to study medicine."
+          "كتاب الطالب ص 60: ما هي وظيفتك المستقبلية؟ استعراض المهن: doctor (طبيب), engineer (مهندس), architect (مهندس معماري), pilot (طيار), mechanic (ميكانيكي), teacher (مدرس), journalist (صحفي).",
+          "نستخدم صيغة be going to للتعبير عن خطط وقرارات اتخذناها قبل لحظة الكلام، وتستخدم بكثرة مع المهن والدراسة الجامعية.",
+          "بعد going to يأتي دائماً فعل مجرد (infinitive) خالٍ من أي تصريف."
         ],
         teacherNotes: [
-          "ملاحظة الأستاذ مصطفى تركي: تذكر تصريف am/is/are قبل going to حسب الفاعل: I am, He/She is, We/They are."
+          "تنبيه وزاري: احفظ تصريف فعل الكينونة بدقة: I am going to, She is going to, They are going to.",
+          "السؤال الوزاري: 'What are you going to be when you grow up?' -> 'I am going to be an engineer because I like designing buildings.'"
         ],
         commonMistakes: [
-          "نسيان فعل الكينونة وكتابة: I going to study (الصحيح I am going to study)."
+          "حذف فعل الكينونة: I going to study (خطأ شائع؛ الصحيح I am going to study).",
+          "وضع ing بعد going to: going to working (خطأ؛ الصحيح going to work)."
         ],
         examples: [
           {
-            en: "Layla is going to be a software engineer.",
-            ar: "ليلى تخطط لتكون مهندسة برمجيات.",
+            en: "Muna is going to be an architect because she loves drawing house plans.",
+            ar: "منى تخطط لأن تكون مهندسة معمارية لأنها تعشق رسم مخططات المنازل.",
             highlight: "is going to be",
-            note: "خطة مهنية مستقبلية"
+            note: "خطة ونية مستقبلية مدروسة"
+          },
+          {
+            en: "We are going to visit the technical university next Monday.",
+            ar: "نحن نخطط لزيارة الجامعة التكنولوجية يوم الاثنين القادم.",
+            highlight: "are going to visit",
+            note: "خطة مسبقة للجمع"
           }
         ],
         exercises: [
           {
             id: "2u6-ex1",
-            question: "Zaid is interested in planes. He ______ (be) a pilot in the future.",
-            options: ["is going to be", "will is", "going to be", "was be"],
+            question: "Huda likes repairing machines. She ______ (be) a mechanic. (is going to be / will / was)",
+            options: ["is going to be", "will", "was", "going to"],
             correctAnswer: "is going to be",
-            explanation: "خطة مستقبلية ونية واضحة تتطلب استخدام is going to + المصدر be.",
+            explanation: "خطة مستقبلية ونية واضحة للمفرد المؤنث تتطلب is going to be.",
             type: "mcq",
-            ministerialYear: "امتحان الفصل الثاني"
+            ministerialYear: "كتاب النشاط ص 82"
           }
         ]
       },
@@ -390,56 +591,71 @@ export const SECOND_INTERMEDIATE_UNITS: Unit[] = [
         id: "2nd-u6-l2",
         unitId: 26,
         lessonNumber: 2,
-        titleAr: "الدرس الثاني: ضمائر الوصل (who / which / that)",
-        titleEn: "Lesson 2: Defining Relative Pronouns",
+        titleAr: "الدرس الثاني: ضمائر الوصل (Relative Pronouns: who & which / that)",
+        titleEn: "Lesson 2: Defining Relative Pronouns (who & which/that)",
         category: "grammar",
-        summary: "ربط الجمل باستخدام who للعاقل و which / that لغير العاقل.",
-        grammarRuleFormula: "Person (شخص عاقل) + who + verb / clause\nThing (شيء غير عاقل) + which / that + verb / clause",
+        summary: "كتاب الطالب ص 64-66 وكتاب النشاط ص 86-90: ربط الجمل وتحديد الأشخاص والمهن باستخدام who للعاقل، وتحديد الأدوات والأشياء باستخدام which / that لغير العاقل.",
+        grammarRuleFormula: "1) Person (شخص عاقل) + WHO + verb / clause:\n   - A teacher is someone WHO teaches students.\n   - An architect is a person WHO designs buildings.\n\n2) Thing / Animal (شيء غير عاقل) + WHICH / THAT + verb / clause:\n   - A clinic is a place WHICH helps patients.\n   - A stethoscope is a tool WHICH a doctor uses.",
         detailedContent: [
-          "نستخدم who عندما نشير إلى إنسان أو شخصية: An architect is a person who designs buildings.",
-          "نستخدم which أو that عندما نشير إلى جماد أو حيوان أو فكرة: A stethoscope is an instrument which doctors use.",
-          "تدمج الجملتين وتزيل الضمير المكرر."
+          "كتاب الطالب ص 64: تعريف المهن باستخدام ضمائر الوصل (Definitions of jobs).",
+          "نستخدم who عندما يكون الاسم السابق شخصاً عاقلاً (a doctor, a nurse, a person, someone).",
+          "نستخدم which أو that عندما يكون الاسم السابق جماداً أو أداة أو حيواناً (a camera, a car, an animal, a book).",
+          "هذه القاعدة ثابتة وتأتي سنوياً في الامتحانات كاختيارات بين (who / which / whose)."
         ],
         teacherNotes: [
-          "ملاحظة الأستاذ مصطفى تركي: انظر إلى الكلمة التي قبل الفراغ مباشرة: إذا كانت عاقلاً (doctor, person, student) -> اختر who. إذا كانت غير عاقل (car, book, animal) -> اختر which."
+          "قاعدة الامتحان السريعة: انظر للكلمة التي قبل الفراغ مباشرة:\n- عاقل -> اختر who فوراً.\n- غير عاقل -> اختر which فوراً."
         ],
         commonMistakes: [
-          "اختيار which مع شخص عاقل مثل: The man which helped me (الصحيح who helped me)."
+          "استخدام which مع شخص: The pilot which flies the plane (خطأ؛ الصحيح who flies).",
+          "استخدام who مع أداة أو سيارة: The car who was red (خطأ؛ الصحيح which was red)."
         ],
         examples: [
           {
-            en: "A vet is a doctor who treats sick animals.",
-            ar: "الطبيب البيطري هو طبيب يعالج الحيوانات المريضة.",
-            highlight: "who treats",
+            en: "A surgeon is a dedicated doctor who performs operations in hospitals.",
+            ar: "الجراح هو طبيب متفانٍ يُجري العمليات الجراحية في المستشفيات.",
+            highlight: "doctor who performs",
             note: "ضمير وصل لعاقل"
           },
           {
-            en: "That is the dictionary which I bought yesterday.",
-            ar: "هذا هو القاموس الذي اشتريته بالأمس.",
-            highlight: "which I bought",
-            note: "ضمير وصل لغير عاقل"
+            en: "This is the flight simulator which pilot trainees practice on.",
+            ar: "هذا هو جهاز محاكاة الطيران الذي يتدرب عليه طيارو المستقبل.",
+            highlight: "simulator which",
+            note: "ضمير وصل لغير العاقل"
           }
         ],
         exercises: [
           {
             id: "2u6-ex2",
-            question: "A mechanic is someone ______ fixes broken cars. (who / which / whose)",
+            question: "A journalist is a person ______ writes news articles for papers. (who / which / whose)",
             options: ["who", "which", "whose", "where"],
             correctAnswer: "who",
-            explanation: "الميكانيكي (someone / mechanic) شخص عاقل يأخذ ضمير الوصل who.",
+            explanation: "الصحفي (a journalist) إنسان عاقل، لذا يأخذ ضمير الوصل who.",
             type: "mcq",
-            ministerialYear: "امتحان نهاية السنة"
+            ministerialYear: "كتاب النشاط ص 87"
+          },
+          {
+            id: "2u6-ex3",
+            question: "A wrench is a handy tool ______ mechanics use to turn bolts. (who / which / whose)",
+            options: ["which", "who", "whose", "where"],
+            correctAnswer: "which",
+            explanation: "المفتاح (a wrench) أداة غير عاقل، لذا تأخذ ضمير الوصل which.",
+            type: "mcq",
+            ministerialYear: "امتحان الفصل الثاني"
           }
         ]
       }
     ]
   },
+
+  // -------------------------------------------------------------------------
+  // UNIT 7: The World Around Us
+  // -------------------------------------------------------------------------
   {
     id: 27,
     number: 7,
-    titleAr: "الوحدة السابعة: العالم والبيئة والجمل الشرطية (The World Around Us)",
-    titleEn: "Unit 7: Environment & First Conditional",
-    description: "حماية الحيوانات المهددة بالانقراض، تدوير النفايات، والجمل الشرطية من النوع الأول (First Conditional).",
+    titleAr: "الوحدة السابعة: العالم من حولنا والبيئة (Unit 7: The World Around Us)",
+    titleEn: "Unit 7: Environment, Wildlife & First Conditional",
+    description: "معتمد من كتاب الطالب (SB ص 72-83) وكتاب النشاط (AB ص 98-114): الحيوانات المهددة بالانقراض، تدوير النفايات والتلوث، وقواعد الجملة الشرطية الأولى (First Conditional).",
     accentColor: "from-teal-600 to-emerald-600",
     bgGradient: "bg-gradient-to-r from-teal-50 to-emerald-50 border-teal-200",
     lessons: [
@@ -447,40 +663,154 @@ export const SECOND_INTERMEDIATE_UNITS: Unit[] = [
         id: "2nd-u7-l1",
         unitId: 27,
         lessonNumber: 1,
-        titleAr: "الدرس الأول: الحالة الشرطية الأولى (First Conditional)",
-        titleEn: "Lesson 1: First Conditional (If + Present, will + base)",
-        category: "grammar",
-        summary: "التعبير عن نتائج محتملة في المستقبل إذا تحقق شرط في الحاضر.",
-        grammarRuleFormula: "If + Subject + Present Simple, Subject + will + base verb\n(e.g., If we recycle plastic, we will save the environment)",
+        titleAr: "الدرس الأول: حماية البيئة والحيوانات المهددة (Endangered Wildlife & Recycling)",
+        titleEn: "Lesson 1: Protecting Endangered Animals and Recycling",
+        category: "vocabulary",
+        summary: "كتاب الطالب ص 72-75 وكتاب النشاط ص 98-102: الحيوانات المهددة بالانقراض (The Oryx المها العربي، النمر السيبيري، الحيتان) وأهمية تدوير الورق والبلاستيك لحماية الأرض.",
+        grammarRuleFormula: "Key Vocabulary:\n- endangered species (أنواع مهددة بالانقراض)\n- habitat destruction (تدمير الموطن الطبيعي)\n- recycle rubbish / plastic (تدوير النفايات / البلاستيك)\n- pollution / global warming (التلوث / الاحتباس الحراري)",
         detailedContent: [
-          "تستخدم الحالة الشرطية الأولى لأحداث ومواقف حقيقية ممكنة الحدوث في المستقبل.",
-          "جملة فعل الشرط (بعد If) تأتي في زمن المضارع البسيط (مع s المفرد للفاعل He/She/It).",
-          "جملة جواب الشرط تأتي في زمن المستقبل مع will ومصدر مجرد.",
-          "يمكن أن تأتي If في وسط الجملة بدون فاصلة: We will protect animals if we stop cutting trees."
+          "كتاب الطالب ص 72: حيوانات في خطر (Animals in danger)؛ لماذا تنقرض الحيوانات؟ بسبب الصيد الجائر وتدمير الغابات والمواطن الطبيعية.",
+          "المها العربي (Arabian Oryx) تمت حمايته في محميات طبيعية بعد أن كان وشيكاً من الانقراض.",
+          "إعادة التدوير (Recycling): تحويل النفايات إلى مواد جديدة لتوفير الطاقة وتقليل تلوث الكوكب."
         ],
         teacherNotes: [
-          "ملاحظة الأستاذ مصطفى تركي: تذكر إضافة s الشخص الثالث في جملة If إذا كان الفاعل مفرداً: If it rains, we will stay at home."
+          "احفظ تعاريف الكلمات: habitat = the natural home of an animal or plant.",
+          "سؤال اختيارات متكرر: Animals become endangered when people destroy their (habitats / clothes)."
         ],
         commonMistakes: [
-          "وضع will في جملة If مثل: If it will rain (خطأ شائع؛ will تأتي في جواب الشرط فقط)."
+          "الخلط بين protect (يحمي) و pollute (يلوث)."
         ],
         examples: [
           {
-            en: "If you study hard, you will pass your final exams easily.",
-            ar: "إذا درست بجد، ستجتاز امتحاناتك النهائية بسهولة.",
-            highlight: "If you study ... will pass",
-            note: "حالة شرطية أولى محتملة"
+            en: "We must protect wildlife habitats before rare species disappear forever.",
+            ar: "يجب علينا حماية المواطن الطبيعية للحياة البرية قبل أن تختفي الأنواع النادرة إلى الأبد.",
+            highlight: "protect wildlife habitats",
+            note: "مفردات بيئية منهجية"
           }
         ],
         exercises: [
           {
             id: "2u7-ex1",
-            question: "If Sami trains every day, he ______ (win) the gold medal.",
-            options: ["will win", "won", "wins", "would win"],
-            correctAnswer: "will win",
-            explanation: "فعل الشرط مضارع بسيط (trains)، لذا جواب الشرط يكون will + المصدر win.",
+            question: "A ______ is the natural place where an animal or plant lives. (habitat / factory / airport)",
+            options: ["habitat", "factory", "airport", "magazine"],
+            correctAnswer: "habitat",
+            explanation: "الموطن الطبيعي (habitat) هو المكان الطبيعي لمعيشة الكائن الحي.",
+            type: "mcq",
+            ministerialYear: "كتاب النشاط ص 100"
+          }
+        ]
+      },
+      {
+        id: "2nd-u7-l2",
+        unitId: 27,
+        lessonNumber: 2,
+        titleAr: "الدرس الثاني: الجملة الشرطية الأولى (First Conditional)",
+        titleEn: "Lesson 2: First Conditional (If + Present Simple, will + base)",
+        category: "grammar",
+        summary: "كتاب الطالب ص 76-79 وكتاب النشاط ص 104-108: التعبير عن نتائج مستقبلية محتملة وواقعية إذا تحقق شرط ما في المضارع.",
+        grammarRuleFormula: "If + Subject + Present Simple (فعل مضارع), Subject + will / won't + base verb\n- If we recycle paper, we will save many trees.\n- If it rains tomorrow, we will stay at home.\n- If you don't study hard, you won't pass the exam.\n(يمكن أن تأتي If في المنتصف بدون فاصلة: We will protect animals if we stop cutting forests.)",
+        detailedContent: [
+          "تُستخدم الحالة الشرطية الأولى للتعبير عن أشياء حقيقية وممكنة الحدوث في المستقبل في حال تحقق الشرط.",
+          "جملة الشرط (الجملة الملاصقة لأداة If) تكون دائماً في زمن المضارع البسيط (Present Simple)، انتبه لإضافة s مع المفرد (he, she, it).",
+          "جملة جواب الشرط (النتيجة) تكون مع will أو won't متبوعة بمصدر مجرد.",
+          "تحذير وزاري: لا تضع will داخل جملة If أبداً."
+        ],
+        teacherNotes: [
+          "ملاحظة الأستاذ مصطفى تركي: تذكر دائماً: 'بعد If مضارع، وفي الطرف الثاني will'.",
+          "إذا كان الفاعل في جملة If مفرداً (Ali, he, she, it)، يجب إضافة s الشخص الثالث للفعل: If he studies hard, he will pass."
+        ],
+        commonMistakes: [
+          "وضع will بعد If مثل: If it will rain (خطأ جسيم؛ الصحيح If it rains).",
+          "نسيان s المفرد في جملة الشرط: If he study (الصحيح If he studies)."
+        ],
+        examples: [
+          {
+            en: "If we recycle plastic bottles, we will keep our cities cleaner.",
+            ar: "إذا قمنا بتدوير القوارير البلاستيكية، سنحافظ على مدننا أنظف.",
+            highlight: "If we recycle ... will keep",
+            note: "حالة شرطية أولى بيئية"
+          },
+          {
+            en: "If the temperature rises, the polar ice will melt faster.",
+            ar: "إذا ارتفعت درجة الحرارة، سيذوب الجليد القطبي بسرعة أكبر.",
+            highlight: "If the temperature rises ... will melt",
+            note: "مضارع مفرد + will ومصدر"
+          }
+        ],
+        exercises: [
+          {
+            id: "2u7-ex2",
+            question: "If Bilal ______ hard this term, he will win the top prize. (works / will work / worked)",
+            options: ["works", "will work", "worked", "working"],
+            correctAnswer: "works",
+            explanation: "جملة If تتطلب فعلاً في المضارع البسيط؛ والفاعل Bilal مفرد فيأخذ works.",
+            type: "mcq",
+            ministerialYear: "كتاب النشاط ص 105"
+          },
+          {
+            id: "2u7-ex3",
+            question: "If they don't protect the marshes, rare birds ______ disappear. (will / did / were)",
+            options: ["will", "did", "were", "are"],
+            correctAnswer: "will",
+            explanation: "جواب الشرط في الحالة الأولى يتكون من will + المصدر المجرد disappear.",
             type: "mcq",
             ministerialYear: "امتحان نهاية السنة"
+          }
+        ]
+      }
+    ]
+  },
+
+  // -------------------------------------------------------------------------
+  // UNIT 8: Revision and Project
+  // -------------------------------------------------------------------------
+  {
+    id: 28,
+    number: 8,
+    titleAr: "الوحدة الثامنة: المراجعة الشاملة ومشروع الفصل (Unit 8: Revision & Project)",
+    titleEn: "Unit 8: Comprehensive Revision, Skills Consolidation & Final Exam Prep",
+    description: "معتمد من كتاب الطالب (SB ص 84-88) وكتاب النشاط (AB ص 115-126): مراجعة شاملة لقواعد ومنهج الثاني المتوسط، تجميع مهارات الإملاء، وأسئلة الاستعداد للامتحان النهائي.",
+    accentColor: "from-purple-600 to-pink-600",
+    bgGradient: "bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200",
+    lessons: [
+      {
+        id: "2nd-u8-l1",
+        unitId: 28,
+        lessonNumber: 1,
+        titleAr: "الدرس الأول: المراجعة الشاملة لقواعد الفصلين (Grammar Consolidation)",
+        titleEn: "Lesson 1: Second Intermediate Full Grammar Review",
+        category: "grammar",
+        summary: "كتاب النشاط ص 115-120: مراجعة شاملة ومكثفة لأس التملك، محددات الكمية، أفعال الرياضة، ظروف الحال، المبني للمجهول، be going to، و First Conditional.",
+        grammarRuleFormula: "Key Rules at a Glance:\n1) 's vs s': boy's (1 boy) vs boys' (many boys)\n2) too much / a little (uncountable) vs too many / a few (countable)\n3) play tennis / go swimming / do judo\n4) good -> well / fast -> fast / easy -> easily\n5) Passive: is/are + P.P. (Present) & was/were + P.P. (Past)\n6) Future: be going to + base verb\n7) Relative: who (person) vs which (thing)\n8) If + Present, will + base verb",
+        detailedContent: [
+          "تجميع شامل لكافة القواعد المنهجية التي وردت في الكتابين (Student's Book & Activity Book).",
+          "نماذج تدريبية على أسئلة الاختيارات المتعددة (MCQ) والتحويلات القواعدية.",
+          "نصائح لحل أسئلة القواعد بدقة والتركيز على مفاتيح الحل في كل جملة."
+        ],
+        teacherNotes: [
+          "راجع جدول الأفعال الشاذة والتصاريف الثالثة قبل دخول الامتحان النهائي.",
+          "ركز على علامات الترقيم (Capital letters, full stops, question marks, apostrophes)."
+        ],
+        commonMistakes: [
+          "الاستعجال في حل الجملة دون البحث عن الكلمة المفتاحية (مثل yesterday للماضي، أو every day للمضارع)."
+        ],
+        examples: [
+          {
+            en: "Reviewing all rules systematically ensures scoring 100% in English exams.",
+            ar: "المراجعة المنهجية لجميع القواعد تضمن لك نيل الدرجة الكاملة في الامتحانات.",
+            highlight: "Reviewing all rules",
+            note: "المراجعة الشاملة"
+          }
+        ],
+        exercises: [
+          {
+            id: "2u8-ex1",
+            question: "Yesterday, the missing keys ______ found by the cleaner. (were / are / was)",
+            options: ["were", "are", "was", "is"],
+            correctAnswer: "were",
+            explanation: "الحدث في الماضي (Yesterday) والفاعل جمع (keys) لذا نختار were found.",
+            type: "mcq",
+            ministerialYear: "كتاب النشاط ص 118"
           }
         ]
       }
@@ -489,38 +819,47 @@ export const SECOND_INTERMEDIATE_UNITS: Unit[] = [
 ];
 
 // =========================================================================
-// قصص الثاني المتوسط (Story Time: Bob and Basim)
+// قصص الثاني المتوسط المقررة رسمياً (Story Time: Bob and Basim)
+// معتمدة من كتاب الطالب وكتاب النشاط
 // =========================================================================
 export const SECOND_INTERMEDIATE_STORIES: LiteratureItem[] = [
   {
     id: "2nd-story-pitcher",
     title: "Bob and Basim: The Pitcher",
-    titleAr: "قصة بوب وباسم: إبريق الماء في المخيم الكشفي",
+    titleAr: "قصة بوب وباسم: إبريق الماء في المخيم الكشفي العالمي",
     author: "English for Iraq Official Curriculum",
-    authorAr: "سلسلة قصص بوب وباسم المقررة رسمياً لمنهج العراق",
-    genre: "Humorous Adventure / Story Time",
-    genreAr: "مغامرة كشفية كوميدية شيقة",
+    authorAr: "منهاج اللغة الإنكليزية لوزارة التربية العراقية (Student's Book & Activity Book)",
+    genre: "Scouting Adventure & Humour / Story Time",
+    genreAr: "مغامرة كشفية كوميدية شيقة ومقررة وزارياً",
     image: "https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=1200&q=80",
-    imageCaptionAr: "المخيم الكشفي العالمي للشباب في أستراليا",
-    summaryAr: "بوب وباسم شابان يمثلان العراق والوطن العربي في المخيم الكشفي العالمي للشباب في أستراليا (World Youth Camp). في هذه القصة يقع بوب في مواقف محرجة وكوميدية بسبب سوء حظه الدائم، حيث يسقط إبريق الماء الكبير ويحدث فوضى مرحة أثناء التخييم، لكن صداقة باسم ودعمه الدائم يساعدانه على تجاوز الموقف بابتسامة.",
-    moralLessonAr: "الصداقة الحقيقية، روح العمل الجماعي في الكشافة، والقدرة على الضحك والتفاؤل رغم العثرات.",
-    keyThemes: ["Scouting spirit", "True international friendship", "Optimism and resilience"],
+    imageCaptionAr: "المخيم الكشفي العالمي للشباب في أستراليا (World Youth Camp)",
+    summaryAr: "بوب وباسم شابان يمثلان الشباب في المخيم الكشفي العالمي للشباب في أستراليا (World Youth Camp). يلتقيان بالفتيان من مختلف بلدان العالم مثل رود ودان وبول. في هذه المغامرة يتعرض بوب كعادته لسلسلة من المقالب الكوميدية غير المقصودة بسبب سوء حظه، حيث يسكب إبريق الماء الكبير ويحدث فوضى مرحة أثناء إعداد وجبة الإفطار في الخيمة، بينما يسنده صديقه العراقي المخلص باسم ويضحكان معاً مرددين جملة بوب الشهيرة: 'لماذا تحدث هذه الأشياء معي دائماً؟'.",
+    moralLessonAr: "روح الصداقة العالمية المتينة، العمل الجماعي في حياة المخيمات، والابتسام في مواجهة الصعاب والعثرات.",
+    keyThemes: ["Scouting spirit", "International friendship", "Good sportsmanship & humour"],
     characters: [
       {
         name: "Bob",
         nameAr: "بوب",
-        role: "The unlucky adventurous scout",
+        role: "The unlucky scout",
         roleAr: "الكشاف طيب القلب ولكنه قليل الحظ وتحدث معه المقالب",
-        description: "Always experiences funny accidents and mishaps during their adventures in Australia.",
-        descriptionAr: "شاب طيب تحدث معه دائماً مواقف طريفة ومحرجة وغير متوقعة."
+        description: "An adventurous, well-meaning scout who always encounters hilarious accidents.",
+        descriptionAr: "شاب طيب القلب تحدث معه دائماً مواقف طريفة ومحرجة وغير متوقعة في المخيم."
       },
       {
         name: "Basim",
         nameAr: "باسم",
         role: "Bob's loyal Iraqi best friend",
-        roleAr: "صديق بوب المخلص من العراق",
-        description: "Calm, helpful, and supportive scout who stands by Bob in every situation.",
-        descriptionAr: "شاب هادئ ووفي يرافق بوب ويسانده في جميع مغامرات المخيم."
+        roleAr: "صديق بوب العراقي الوفي",
+        description: "A calm, reliable, and helpful Iraqi scout who always assists Bob.",
+        descriptionAr: "شاب عراقي هادئ ووفي يرافق بوب ويساعده دائماً في تجاوز مقالبه."
+      },
+      {
+        name: "Rod, Dan & Paul",
+        nameAr: "رود، دان، وبول",
+        role: "Fellow scouts from Australia and other nations",
+        roleAr: "كشافة رفاق من أستراليا ودول أخرى",
+        description: "Scouts sharing the camp adventures with Bob and Basim.",
+        descriptionAr: "رفاق التخييم الذين يشاركون في الأنشطة وطهي الطعام."
       }
     ],
     ministerialQA: [
@@ -536,199 +875,229 @@ export const SECOND_INTERMEDIATE_STORIES: LiteratureItem[] = [
         id: "2nd-q2",
         question: "Who are Bob and Basim?",
         questionAr: "من هما بوب وباسم؟",
-        answer: "Two friendly scouts participating in the World Youth Camp.",
-        answerAr: "كشافان ودودان يشاركان في المخيم الكشفي العالمي للشباب.",
+        answer: "Two scouts taking part in the World Youth Camp in Australia.",
+        answerAr: "كشافان يشاركان في المخيم الكشفي العالمي للشباب في أستراليا.",
         year: "امتحان الفصل الأول"
       },
       {
         id: "2nd-q3",
-        question: "Why does Bob always say: 'Why do these things always happen to me?'",
-        questionAr: "لماذا يقول بوب دائماً: 'لماذا تحدث هذه الأمور معي دائماً؟'",
-        answer: "Because he is very unlucky and funny accidents happen to him all the time.",
-        answerAr: "لأنه قليل الحظ وتحدث معه حوادث ومقالب كوميدية طوال الوقت.",
+        question: "What is Bob's famous repeated question whenever an accident happens to him?",
+        questionAr: "ما هو سؤال بوب الشهير المتكرر كلما وقع له مقلب؟",
+        answer: "'Why do these things always happen to me?'",
+        answerAr: "'لماذا تحدث هذه الأشياء معي دائماً؟'",
         year: "امتحان نهاية السنة"
+      },
+      {
+        id: "2nd-q4",
+        question: "What did Bob spill while preparing breakfast?",
+        questionAr: "ماذا سكب بوب أثناء تحضير الإفطار؟",
+        answer: "A big pitcher of water / juice.",
+        answerAr: "إبريقاً كبيراً من الماء / العصير.",
+        year: "كتاب النشاط"
       }
     ]
   },
   {
     id: "2nd-story-icecream",
     title: "Bob and Basim: The Ice Cream",
-    titleAr: "قصة بوب وباسم: مغامرة الآيس كريم في بريزبان",
+    titleAr: "قصة بوب وباسم: مغامرة الآيس كريم في مدينة بريزبان",
     author: "English for Iraq Official Curriculum",
-    authorAr: "منهاج وزارة التربية العراقية",
+    authorAr: "منهاج وزارة التربية العراقية (Student's Book & Activity Book)",
     genre: "Comic Story Time",
-    genreAr: "قصة كوميدية ممتعة",
+    genreAr: "قصة كوميدية ممتعة مقررة وزارياً",
     image: "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=1200&q=80",
-    imageCaptionAr: "رحلة الكشافة إلى المدينة وتناول الآيس كريم في يوم مشمس",
-    summaryAr: "في يوم عطلة حار ومشمس في أستراليا، ذهب الفتيان إلى متجر لبيع الآيس كريم. اشترى بوب مخروط آيس كريم عملاقاً بـ 5 نكهات ملونة. بينما كان يمشي فخوراً به، اصطدم فجأة وسقط الآيس كريم بأكمله على قميصه ووجهه وسط ضحكات أصدقائه، معلقاً بعبارته الشهيرة: 'لماذا تحدث هذه الأشياء معي دائماً؟'.",
-    moralLessonAr: "تقبل المواقف المحرجة بروح رياضية والمرح مع الأصدقاء.",
-    keyThemes: ["Good humor", "Friendship", "Memorable shared moments"],
+    imageCaptionAr: "رحلة الكشافة إلى المدينة وتناول الآيس كريم في يوم صيفي مشمس",
+    summaryAr: "في يوم عطلة صيفي مشمس وحار في أستراليا، ذهب الفتيان في نزهة إلى مدينة بريزبان. دخلوا متجراً شهيراً للآيس كريم، واشترى بوب متحمساً مخروط آيس كريم عملاقاً بـ 5 كرات ونكهات ملونة مختلفة. وبينما كان يسير فخوراً بالآيس كريم، تعثر واصطدم فجأة، فانقلب المخروط بأكمله وانسكب الآيس كريم الذائب على قميصه ووجهه وشعره وسط ضحك وتشجيع زملائه، ليعيد بوب جملته المألوفة وسط ابتسامات الجميع.",
+    moralLessonAr: "تقبل المواقف المحرجة بروح رياضية مرحة، والاستمتاع باللحظات الصادقة مع الأصدقاء.",
+    keyThemes: ["Good humor", "True friendship", "Memorable adventures"],
     characters: [
       {
         name: "Bob",
         nameAr: "بوب",
         role: "The main character",
-        roleAr: "البطل الكوميدي للقصة",
-        description: "Buys a huge 5-scoop ice cream that melts and spills all over him.",
-        descriptionAr: "يشتري آيس كريم ضخم بخمس نكهات وينتهي به الأمر مسكوباً عليه."
+        roleAr: "بطل القصة الكوميدي",
+        description: "Buys a giant 5-scoop ice cream that tragically ends up on his shirt and face.",
+        descriptionAr: "يشتري آيس كريم عملاقاً بخمس نكهات وينتهي به الأمر مسكوباً على ملابسه."
+      },
+      {
+        name: "Basim",
+        nameAr: "باسم",
+        role: "Bob's loyal friend",
+        roleAr: "صديق بوب المخلص",
+        description: "Enjoys his ice cream and comforts Bob after the funny mishap.",
+        descriptionAr: "يستمتع بمثلجاته ويواسي بوب بروح مرحة بعد المقلب."
       }
     ],
     ministerialQA: [
       {
         id: "2nd-ice-q1",
-        question: "How many scoops of ice cream did Bob buy?",
-        questionAr: "كم كرة آيس كريم اشترى بوب؟",
+        question: "How many scoops of ice cream did Bob order?",
+        questionAr: "كم كرة آيس كريم طلب بوب؟",
         answer: "Five scoops of different flavours.",
         answerAr: "خمس كرات بنكهات مختلفة.",
         year: "امتحان الفصل الثاني"
       },
       {
         id: "2nd-ice-q2",
-        question: "What happened to Bob's ice cream in the end?",
-        questionAr: "ماذا حدث لآيس كريم بوب في النهاية؟",
+        question: "What happened to Bob's ice cream in the street?",
+        questionAr: "ماذا حدث لآيس كريم بوب في الشارع؟",
         answer: "It fell and spilt all over his clothes and face.",
         answerAr: "سقط وانسكب بالكامل على ملابسه ووجهه.",
         year: "امتحان نهاية السنة"
+      },
+      {
+        id: "2nd-ice-q3",
+        question: "Where were the boys walking when the accident happened?",
+        questionAr: "أين كان الفتيان يمشون عندما حدث الموقف؟",
+        answer: "In the streets of Brisbane, Australia.",
+        answerAr: "في شوارع مدينة بريزبان بأستراليا.",
+        year: "امتحان الدور الأول"
       }
     ]
   }
 ];
 
 // =========================================================================
-// إنشاءات الثاني المتوسط (Essays / Compositions)
+// إنشاءات الثاني المتوسط النموذجية (Essays / Compositions)
+// معتمدة من كتاب الطالب وكتاب النشاط ومطابقة للمواصفات الوزارية العراقية
 // =========================================================================
 export const SECOND_INTERMEDIATE_ESSAYS: EssayItem[] = [
+  // إنشاء الوحدة الأولى
   {
     id: "2nd-essay-interview",
     unitId: 21,
     titleAr: "إنشاء الوحدة الأولى: مقابلة مع شخصية محلية (An Interview with a Local Person)",
-    titleEn: "An Interview with a Local Teacher (Mr. Tariq)",
-    ministerialWeight: "15 درجة في الامتحان النهائي",
+    titleEn: "An Interview with a Beloved Local Teacher (Mr. Tariq)",
+    ministerialWeight: "15 درجة في الامتحان الوزاري / النهائي",
     paragraphsEn: [
-      "Last Tuesday, our school magazine team conducted an inspiring interview with Mr. Tariq, a beloved English teacher who has been teaching in our city for over twenty years.",
-      "Mr. Tariq said he loves teaching because helping young Iraqi students learn a global language gives him immense joy. In his spare time, he enjoys reading historical books and gardening in his backyard.",
-      "When we asked him for advice for the school magazine, he smiled and said: 'Always work hard, read every single day, and never be afraid of making mistakes because that is how we truly learn.'"
+      "Last Tuesday, our school magazine team conducted a wonderful interview with Mr. Tariq, a beloved English teacher who has dedicated over twenty years to educating students in our city.",
+      "Mr. Tariq explained that he loves teaching because empowering Iraqi youth with a global language brings him immense happiness. In his spare time, he enjoys reading historical books and cultivating flowers in his garden.",
+      "When we asked him for advice for our school magazine readers, he smiled and said: 'Always study diligently, respect your teachers, and never fear making mistakes because they are the stepping stones to true mastery.'"
     ],
     paragraphsAr: [
-      "في يوم الثلاثاء الماضي، أجرى فريق مجلة مدرستنا مقابلة ملهمة مع الأستاذ طارق، وهو مدرس لغة إنكليزية محبوب يدرّس في مدينتنا منذ أكثر من عشرين عاماً.",
-      "قال الأستاذ طارق إنه يعشق مهنة التدريس لأن مساعدة الطلبة العراقيين على تعلم لغة عالمية تمنحه سعادة غامرة. وفي أوقات فراغه، يستمتع بقراءة كتب التاريخ والاعتناء بحديقة منزله.",
-      "وعندما طلبنا منه نصيحة لمجلة المدرسة، ابتسم وقال: 'اعملوا بجد دائماً، واقرؤوا كل يوم، ولا تخافوا أبداً من ارتكاب الأخطاء لأنها السبيل الحقيقي للتعلم.'"
+      "في يوم الثلاثاء الماضي، أجرى فريق مجلة مدرستنا مقابلة رائعة مع الأستاذ طارق، وهو مدرس لغة إنكليزية محبوب كرّس أكثر من عشرين عاماً لتعليم الطلاب في مدينتنا.",
+      "أوضح الأستاذ طارق أنه يعشق التدريس لأن تمكين الشباب العراقي من لغة عالمية يمنحه سعادة بالغة. وفي أوقات فراغه، يستمتع بقراءة كتب التاريخ وزراعة الزهور في حديقته.",
+      "وعندما سألناه عن نصيحة لقرّاء مجلة مدرستنا، ابتسم وقال: 'ادرسوا بجد واجتهاد دائماً، واحترموا معلميكم، ولا تخافوا أبداً من الوقوع في الأخطاء لأنها الخطوات الأولى نحو الإتقان الحقيقي.'"
     ],
     keywords: [
-      { word: "inspiring interview", meaning: "مقابلة ملهمة" },
-      { word: "beloved teacher", meaning: "مدرس محبوب" },
-      { word: "immense joy", meaning: "سعادة غامرة" },
+      { word: "wonderful interview", meaning: "مقابلة رائعة ومميزة" },
+      { word: "beloved teacher", meaning: "معلم محبوب ومحترم" },
+      { word: "immense happiness", meaning: "سعادة بالغة وفرح عظيم" },
       { word: "spare time", meaning: "وقت الفراغ" },
-      { word: "work hard", meaning: "العمل والاجتهاد بجد" }
+      { word: "stepping stones", meaning: "خطوات ودرجات نحو النجاح" }
     ],
     goldenTips: [
-      "نصيحة الأستاذ مصطفى تركي: قسّم المقابلة إلى: 1) التعريف بالشخص، 2) هواياته ولماذا يحب عمله، 3) نصيحته الذهبية للطلاب.",
+      "نصيحة الأستاذ مصطفى تركي: قسّم المقابلة إلى 3 عناصر: 1) التعريف بالشخص، 2) هواياته وسبب حبه لمهنته، 3) النصيحة الذهبية للطلاب.",
       "استخدم علامات الاقتباس (\"...\") عند ذكر كلام الضيف المباشر لضمان درجات التنقيط الكاملة."
     ],
     clozeSentences: [
       {
         textWithBlanks: "Our school magazine team conducted an ______ with Mr. Tariq.",
         missingWord: "interview",
-        options: ["interview", "exam", "accident", "operation"]
+        options: ["interview", "operation", "accident", "exam"]
       }
     ]
   },
+
+  // إنشاء الوحدة الثانية
   {
     id: "2nd-essay-fitness",
     unitId: 22,
     titleAr: "إنشاء الوحدة الثانية: كيف تحافظ على صحتك ولياقتك (How to Keep Fit and Healthy)",
-    titleEn: "How to Keep Fit and Healthy",
-    ministerialWeight: "15 درجة في الامتحان النهائي",
+    titleEn: "How to Keep Fit and Healthy (Advice for Teenagers)",
+    ministerialWeight: "15 درجة في الامتحان الوزاري / النهائي",
     paragraphsEn: [
-      "Fitness and good health are essential for every student to succeed in life and study effectively. People who are unfit get tired quickly and cannot enjoy sports or daily activities.",
-      "To stay healthy, you should eat balanced meals with plenty of fresh fruit and vegetables. You must not eat too much fat, sugar, or junk food, and drink at least eight glasses of clean water daily.",
-      "Moreover, doing regular exercise like swimming, jogging, or walking for thirty minutes a day keeps your heart strong and boosts your energy. Finally, make sure you get eight hours of restful sleep every night."
+      "Physical fitness and good health are essential for every teenager to succeed in school and enjoy an energetic daily life. Unfit students get tired rapidly and cannot participate comfortably in sports or study sessions.",
+      "To keep your body fit, you should eat balanced meals rich in fresh vegetables, fruits, and lean proteins. You must avoid consuming too much sugar, salt, and oily fast foods, and drink plenty of clean water every day.",
+      "Furthermore, participating in regular exercise like cycling, jogging, or swimming for thirty minutes daily strengthens your heart muscles. Finally, getting eight hours of sound sleep each night ensures mental clarity and vigor."
     ],
     paragraphsAr: [
-      "تعتبر اللياقة البدنية والصحة الجيدة أمراً أساسياً لكل طالب للنجاح في الحياة والدراسة بكفاءة. فالأشخاص غير اللائقين بدنياً يتعبون بسرعة ولا يستطيعون الاستمتاع بالرياضة أو الأنشطة اليومية.",
-      "للبقاء بصحة جيدة، ينبغي عليك تناول وجبات متوازنة تحتوي على الكثير من الفواكه والخضروات الطازجة. ويجب ألا تكثر من تناول الدهون والسكريات والوجبات السريعة، وأن تشرب 8 أكواب من الماء النظيف يومياً.",
-      "علاوة على ذلك، فإن ممارسة التمارين الرياضية بانتظام مثل السباحة أو الركض أو المشي لمدة 30 دقيقة يومياً تقوي قلبك وتزيد نشاطك. وأخيراً، احرص على نيل 8 ساعات من النوم المريح كل ليلة."
+      "تعتبر اللياقة البدنية والصحة الجيدة أمرين أساسيين لكل مراهق للنجاح في المدرسة والاستمتاع بحياة يومية مليئة بالحيوية. فالطلبة غير اللائقين بدنياً يتعبون سريعاً ولا يستطيعون المشاركة بارتياح في الرياضة أو حصص الدراسة.",
+      "للحفاظ على لياقة جسدك، ينبغي عليك تناول وجبات متوازنة غنية بالخضروات والفواكه الطازجة والبروتينات الخالية من الدهون. ويجب أن تتجنب الإفراط في تناول السكر والملح والوجبات السريعة الدهنية، وأن تشرب الكثير من الماء النظيف يومياً.",
+      "علاوة على ذلك، فإن ممارسة التمارين الرياضية بانتظام مثل ركوب الدراجات أو الركض أو السباحة لمدة ثلاثين دقيقة يومياً تقوي عضلات قلبك. وأخيراً، فإن نيل ثماني ساعات من النوم الهادئ كل ليلة يضمن صفاء الذهن وقوة النشاط."
     ],
     keywords: [
-      { word: "essential", meaning: "أساسي وضروري" },
+      { word: "physical fitness", meaning: "اللياقة البدنية والصحية" },
       { word: "balanced meals", meaning: "وجبات غذائية متوازنة" },
-      { word: "junk food", meaning: "الوجبات السريعة غير الصحية" },
+      { word: "lean proteins", meaning: "بروتينات خالية من الدهون" },
       { word: "regular exercise", meaning: "تمارين رياضية منتظمة" },
-      { word: "boosts energy", meaning: "يزيد الطاقة والنشاط" }
+      { word: "mental clarity", meaning: "صفاء الذهن والتركيز" }
     ],
     goldenTips: [
-      "استخدم أدوات النصيحة التي درستها في الوحدة: You should eat..., You shouldn't drink too much..., You must get enough sleep."
+      "وظّف محددات الكمية والنصائح التي درستها في الوحدة: You should eat a little sugar, You shouldn't eat too much fat, You should do regular exercise."
     ],
     clozeSentences: [
       {
-        textWithBlanks: "To keep fit, you should do regular ______ every day.",
+        textWithBlanks: "To keep fit, teenagers should do regular ______ for thirty minutes daily.",
         missingWord: "exercise",
         options: ["exercise", "sugar", "sleeping", "smoking"]
       }
     ]
   },
+
+  // إنشاء الوحدة السادسة
   {
     id: "2nd-essay-dream-job",
     unitId: 26,
     titleAr: "إنشاء الوحدة السادسة: مهنتي المستقبلية (My Dream Career / Future Job)",
-    titleEn: "My Future Career: A Doctor",
-    ministerialWeight: "15 درجة في الامتحان النهائي",
+    titleEn: "My Future Career: Why I am Going to Be a Doctor",
+    ministerialWeight: "15 درجة في الامتحان الوزاري / النهائي",
     paragraphsEn: [
-      "When I finish my studies, I am going to be a dedicated doctor because I want to heal sick people and serve my beloved country, Iraq.",
-      "Doctors work in hospitals and clinics, examining patients, diagnosing diseases, and prescribing the right medicine. This noble career requires being patient, caring, and studying very hard for many years at medical college.",
-      "In school, I am focusing on Biology, Chemistry, and English to achieve top marks. I believe that being a doctor is not just a job, but a lifelong mission to bring hope and smiles to people's faces."
+      "When I complete my secondary education, I am going to study medicine and become a dedicated physician because I have always wished to heal suffering patients and serve my homeland, Iraq.",
+      "Doctors work diligently in hospitals and medical clinics. Their duty is to examine patients, diagnose illnesses accurately, and prescribe curative treatments. This noble profession demands infinite patience, empathy, and many years of rigorous scientific study.",
+      "Currently in school, I am focusing wholeheartedly on Biology, Chemistry, and English to secure high marks. I truly believe that healing sick individuals is not merely a job, but a lifelong human mission that brings smiles and renewed hope to families."
     ],
     paragraphsAr: [
-      "عندما أنهي دراستي، أخطط أن أكون طبيباً مخلصاً لأنني أريد علاج المرضى وخدمة بلدي الحبيب العراق.",
-      "يعمل الأطباء في المستشفيات والعيادات، حيث يفحصون المرضى ويشخصون الأمراض ويصفون الدواء المناسب. وتتطلب هذه المهنة النبيلة الصبر والرحمة والدراسة بجد لسنوات عديدة في كلية الطب.",
-      "في المدرسة، أركز على دراسة الأحياء والكيمياء واللغة الإنكليزية لتحقيق أعلى الدرجات. وأؤمن بأن الطب ليس مجرد وظيفة، بل رسالة حياة لزرع الأمل والابتسامة على وجوه الناس."
+      "عندما أتمم دراستي الثانوية، أخطط لدراسة الطب وأن أصبح طبيباً مخلصاً لأنني طالما تمنيت علاج المرضى المتألمين وخدمة وطني الحبيب العراق.",
+      "يعمل الأطباء بجد واجتهاد في المستشفيات والعيادات الطبية. وواجبهم هو فحص المرضى وتشخيص الأمراض بدقة ووصف العلاجات الشافية. وتتطلب هذه المهنة النبيلة صبراً لا حدود له، وتعاطفاً إنسانياً، وسنوات طويلة من الدراسة العلمية المكثفة.",
+      "في المدرسة حالياً، أركز بكل جوارحي على الأحياء والكيمياء واللغة الإنكليزية لتحقيق معدل عالٍ. وأؤمن حقاً بأن شفاء المرضى ليس مجرد وظيفة، بل رسالة إنسانية تدوم مدى الحياة وتزرع البسمة والأمل المتجدد في نفوس العائلات."
     ],
     keywords: [
-      { word: "dedicated doctor", meaning: "طبيب مخلص ومتفانٍ" },
-      { word: "noble career", meaning: "مهنة نبيلة وإنسانية" },
-      { word: "diagnosing diseases", meaning: "تشخيص الأمراض" },
-      { word: "prescribing medicine", meaning: "وصف الدواء المناسب" },
-      { word: "lifelong mission", meaning: "رسالة حياة دائمة" }
+      { word: "dedicated physician", meaning: "طبيب مخلص ومتفانٍ" },
+      { word: "diagnose illnesses", meaning: "تشخيص الأمراض بدقة" },
+      { word: "prescribe treatments", meaning: "وصف العلاجات الطبية" },
+      { word: "noble profession", meaning: "مهنة نبيلة وإنسانية" },
+      { word: "renewed hope", meaning: "أمل متجدد وابتسامة" }
     ],
     goldenTips: [
-      "استخدم صيغة المستقبل: I am going to be a... because I want to...",
-      "اذكر الصفات الشخصية المطلوبة للمهنة (patient, caring, hard-working)."
+      "استخدم قاعدة الوحدة السادسة: I am going to be a... because I want to...",
+      "اذكر الصفات الشخصية المطلوبة للمهنة (patient, hardworking, caring)."
     ],
     clozeSentences: [
       {
-        textWithBlanks: "I want to be a doctor because I want to ______ sick people.",
+        textWithBlanks: "I am going to study medicine because I want to ______ suffering patients.",
         missingWord: "heal",
-        options: ["heal", "break", "forget", "lose"]
+        options: ["heal", "hurt", "ignore", "forget"]
       }
     ]
   }
 ];
 
 // =========================================================================
-// بنك أسئلة امتحانات الثاني المتوسط
+// بنك أسئلة امتحانات الثاني المتوسط المعتمد من كتاب الطالب وكتاب النشاط
 // =========================================================================
 export const SECOND_INTERMEDIATE_QUESTIONS: MinisterialExamQuestion[] = [
   {
     id: "2nd-exam-q1",
     unitId: 21,
-    topic: "Possessive Apostrophe",
+    topic: "Possessive Apostrophe ('s vs s')",
     year: "امتحان الفصل الأول 2024",
     session: "دور أول",
-    questionText: "This is the ______ (boy's / boys') room. (Only one boy lives here)",
-    correctAnswer: "boy's",
-    ruleExplanation: "الحديث عن ولد واحد فقط (مفرد)، لذا نضع الفاصلة قبل حرف s: boy's.",
+    questionText: "This is the ______ (teacher's / teachers') desk. (Only one teacher sits here)",
+    correctAnswer: "teacher's",
+    ruleExplanation: "الحديث عن معلم واحد مفرد (one teacher)، لذا نضع الفاصلة قبل حرف s: teacher's.",
     difficulty: "easy",
     category: "Grammar"
   },
   {
     id: "2nd-exam-q2",
     unitId: 21,
-    topic: "Giving Advice with should",
+    topic: "Suggestions with Why not",
     year: "امتحان نصف السنة 2024",
     session: "دور أول",
-    questionText: "You have a bad toothache. You ______ go to the dentist. (should / shouldn't / must to)",
-    correctAnswer: "should",
-    ruleExplanation: "إعطاء نصيحة إيجابية ومفيدة باستخدام should متبوعة بالمصدر go.",
+    questionText: "Why not ______ a cartoon for the school magazine? (draw / drawing / drew)",
+    correctAnswer: "draw",
+    ruleExplanation: "بعد صيغة الاقتراح Why not نستخدم دائماً المصدر المجرد الخالي من أي إضافة: draw.",
     difficulty: "easy",
     category: "Grammar"
   },
@@ -738,145 +1107,168 @@ export const SECOND_INTERMEDIATE_QUESTIONS: MinisterialExamQuestion[] = [
     topic: "Quantifiers too much vs too many",
     year: "امتحان نصف السنة",
     session: "دور أول",
-    questionText: "You shouldn't eat ______ (too much / too many) sugar in your tea.",
-    correctAnswer: "too much",
-    ruleExplanation: "السكر (sugar) اسم غير معدود يدل على كمية، فنستخدم معه too much.",
+    questionText: "You shouldn't eat ______ (too much / too many) crisps because they contain salt.",
+    correctAnswer: "too many",
+    ruleExplanation: "رقائق الشيبس (crisps) اسم معدود جمع ينتهي بـ s، لذا نستخدم معه too many.",
     difficulty: "easy",
     category: "Grammar"
   },
   {
     id: "2nd-exam-q4",
-    unitId: 23,
-    topic: "Sports verbs play / go / do",
-    year: "امتحان الفصل الأول",
+    unitId: 22,
+    topic: "Obligation have to / has to",
+    year: "امتحان الفصل الثاني",
     session: "دور أول",
-    questionText: "My brother likes to ______ (play / go / do) swimming on hot summer days.",
-    correctAnswer: "go",
-    ruleExplanation: "الأنشطة الرياضية المنتهية بـ ing مثل swimming تأخذ الفعل go.",
-    difficulty: "easy",
-    category: "Vocabulary"
+    questionText: "Fatima has an exam tomorrow. She ______ study tonight. (has to / doesn't have to / haven't to)",
+    correctAnswer: "has to",
+    ruleExplanation: "فاطمة مفرد والضرورة ملزمة للدراسة قبل الامتحان، فنستخدم has to.",
+    difficulty: "medium",
+    category: "Grammar"
   },
   {
     id: "2nd-exam-q5",
     unitId: 23,
-    topic: "Adverbs of Manner",
+    topic: "Sports verbs play / go / do",
     year: "امتحان نهاية الكورس الأول",
     session: "دور أول",
-    questionText: "Ali is a careful driver. He drives his car ______ (careful / carefully / care).",
-    correctAnswer: "carefully",
-    ruleExplanation: "لوصف الفعل drives نحتاج إلى ظرف حال مشتق من الصفة بإضافة ly وهو carefully.",
-    difficulty: "medium",
-    category: "Grammar"
+    questionText: "My little brother loves to ______ judo at the sports center. (play / go / do)",
+    correctAnswer: "do",
+    ruleExplanation: "رياضة الجودو فن قتالي فردي يأخذ الفعل do: do judo.",
+    difficulty: "easy",
+    category: "Vocabulary"
   },
   {
     id: "2nd-exam-q6",
-    unitId: 25,
-    topic: "Past Simple Passive",
-    year: "امتحان نهاية السنة 2024",
+    unitId: 23,
+    topic: "Adverbs of Manner - Irregular adverbs",
+    year: "امتحان نصف السنة",
     session: "دور أول",
-    questionText: "The television ______ (invent) by John Logie Baird. [Past Passive]",
-    correctAnswer: "was invented",
-    ruleExplanation: "المفعول به مفرد (The television) في زمن الماضي، لذا نستخدم was + التصريف الثالث invented.",
-    difficulty: "medium",
-    category: "Grammar"
-  },
-  {
-    id: "2nd-exam-q7",
-    unitId: 26,
-    topic: "Relative Pronouns who vs which",
-    year: "امتحان نهاية السنة",
-    session: "دور أول",
-    questionText: "That is the friendly teacher ______ taught us English last year. (who / which / where)",
-    correctAnswer: "who",
-    ruleExplanation: "المعلم (teacher) عاقل يأخذ ضمير الوصل who.",
+    questionText: "Zaid is a good swimmer. He swims very ______ (good / well / nicely).",
+    correctAnswer: "well",
+    ruleExplanation: "لوصف فعل السباحة (swims) نحتاج لظرف الحال الشاذ من good وهو well.",
     difficulty: "easy",
     category: "Grammar"
   },
   {
+    id: "2nd-exam-q7",
+    unitId: 25,
+    topic: "Present Simple Passive",
+    year: "امتحان الفصل الثاني",
+    session: "دور أول",
+    questionText: "Magazines and books ______ (sell) in bookshops everywhere. [Present Passive]",
+    correctAnswer: "are sold",
+    ruleExplanation: "الفاعل جمع (Magazines and books) في زمن المضارع، يأخذ are + التصريف الثالث sold.",
+    difficulty: "medium",
+    category: "Grammar"
+  },
+  {
     id: "2nd-exam-q8",
+    unitId: 25,
+    topic: "Past Simple Passive",
+    year: "امتحان الدور الأول 2024",
+    session: "دور أول",
+    questionText: "The historical letter ______ (write) in Baghdad in 1950. [Past Passive]",
+    correctAnswer: "was written",
+    ruleExplanation: "الفاعل مفرد (letter) والحدث في الماضي (1950)، يأخذ was + التصريف الثالث written.",
+    difficulty: "medium",
+    category: "Grammar"
+  },
+  {
+    id: "2nd-exam-q9",
+    unitId: 26,
+    topic: "Relative Pronouns who vs which",
+    year: "امتحان نهاية السنة 2024",
+    session: "دور أول",
+    questionText: "An architect is someone ______ designs modern buildings. (who / which / whose)",
+    correctAnswer: "who",
+    ruleExplanation: "المهندس المعماري (someone / architect) إنسان عاقل، يأخذ ضمير الوصل who.",
+    difficulty: "easy",
+    category: "Grammar"
+  },
+  {
+    id: "2nd-exam-q10",
     unitId: 27,
     topic: "First Conditional",
-    year: "امتحان نهاية السنة",
+    year: "امتحان نهاية السنة 2024",
     session: "دور أول",
-    questionText: "If we recycle paper and glass, we ______ (save) trees.",
-    correctAnswer: "will save",
-    ruleExplanation: "الحالة الشرطية الأولى: فعل الشرط مضارع (recycle)، جواب الشرط مستقبل will save.",
+    questionText: "If you ______ (hurry), you will catch the morning train. (hurry / will hurry / hurried)",
+    correctAnswer: "hurry",
+    ruleExplanation: "جملة If في الحالة الشرطية الأولى تتطلب مضارعاً بسيطاً: hurry مع الفاعل you.",
     difficulty: "medium",
     category: "Grammar"
   }
 ];
 
 // =========================================================================
-// نموذج الامتحان الشامل للثاني المتوسط (Mock Exam Paper)
+// الامتحان الشامل للثاني المتوسط (Mock Exam Paper)
+// مطابق لورقة الامتحان المنهجي المعتمد من كتاب الطالب وكتاب النشاط (100 درجة)
 // =========================================================================
 export const SECOND_INTERMEDIATE_MOCK_PAPER: MockExamPaper = {
-  id: "2nd-full-mock-paper-2025",
-  title: "امتحان نهاية السنة الشامل • الثاني المتوسط (اعتماداً على أسئلة 2020 إلى 2026)",
-  subtitle: "إشراف الأستاذ مصطفى تركي • الاعتماد الحصري على كتاب الطالب (Student's Book) وكتاب النشاط (Activity Book)",
-  session: "الدور الأول • المنهج العراقي الرسمي (2020-2026)",
-  year: "2020 - 2026",
+  id: "2nd-full-mock-paper-official",
+  title: "امتحان نهاية السنة الشامل • الثاني المتوسط (وفق المنهج الرسمي المعتمد)",
+  subtitle: "الاعتماد الكامل على كتاب الطالب (Student's Book) وكتاب النشاط (Activity Book) • إشراف الأستاذ مصطفى تركي",
+  session: "الدور الأول • المنهج العراقي الرسمي المعتمد لوزارة التربية",
+  year: "2025 - 2026",
   durationMinutes: 120,
   totalMarks: 100,
   sections: [
     {
       id: "sec-1",
-      sectionCode: "Q1-A",
-      titleAr: "السؤال الأول (أ): القطعة الخارجية الاستيعابية",
-      titleEn: "Question 1 (A): Reading Comprehension - Unseen Passage",
-      instructionsAr: "اقرأ القطعة بعناية ثم أجب عن الأسئلة التالية:",
-      instructionsEn: "Read the passage carefully, then answer the questions below:",
-      totalMarks: 20,
-      unseenPassage: "Good fitness is essential for young people. When teenagers are fit, they have more energy, perform better in school, and sleep soundly at night. Unfortunately, many students nowadays spend too much time sitting on sofas playing video games and eating unhealthy junk food like crisps, burgers, and sugary sodas. Doctors in Iraq advise students to exercise for at least 45 minutes every day. You don't have to join an expensive gym; walking to school, riding a bicycle, or playing football with friends in the park are wonderful ways to stay strong and healthy.",
+      sectionCode: "Q1",
+      titleAr: "السؤال الأول: القطعة الخارجية واستيعاب المقروء",
+      titleEn: "Question 1: Unseen Reading Comprehension",
+      instructionsAr: "اقرأ القطعة بعناية ثم أجب عن 5 من الأسئلة التالية (لكل نقطة 3 درجات):",
+      instructionsEn: "Read the passage carefully and answer (5) questions below (15 Marks):",
+      totalMarks: 15,
+      unseenPassage: "Salem is a thirteen-year-old Iraqi boy who lives in Basra. He is an active member of the school magazine club. Salem wants to be a marine biologist in the future because he loves sea animals and wants to protect the Arabian Gulf from pollution. Every Friday, Salem helps clean the shores with his scout troop. Last month, his team published an article about the endangered dugong in the Gulf. Salem believes that if young people protect their environment today, future generations will enjoy clean water and healthy nature.",
       items: [
         {
           id: "2nd-mock-q1-1",
           number: 1,
-          questionText: "Why is good fitness essential for teenagers?",
+          questionText: "Where does Salem live?",
           type: "text",
-          correctAnswer: "It gives them more energy and helps them perform better in school",
-          alternativeAnswers: ["More energy and better in school"],
-          explanation: "السطر الثاني: اللياقة تمنح طاقة وتساعد على الأداء الأفضل في المدرسة.",
-          maxScore: 4
+          correctAnswer: "He lives in Basra.",
+          explanation: "مذكور في السطر الأول: Salem is a thirteen-year-old Iraqi boy who lives in Basra.",
+          maxScore: 3
         },
         {
           id: "2nd-mock-q1-2",
           number: 2,
-          questionText: "What bad habits do many students have nowadays?",
-          type: "text",
-          correctAnswer: "Sitting too long playing video games and eating junk food",
-          alternativeAnswers: ["Playing video games and junk food"],
-          explanation: "الجلوس طويلاً أمام ألعاب الفيديو وتناول الطعام غير الصحي.",
-          maxScore: 4
+          questionText: "What does Salem want to be in the future?",
+          type: "choice",
+          options: ["A marine biologist", "A mechanic", "A pilot"],
+          correctAnswer: "A marine biologist",
+          explanation: "Salem wants to be a marine biologist in the future.",
+          maxScore: 3
         },
         {
           id: "2nd-mock-q1-3",
           number: 3,
-          questionText: "How long should students exercise every day according to Iraqi doctors?",
+          questionText: "What animal did Salem's team write an article about?",
           type: "text",
-          correctAnswer: "At least 45 minutes every day",
-          alternativeAnswers: ["45 minutes every day", "45 minutes"],
-          explanation: "45 دقيقة يومياً على الأقل.",
-          maxScore: 4
+          correctAnswer: "The endangered dugong in the Gulf.",
+          explanation: "كتبوا عن حيوان بقر البحر المهدد بالانقراض (the endangered dugong).",
+          maxScore: 3
         },
         {
           id: "2nd-mock-q1-4",
           number: 4,
-          questionText: "You must join an expensive gym to get fit. (True / False)",
+          questionText: "Salem helps clean the shores every ______ (Friday / Sunday / Monday).",
           type: "choice",
-          options: ["True", "False"],
-          correctAnswer: "False",
-          explanation: "النص يقول: You don't have to join an expensive gym.",
-          maxScore: 4
+          options: ["Friday", "Sunday", "Monday"],
+          correctAnswer: "Friday",
+          explanation: "Every Friday, Salem helps clean the shores.",
+          maxScore: 3
         },
         {
           id: "2nd-mock-q1-5",
           number: 5,
-          questionText: "Give two easy ways mentioned in the text to stay healthy without a gym.",
-          type: "text",
-          correctAnswer: "Walking to school and playing football",
-          alternativeAnswers: ["Riding a bicycle and walking", "Playing football"],
-          explanation: "المشي إلى المدرسة أو لعب كرة القدم في المتنزه.",
-          maxScore: 4
+          questionText: "Salem is fourteen years old. (True / False)",
+          type: "choice",
+          options: ["False", "True"],
+          correctAnswer: "False",
+          explanation: "عمره 13 سنة (thirteen-year-old) وليس 14.",
+          maxScore: 3
         }
       ]
     },
@@ -884,29 +1276,29 @@ export const SECOND_INTERMEDIATE_MOCK_PAPER: MockExamPaper = {
       id: "sec-2",
       sectionCode: "Q2",
       titleAr: "السؤال الثاني: القواعد والوظائف اللغوية",
-      titleEn: "Question 2: Grammar & Functions",
-      instructionsAr: "اختر الجواب الصحيح أو أجب وفق ما هو مطلوب:",
-      instructionsEn: "Choose the correct option or do as required between brackets:",
+      titleEn: "Question 2: Grammar & Language Functions",
+      instructionsAr: "اختر الإجابة الصحيحة من بين الأقواس (25 درجة):",
+      instructionsEn: "Choose the correct answer between brackets (25 Marks):",
       totalMarks: 25,
       items: [
         {
           id: "2nd-mock-q2-1",
           number: 1,
-          questionText: "You ______ drink too much fizzy soda; it ruins your teeth. (should / shouldn't / can)",
+          questionText: "These are the ______ room keys. All five teachers use this room. (teachers' / teacher's / teachers)",
           type: "choice",
-          options: ["shouldn't", "should", "can"],
-          correctAnswer: "shouldn't",
-          explanation: "نصيحة تحذيرية بعدم الإكثار من المشروبات الغازية باستخدام shouldn't.",
+          options: ["teachers'", "teacher's", "teachers"],
+          correctAnswer: "teachers'",
+          explanation: "الحديث عن خمسة معلمين (جمع ينتهي بـ s)، فالفاصلة بعد الـ s: teachers'.",
           maxScore: 5
         },
         {
           id: "2nd-mock-q2-2",
           number: 2,
-          questionText: "The message ______ (send) by email yesterday. [Past Passive]",
+          questionText: "The message ______ (send) by pigeon in the ancient world. [Past Passive]",
           type: "choice",
-          options: ["was sent", "is sent", "sent"],
+          options: ["was sent", "is sent", "sent", "were sent"],
           correctAnswer: "was sent",
-          explanation: "ماضٍ بسيط مبني للمجهول للمفرد was + sent.",
+          explanation: "ماضٍ بسيط مبني للمجهول لاسم مفرد (message) -> was + sent.",
           maxScore: 5
         },
         {
@@ -922,21 +1314,21 @@ export const SECOND_INTERMEDIATE_MOCK_PAPER: MockExamPaper = {
         {
           id: "2nd-mock-q2-4",
           number: 4,
-          questionText: "An engineer is a person ______ builds bridges and roads. (who / which / whose)",
+          questionText: "An architect is a person ______ designs bridges and buildings. (who / which / whose)",
           type: "choice",
           options: ["who", "which", "whose"],
           correctAnswer: "who",
-          explanation: "المهندس شخص عاقل يأخذ ضمير الوصل who.",
+          explanation: "المهندس المعماري شخص عاقل يأخذ ضمير الوصل who.",
           maxScore: 5
         },
         {
           id: "2nd-mock-q2-5",
           number: 5,
-          questionText: "If it rains tomorrow, we ______ (stay) at home. [First Conditional]",
+          questionText: "If we recycle paper and plastic, we ______ (save) the environment. [First Conditional]",
           type: "choice",
-          options: ["will stay", "stayed", "would stay"],
-          correctAnswer: "will stay",
-          explanation: "حالة شرطية أولى: جواب الشرط يكون will stay.",
+          options: ["will save", "saved", "would save", "saves"],
+          correctAnswer: "will save",
+          explanation: "حالة شرطية أولى: جملة فعل الشرط مضارع (recycle)، لذا جواب الشرط يكون will save.",
           maxScore: 5
         }
       ]
@@ -946,8 +1338,8 @@ export const SECOND_INTERMEDIATE_MOCK_PAPER: MockExamPaper = {
       sectionCode: "Q3",
       titleAr: "السؤال الثالث: المفردات والتنقيط والإملاء",
       titleEn: "Question 3: Vocabulary & Spelling",
-      instructionsAr: "أجب عن فروع المفردات والإملاء:",
-      instructionsEn: "Answer the vocabulary and spelling questions:",
+      instructionsAr: "أجب عن فروع المفردات والتنقيط والإملاء (20 درجة):",
+      instructionsEn: "Answer the vocabulary and spelling questions (20 Marks):",
       totalMarks: 20,
       items: [
         {
@@ -957,7 +1349,7 @@ export const SECOND_INTERMEDIATE_MOCK_PAPER: MockExamPaper = {
           type: "choice",
           options: ["karate", "football", "swimming"],
           correctAnswer: "karate",
-          explanation: "الفنون القتالية الفردية كاراتيه تأخذ الفعل do.",
+          explanation: "الفنون القتالية الفردية karate تأخذ الفعل do.",
           maxScore: 5
         },
         {
@@ -992,48 +1384,44 @@ export const SECOND_INTERMEDIATE_MOCK_PAPER: MockExamPaper = {
     {
       id: "sec-4",
       sectionCode: "Q4",
-      titleAr: "السؤال الرابع: قصص المطالعة (Story Time: بوب وباسم)",
-      titleEn: "Question 4: Story Time (Bob & Basim)",
-      instructionsAr: "أجب عن الأسئلة الخاصة بقصص بوب وباسم في أستراليا:",
-      instructionsEn: "Answer the questions about the story of Bob and Basim:",
+      titleAr: "السؤال الرابع: قصص المطالعة المقررة (Story Time: Bob and Basim)",
+      titleEn: "Question 4: Story Time (Bob & Basim in Australia)",
+      instructionsAr: "أجب عن الأسئلة الخاصة بقصص بوب وباسم (15 درجة):",
+      instructionsEn: "Answer the questions about the story of Bob and Basim (15 Marks):",
       totalMarks: 15,
       items: [
         {
           id: "2nd-mock-q4-1",
           number: 1,
-          questionText: "What camp were Bob and Basim attending in Australia?",
+          questionText: "Where did the World Youth Camp take place?",
           type: "choice",
-          options: ["The World Youth Camp", "A music camp", "A football camp"],
-          correctAnswer: "The World Youth Camp",
-          explanation: "المخيم الكشفي العالمي للشباب (World Youth Camp).",
+          options: ["In Australia", "In Iraq", "In Canada"],
+          correctAnswer: "In Australia",
+          explanation: "المخيم الكشفي العالمي أقيم في أستراليا (In Australia).",
           maxScore: 5
         },
         {
           id: "2nd-mock-q4-2",
           number: 2,
-          questionText: "What is Bob's famous repeated question whenever an accident happens?",
+          questionText: "What is Bob's famous question whenever an accident happens?",
           type: "choice",
           options: [
             "'Why do these things always happen to me?'",
-            "'Where is my money?'",
-            "'What time is the bus?'"
+            "'Where is my tent?'",
+            "'What time is breakfast?'"
           ],
           correctAnswer: "'Why do these things always happen to me?'",
-          explanation: "عبارته الشهيرة: لماذا تحدث هذه الأشياء معي دائماً؟",
+          explanation: "عبارة بوب الشهيرة: لماذا تحدث هذه الأشياء معي دائماً؟",
           maxScore: 5
         },
         {
           id: "2nd-mock-q4-3",
           number: 3,
-          questionText: "In the Ice Cream story, what happened to Bob's 5-scoop ice cream?",
+          questionText: "In the Ice Cream story, how many scoops did Bob buy?",
           type: "choice",
-          options: [
-            "It spilt all over his clothes and face",
-            "A dog ate it",
-            "He gave it to Basim"
-          ],
-          correctAnswer: "It spilt all over his clothes and face",
-          explanation: "انسكب الآيس كريم بالكامل على ملابسه ووجهه.",
+          options: ["Five scoops", "Two scoops", "One scoop"],
+          correctAnswer: "Five scoops",
+          explanation: "اشترى بوب مخروطاً يحتوي على 5 كرات بنكهات مختلفة.",
           maxScore: 5
         }
       ]
@@ -1045,10 +1433,10 @@ export const SECOND_INTERMEDIATE_MOCK_PAPER: MockExamPaper = {
       optionLetter: "A",
       titleEn: "How to Keep Fit and Healthy",
       titleAr: "كيف تحافظ على صحتك ولياقتك (الوحدة الثانية)",
-      prompt: "Write a short article for your school magazine about how teenagers can stay fit and healthy.",
-      suggestedModel: "Fitness and good health are essential for every student to study effectively. To stay healthy, you should eat balanced meals with fresh fruit and vegetables. Avoid eating too much junk food and sugary soda. Doing regular exercise like swimming or jogging strengthens your heart and boosts your energy. Finally, get eight hours of restful sleep every night.",
-      keywords: ["fitness", "balanced meals", "junk food", "regular exercise", "restful sleep"],
-      maxScore: 20
+      prompt: "Write a short article for your school magazine advising teenagers how to keep fit and healthy.",
+      suggestedModel: "Physical fitness and good health are essential for every teenager to succeed in school and enjoy daily life. To keep fit, you should eat balanced meals rich in vegetables and fresh fruits. Avoid eating too much sugar, salt, and oily junk food. Doing regular exercise like swimming or jogging for thirty minutes daily strengthens your heart and boosts your energy. Finally, get eight hours of restful sleep every night.",
+      keywords: ["physical fitness", "balanced meals", "junk food", "regular exercise", "restful sleep"],
+      maxScore: 25
     },
     {
       id: "2nd-essay-opt-b",
@@ -1056,9 +1444,9 @@ export const SECOND_INTERMEDIATE_MOCK_PAPER: MockExamPaper = {
       titleEn: "My Future Career: A Doctor",
       titleAr: "مهنتي المستقبلية: طبيب (الوحدة السادسة)",
       prompt: "Write a paragraph about a career you would like to have in the future and explain why.",
-      suggestedModel: "When I finish school, I am going to be a doctor because I want to heal sick people and serve Iraq. Doctors work in hospitals, examining patients and prescribing medicine. It requires being patient and studying hard at medical college. I believe medicine is a noble mission that brings smiles to people's faces.",
+      suggestedModel: "When I finish school, I am going to study medicine and become a dedicated doctor because I want to heal sick people and serve my beloved country, Iraq. Doctors work hard in hospitals, examining patients, diagnosing diseases, and prescribing medicine. It requires being patient, compassionate, and studying diligently. I believe medicine is a noble mission that brings smiles and hope to everyone.",
       keywords: ["doctor", "hospitals", "patients", "medicine", "noble mission"],
-      maxScore: 20
+      maxScore: 25
     }
   ]
 };

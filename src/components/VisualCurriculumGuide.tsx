@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Sparkles, BookOpen, Compass, Award, CheckCircle2, Lightbulb, 
   Layers, FileText, Bookmark, Target, ArrowRight, Zap, Eye, 
-  HelpCircle, BookMarked, Brain, ShieldAlert
+  HelpCircle, BookMarked, Brain, ShieldAlert, Calendar
 } from 'lucide-react';
 import { EducationalGrade } from '../types';
 import { getGradeMeta, getUnitsForGrade, getStoriesForGrade, getEssaysForGrade } from '../data/gradeContentResolver';
@@ -25,32 +25,30 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
   const [activeTab, setActiveTab] = useState<'units' | 'grammar' | 'literature' | 'exam'>('units');
 
   return (
-    <div className="space-y-8 bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl relative overflow-hidden">
-      {/* Background glow effects */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
-
+    <div className="space-y-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xs relative">
       {/* Header */}
-      <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-bold mb-2">
-            <Brain className="w-4 h-4 text-indigo-400" />
-            <span>الشرح الصوري والتفاعلي المخصص • المنهج العراقي الرسمي</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            الدليل البصري الشامل لصف: <span className="text-amber-400">{gradeMeta.nameAr}</span>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+        <div className="space-y-1.5">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            الدليل البصري والشرح التفاعلي · {gradeMeta.nameAr}
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm mt-1">
-            {gradeMeta.description} • إشراف الأستاذ مصطفى تركي
-          </p>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <span>المرحلة: {gradeMeta.stageAr}</span>
+            <span aria-hidden="true">·</span>
+            <span>الفئة العمرية: {gradeMeta.ageRangeAr}</span>
+            <span aria-hidden="true">·</span>
+            <span>المنهج العراقي الرسمي</span>
+            <span aria-hidden="true">·</span>
+            <span>إشراف الأستاذ مصطفى تركي</span>
+          </div>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex flex-wrap gap-1.5 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
+        <div className="flex flex-wrap gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl">
           <button
             onClick={() => setActiveTab('units')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'units' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'units' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -58,8 +56,8 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('grammar')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'grammar' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'grammar' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Lightbulb className="w-3.5 h-3.5" />
@@ -67,8 +65,8 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('literature')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'literature' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'literature' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <BookMarked className="w-3.5 h-3.5" />
@@ -76,8 +74,8 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('exam')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'exam' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'exam' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Award className="w-3.5 h-3.5" />

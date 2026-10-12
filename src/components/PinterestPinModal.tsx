@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   X, Bookmark, Heart, Share2, Sparkles, Award, CheckCircle2, 
-  BookOpen, HelpCircle, ArrowLeft, Send, MessageCircle, AlertTriangle, Shield
+  BookOpen, HelpCircle, ArrowLeft, AlertTriangle, Shield
 } from 'lucide-react';
 import { Lesson, MinisterialExamQuestion, Unit } from '../types';
 import { triggerCelebration } from '../utils/storage';
@@ -45,12 +45,6 @@ export const PinterestPinModal: React.FC<PinterestPinModalProps> = ({
   const [likesCount, setLikesCount] = useState(pin.likesCount);
   const [selectedBoard, setSelectedBoard] = useState('قواعد وزارية مهمة');
   const [showBoardDropdown, setShowBoardDropdown] = useState(false);
-  const [commentText, setCommentText] = useState('');
-  const [comments, setComments] = useState<string[]>([
-    'شرح رائع جداً أستاذ مصطفى، وضح الفكرة تماماً!',
-    'هذه القاعدة تكررت في وزاري 2024 و 2025.',
-    'تم الحفظ في لوحة المراجعة المركزة.'
-  ]);
 
   const handleLike = () => {
     if (!liked) {
@@ -67,13 +61,6 @@ export const PinterestPinModal: React.FC<PinterestPinModalProps> = ({
     setSaved(!saved);
     onSaveToBoard(pin.id, selectedBoard);
     triggerCelebration();
-  };
-
-  const handleAddComment = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!commentText.trim()) return;
-    setComments([commentText, ...comments]);
-    setCommentText('');
   };
 
   return (
@@ -244,42 +231,6 @@ export const PinterestPinModal: React.FC<PinterestPinModalProps> = ({
                 </div>
               </div>
             )}
-
-            {/* Comments & Discussion */}
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-                <MessageCircle className="w-4 h-4 text-indigo-500" />
-                <span>تعليقات ونقاشات الطلبة ({comments.length})</span>
-              </div>
-
-              <form onSubmit={handleAddComment} className="flex gap-2">
-                <input
-                  type="text"
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="أضف ملاحظتك أو سؤالك حول هذا البن..."
-                  className="flex-1 px-4 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1 cursor-pointer shadow-md shadow-indigo-600/20"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>إرسال</span>
-                </button>
-              </form>
-
-              <div className="space-y-2 max-h-40 overflow-y-auto">
-                {comments.map((c, idx) => (
-                  <div key={idx} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-xs text-slate-700 dark:text-slate-300 flex items-start gap-2">
-                    <span className="w-5 h-5 rounded-full bg-indigo-500 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                      ط
-                    </span>
-                    <span className="leading-relaxed">{c}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
 
           </div>
 
