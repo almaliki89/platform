@@ -382,9 +382,12 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
             const displayKeyGrammar = (isSixth && meta.keyGrammar && meta.keyGrammar.length > 0)
               ? meta.keyGrammar
               : (grammarLessons.length > 0 ? grammarLessons.map(l => l.titleEn || l.titleAr).slice(0, 4) : unit.lessons.slice(0, 3).map(l => l.titleEn || l.titleAr));
+            const readingLessons = unit.lessons.filter(l => l.category === 'reading');
             const displayReadingPassages = (isSixth && meta.readingPassages && meta.readingPassages.length > 0)
               ? meta.readingPassages
-              : (vocabLessons.length > 0 ? vocabLessons.map(l => l.titleAr).slice(0, 2) : []);
+              : (readingLessons.length > 0
+                  ? readingLessons.map(l => l.titleAr).slice(0, 2)
+                  : (vocabLessons.length > 0 ? vocabLessons.map(l => l.titleAr).slice(0, 2) : []));
 
             return (
               <div
@@ -651,7 +654,7 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
 
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
                       <div className="flex flex-wrap gap-1.5">
-                        {meta.keyGrammar.slice(0, 3).map((g, gi) => (
+                        {((studentState.selectedGrade || 'sixth-preparatory') === 'sixth-preparatory' ? meta.keyGrammar : unit.lessons.map(l => l.titleAr)).slice(0, 3).map((g, gi) => (
                           <span key={gi} className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md">
                             {g}
                           </span>

@@ -4,8 +4,7 @@ import {
   FolderPlus, Layers, FileText
 } from 'lucide-react';
 import { EducationalGrade, Lesson } from '../types';
-import { getUnitsForGrade, getGradeMeta } from '../data/gradeContentResolver';
-import { MINISTERIAL_QUESTIONS } from '../data/ministerialQuestions';
+import { getUnitsForGrade, getGradeMeta, getQuestionsForGrade } from '../data/gradeContentResolver';
 import { PinterestPinModal, PinItem } from './PinterestPinModal';
 
 interface PinterestPlatformFeedProps {
@@ -65,15 +64,16 @@ export const PinterestPlatformFeed: React.FC<PinterestPlatformFeedProps> = ({
     });
   });
 
-  // 2. Ministerial Questions
-  MINISTERIAL_QUESTIONS.forEach((mq, qIdx) => {
+  // 2. Grade Questions & Ministerial Practice
+  const gradeQuestions = getQuestionsForGrade(selectedGrade);
+  gradeQuestions.forEach((mq, qIdx) => {
     pinsList.push({
       id: `mq-${mq.id}`,
-      title: `سؤال وزاري (${mq.year} - ${mq.session})`,
+      title: `سؤال امتحاني وزاري (${mq.year} - ${mq.session})`,
       subtitle: mq.topic,
       category: 'ministerial',
-      grade: 'السادس الإعدادي / الثالث المتوسط',
-      unitTitle: `الوحدة ${mq.unitId} · بنك الوزاريات 2020-2026`,
+      grade: gradeMeta.nameAr,
+      unitTitle: `الوحدة ${mq.unitId} · ${gradeMeta.nameAr}`,
       contentSummary: mq.questionText,
       detailedNotes: [
         `السؤال: ${mq.questionText}`,
@@ -81,7 +81,7 @@ export const PinterestPlatformFeed: React.FC<PinterestPlatformFeedProps> = ({
         `التوضيح القاعدي: ${mq.ruleExplanation}`
       ],
       teacherTips: [
-        `سؤال وزاري تم اعتماده في سنة ${mq.year} (${mq.session}).`,
+        `سؤال معتمد في منهج ${gradeMeta.nameAr} لسنة ${mq.year} (${mq.session}).`,
         `تحقق دائماً من مفاتيح الحل قبل الإجابة.`
       ],
       questionData: mq,

@@ -524,6 +524,44 @@ export const FIRST_INTERMEDIATE_UNITS: Unit[] = [
           }
         ]
       }
+    ,
+      {
+        id: "1st-u3-l3",
+        unitId: 13,
+        lessonNumber: 3,
+        titleAr: "الدرس الثالث: أدوات الربط والأنشطة والقصص (Joining Words & Great Activities)",
+        titleEn: "Lesson 3: Conjunctions (and, but, because, so, or) & Adventure Activities",
+        category: "grammar",
+        summary: "استخدام أدوات الربط (and, but, because, so, or) لربط الجمل المعبرة عن الهوايات والأنشطة اليومية في كتاب النشاط ص 24-28.",
+        grammarRuleFormula: "Conjunctions Rules:\n- and: إضافة معلومة متوافقة (I like tennis and football.)\n- but: إظهار التناقض (He is clever, but he is lazy.)\n- because: بيان السبب وراء الحدث (We stayed home because it was raining.)\n- so: بيان النتيجة المترتبة (It was raining, so we stayed home.)\n- or: التخيير بين أمرين (Would you like tea or coffee?)",
+        detailedContent: [
+          "تمرين كتاب النشاط ص 26: دمج جملتين بسيطتين لتكوين جملة مركبة باستخدام أدوات الربط.",
+          "التركيز على الفاصلة (comma) قبل but و so عند ربط جملتين كاملتين.",
+          "التعبير عن الأنشطة والمغامرات: climbing mountains, exploring caves, camping in the wild."
+        ],
+        teacherNotes: [
+          "ملاحظة الأستاذ مصطفى تركي: تذكر دائماً: because يأتي بعدها السبب (reason)، بينما so يأتي بعدها النتيجة (result)."
+        ],
+        examples: [
+          {
+            en: "Ali wanted to buy the new camera, but he did not have enough money.",
+            ar: "أراد علي شراء الكاميرا الجديدة، ولكنه لم يمتلك مالاً كافياً (تناقض).",
+            highlight: "but he did not have",
+            note: "ربط أداة but"
+          }
+        ],
+        exercises: [
+          {
+            id: "1u3-l3-ex1",
+            question: "I could not phone you ______ I lost my mobile phone.",
+            options: ["because", "so", "but", "and"],
+            correctAnswer: "because",
+            explanation: "فقدان الهاتف هو سبب عدم الاتصال، لذا نستخدم because.",
+            type: "mcq",
+            ministerialYear: "كتاب النشاط ص 26"
+          }
+        ]
+      }
     ]
   },
 
@@ -573,6 +611,80 @@ export const FIRST_INTERMEDIATE_UNITS: Unit[] = [
             explanation: "بعد has نستخدم التصريف الثالث broken.",
             type: "mcq",
             ministerialYear: "امتحان نصف السنة"
+          }
+        ]
+      },
+      {
+        id: "1st-u4-l2",
+        unitId: 14,
+        lessonNumber: 2,
+        titleAr: "الدرس الثاني: مفردات الكورس الأول ونماذج أسئلة نصف السنة",
+        titleEn: "Lesson 2: Term 1 Vocabulary, Stories & Midterm Practice",
+        category: "vocabulary",
+        summary: "تجميع شامل لمفردات العطلات والأنشطة والطقس والأشهر، ومراجعة قصة ريتشارد في العراق وأسئلة نصف السنة الرسمية.",
+        grammarRuleFormula: "Key Vocabulary Recap:\n- scrapbook (دفتر القصاصات والصور)\n- ancient ruins (الآثار القديمة)\n- ordinal numbers (الأعداد الترتيبية: first, second, third)\n- seasons (spring, summer, autumn, winter)",
+        detailedContent: [
+          "مراجعة شاملة لجميع معاني الكلمات التي تأتي في سؤال الإسقاطات في امتحان نصف السنة.",
+          "تمرين كتاب النشاط حول ربط الكلمات بتعاريفها الصحيحة.",
+          "التركيز على قصة ريتشارد في العراق والأنشطة التي قام بها أثناء زيارته للبلاد."
+        ],
+        teacherNotes: [
+          "احفظ كتابة الأعداد الترتيبية: 1st (first), 2nd (second), 3rd (third), 4th (fourth)."
+        ],
+        examples: [
+          {
+            en: "Richard took lots of colourful photos and put them in his scrapbook.",
+            ar: "التقط ريتشارد الكثير من الصور الملونة ووضعها في دفتر قصاصاته.",
+            highlight: "scrapbook",
+            note: "مفردات الوحدة الأولى"
+          }
+        ],
+        exercises: [
+          {
+            id: "1u4-rev-ex2",
+            question: "A book with blank pages for sticking pictures is called a ______.",
+            options: ["scrapbook", "magazine", "dictionary", "novel"],
+            correctAnswer: "scrapbook",
+            explanation: "دفتر القصاصات ولصق الصور يسمى scrapbook.",
+            type: "mcq",
+            ministerialYear: "كتاب النشاط ص 8"
+          }
+        ]
+      }
+    ,
+      {
+        id: "1st-u4-l3",
+        unitId: 14,
+        lessonNumber: 3,
+        titleAr: "الدرس الثالث: قصة الكورس الأول ونموذج امتحان نصف السنة الشامل",
+        titleEn: "Lesson 3: The World Youth Camp Story & Comprehensive Midterm Blueprint",
+        category: "reading",
+        summary: "قصة مخيم الشباب العالمي (Bob and Basim) المقررة في الكورس الأول، ونموذج كامل لأسئلة امتحان نصف السنة للأول المتوسط.",
+        detailedContent: [
+          "قصة بوب وباسم: لقاء بوب وباسم في الطائرة المتجهة إلى أستراليا للمشاركة في مخيم الشباب العالمي.",
+          "حادثة حقيبة بوب الضائعة والمواقف الطريفة في المطار.",
+          "هيكل امتحان نصف السنة الرسمي للأول المتوسط (60 درجة تحول إلى 100):\n1. القطعة الاستيعابية (10 درجات)\n2. القواعد والوظائف (20 درجة)\n3. المفردات والتنقيط (15 درجة)\n4. قصة الكورس الأول (5 درجات)\n5. الإنشاء المنهجي (10 درجات)."
+        ],
+        teacherNotes: [
+          "احفظ أسئلة قصة بوب وباسم لأنها جزء أساسي وثابت في سؤال القصة (Story Time)."
+        ],
+        examples: [
+          {
+            en: "Where was the World Youth Camp held? It was held in Australia.",
+            ar: "أين أقيم مخيم الشباب العالمي؟ في أستراليا.",
+            highlight: "held in Australia",
+            note: "سؤال قصة مقرر"
+          }
+        ],
+        exercises: [
+          {
+            id: "1u4-l3-ex1",
+            question: "Where were Bob and Basim travelling to for the youth camp?",
+            options: ["Australia", "England", "Iraq", "France"],
+            correctAnswer: "Australia",
+            explanation: "كانا مسافرين إلى أستراليا (Australia).",
+            type: "mcq",
+            ministerialYear: "امتحان نصف السنة الرسمي"
           }
         ]
       }
@@ -725,6 +837,44 @@ export const FIRST_INTERMEDIATE_UNITS: Unit[] = [
           }
         ]
       }
+    ,
+      {
+        id: "1st-u5-l4",
+        unitId: 15,
+        lessonNumber: 4,
+        titleAr: "الدرس الرابع: استيعاب قراءة البلدان وبنك الأسئلة الامتحانية",
+        titleEn: "Lesson 4: Countries Reading Dossier & Question Bank (India, Oman, Japan, France)",
+        category: "reading",
+        summary: "جدول المقارنة وحقائق البلدان الأربعة (الهند، عمان، فرنسا، اليابان) في كتاب الطالب، والزراعة والصناعة وأسئلة الصح والخطأ.",
+        detailedContent: [
+          "الهند (India): دولة ضخمة يبلغ عدد سكانها مليار نسمة، تشتهر بزراعة الشاي والأرز والبهارات وصناعة السيارات والقطارات.",
+          "عمان (Oman): تشتهر بصناعة المجوهرات الفضية واللبان وصيد الأسماك والقلاع التاريخية.",
+          "اليابان (Japan): تشتهر بالصناعات التكنولوجية المتطورة (سيارات، أجهزة إلكترونية، حواسيب).",
+          "فرنسا (France): تشتهر بالموضة والعطور وزراعة العنب والمتاحف العالمية مثل متحف اللوفر."
+        ],
+        teacherNotes: [
+          "احفظ المنتجات الزراعية والصناعية لكل بلد لأنها تأتي في أسئلة (True / False) والإسقاطات."
+        ],
+        examples: [
+          {
+            en: "Which country is famous for growing tea and making cars? India.",
+            ar: "أي بلد يشتهر بزراعة الشاي وصناعة السيارات؟ الهند.",
+            highlight: "growing tea and making cars",
+            note: "حقائق البلدان"
+          }
+        ],
+        exercises: [
+          {
+            id: "1u5-l4-ex1",
+            question: "Oman is famous for its ancient forts and beautiful ______ jewellery.",
+            options: ["silver", "plastic", "wooden", "iron"],
+            correctAnswer: "silver",
+            explanation: "تشتهر سلطنة عمان بصياغة المجوهرات الفضية (silver jewellery).",
+            type: "mcq",
+            ministerialYear: "كتاب الطالب ص 38"
+          }
+        ]
+      }
     ]
   },
 
@@ -849,6 +999,44 @@ export const FIRST_INTERMEDIATE_UNITS: Unit[] = [
           }
         ]
       }
+    ,
+      {
+        id: "1st-u6-l4",
+        unitId: 16,
+        lessonNumber: 4,
+        titleAr: "الدرس الرابع: كتابة رسالة إلى صديق المراسلة وتكوين الأسئلة",
+        titleEn: "Lesson 4: Letter Writing to a Penfriend & Question Formation",
+        category: "vocabulary",
+        summary: "خطوات كتابة رسالة شخصية إلى صديق المراسلة (العنوان، التحية، المقدمة، الخاتمة)، وتدريبات كتاب النشاط ص 80-84.",
+        grammarRuleFormula: "Informal Letter Structure:\n1. Sender Address & Date (Top Right)\n2. Salutation: Dear Yuki,\n3. Opening: Thank you for your letter...\n4. Body: Talking about life in Iraq and school...\n5. Sign-off: Best wishes, / Yours, + Name",
+        detailedContent: [
+          "كيفية كتابة إنشاء الوحدة السادسة المعتمد في المنهاج (A letter to a penfriend).",
+          "تكوين الأسئلة للسؤال عن الهوايات والطقس والمدارس: What is your school like? What do you do in your free time?",
+          "قواعد كتابة العنوان وتنسيق الفقرات في الرسائل غير الرسمية."
+        ],
+        teacherNotes: [
+          "احفظ شكل الرسالة وترتيب العنوان والتاريخ في أعلى اليمين لأن له درجات محددة في سلم تصحيح الإنشاء."
+        ],
+        examples: [
+          {
+            en: "Dear Yuki, I was very glad to receive your interesting letter about Japan.",
+            ar: "عزيزي يوكي، لقد سررت جداً باستلام رسالتك الممتعة حول اليابان.",
+            highlight: "Dear Yuki ... glad to receive",
+            note: "مقدمة رسالة نموذجية"
+          }
+        ],
+        exercises: [
+          {
+            id: "1u6-l4-ex1",
+            question: "In an informal letter, we usually start with ______ followed by the friend's first name.",
+            options: ["Dear", "Yours faithfully", "To whom it may concern", "Sir"],
+            correctAnswer: "Dear",
+            explanation: "في الرسائل غير الرسمية للأصدقاء نبدأ دائماً بـ Dear.",
+            type: "mcq",
+            ministerialYear: "كتاب النشاط ص 82"
+          }
+        ]
+      }
     ]
   },
 
@@ -966,6 +1154,43 @@ export const FIRST_INTERMEDIATE_UNITS: Unit[] = [
           }
         ]
       }
+    ,
+      {
+        id: "1st-u7-l3",
+        unitId: 17,
+        lessonNumber: 3,
+        titleAr: "الدرس الثالث: إشارات التحذير والسلامة المنزلية (Warning Signs & Safety at Home)",
+        titleEn: "Lesson 3: Safety at Home, Warning Signs & Fire Prevention",
+        category: "reading",
+        summary: "قواعد السلامة في المطبخ وغرفة المعيشة، معاني لافتات التحذير، وتجنب الحوادث والحرائق في كتاب الطالب والنشاط.",
+        detailedContent: [
+          "قواعد السلامة للأطفال: إبعاد علب الكبريت والأدوية والمواد المنظفة عن متناول الأطفال (Keep medicines out of reach).",
+          "السلامة في المطبخ: عدم لمس المقالي الساخنة وعدم ترك السكاكين الحادة على حافة الطاولة.",
+          "معاني إشارات التحذير: Danger (خطر), Do not touch (لا تلمس), Poisonous (سام)."
+        ],
+        teacherNotes: [
+          "هذه القواعد تستخدم صيغة الأمر والنهي (Imperatives): Don't play with matches! Keep scissors away from children!"
+        ],
+        examples: [
+          {
+            en: "Always keep hot saucepans away from the edge of the cooker.",
+            ar: "احرص دائماً على إبعاد القدور الساخنة عن حافة الطباخ.",
+            highlight: "keep away from the edge",
+            note: "قاعدة سلامة"
+          }
+        ],
+        exercises: [
+          {
+            id: "1u7-l3-ex1",
+            question: "Keep medicines out of the ______ of small children.",
+            options: ["reach", "sight", "room", "floor"],
+            correctAnswer: "reach",
+            explanation: "المصطلح المعتمد هو out of the reach of children (بعيداً عن متناول الأطفال).",
+            type: "mcq",
+            ministerialYear: "كتاب الطالب ص 68"
+          }
+        ]
+      }
     ]
   },
 
@@ -1016,6 +1241,81 @@ export const FIRST_INTERMEDIATE_UNITS: Unit[] = [
             explanation: "بعد Don't يأتي دائماً المصدر المجرد touch.",
             type: "mcq",
             ministerialYear: "امتحان نهاية السنة"
+          }
+        ]
+      },
+      {
+        id: "1st-u8-l2",
+        unitId: 18,
+        lessonNumber: 2,
+        titleAr: "الدرس الثاني: مفردات الكورس الثاني والإملاء والامتحان النهائي",
+        titleEn: "Lesson 2: Second Term Vocabulary, Spelling & Final Exam Readiness",
+        category: "spelling",
+        summary: "مراجعة شاملة لإملاء الكورس الثاني (إضافة er/est، تصاريف الأفعال الشاذة، الضمائر الانعكاسية) ونموذج الامتحان النهائي.",
+        grammarRuleFormula: "Spelling Checklist:\n- big -> bigger -> the biggest\n- easy -> easier -> the easiest\n- good -> better -> the best\n- bad -> worse -> the worst\n- myself, yourself, himself, herself, ourselves, themselves",
+        detailedContent: [
+          "مراجعة قواعد مضاعفة الحرف الصحيح الأخير عند إضافة er أو est إذا سبقه حرف علة واحد: hot -> hotter -> hottest.",
+          "قلب y إلى i عند الإضافة: happy -> happier -> happiest.",
+          "مراجعة الضمائر الانعكاسية المقررة في الوحدة السابعة وكيفية تحويل الفاعل إلى ضمير انعكاسي."
+        ],
+        teacherNotes: [
+          "احفظ تصاريف الأفعال الشاذة الشائعة: go -> went -> gone, see -> saw -> seen, write -> wrote -> written."
+        ],
+        examples: [
+          {
+            en: "Regular spelling practice guarantees the full 10 marks in the spelling question.",
+            ar: "الممارسة الإملائية المنتظمة تضمن درجات فرع الإملاء العشر كاملة.",
+            highlight: "spelling practice",
+            note: "أهمية الإملاء"
+          }
+        ],
+        exercises: [
+          {
+            id: "1u8-final-q2",
+            question: "good -> better ; bad -> ______ [Spelling / Irregular Comparative]",
+            options: ["worse", "badder", "worst", "baddest"],
+            correctAnswer: "worse",
+            explanation: "المقارنة الشاذة من الصفة bad هي worse.",
+            type: "mcq",
+            ministerialYear: "امتحان نهاية السنة"
+          }
+        ]
+      }
+    ,
+      {
+        id: "1st-u8-l3",
+        unitId: 18,
+        lessonNumber: 3,
+        titleAr: "الدرس الثالث: النموذج النهائي الشامل لامتحان نهاية السنة للأول المتوسط",
+        titleEn: "Lesson 3: Final Comprehensive Model Exam Paper & Revision Blueprint",
+        category: "spelling",
+        summary: "نموذج امتحاني شامل يحاكي أسئلة الدور الأول للعام الدراسي مع سلم الدرجات وتفكيك الفخاخ الإملائية والقواعدية.",
+        grammarRuleFormula: "Final Examination Paper Blueprint (100 Marks):\nQ1. Reading Comprehension (Unseen & Textbook Texts - 20 Marks)\nQ2. Grammar & Linguistic Functions (30 Marks)\nQ3. Vocabulary, Collocations & Spelling (20 Marks)\nQ4. Story Time: Bob & Basim (10 Marks)\nQ5. Written Composition: Letter or Holiday (20 Marks)",
+        detailedContent: [
+          "مراجعة شاملة لجميع صيغ الأسئلة المعتمدة في امتحانات مديريات التربية لصف الأول المتوسط.",
+          "تجميع قواعد التنقيط: الحروف الكبيرة، علامات الاستفهام، والنقاط والفواصل.",
+          "جدول الأفعال الشاذة الأكثر تكراراً في السؤال الثالث فرع الإملاء (see -> saw, go -> went, eat -> ate)."
+        ],
+        teacherNotes: [
+          "تأكد من مراجعة إملاء الأفعال الشاذة وإس التملك وصفات المقارنة (bigger, happier, more beautiful)."
+        ],
+        examples: [
+          {
+            en: "Comprehensive revision guarantees full marks and top academic performance.",
+            ar: "المراجعة الشاملة تضمن الدرجات الكاملة والتفوق الأكاديمي.",
+            highlight: "comprehensive revision",
+            note: "توجيه تفوق"
+          }
+        ],
+        exercises: [
+          {
+            id: "1u8-l3-ex1",
+            question: "Spelling: small -> smaller ; easy -> ______",
+            options: ["easier", "easyer", "more easy", "easiest"],
+            correctAnswer: "easier",
+            explanation: "الصفة المنتهية بـ y وقبلها حرف صحيح يقلب y إلى i ونضيف er: easier.",
+            type: "mcq",
+            ministerialYear: "امتحان الدور الأول"
           }
         ]
       }
