@@ -67,7 +67,7 @@ export const PinterestPlatformFeed: React.FC<PinterestPlatformFeedProps> = ({
   gradeQuestions.forEach((mq, qIdx) => {
     pinsList.push({
       id: `mq-${mq.id}`,
-      title: `سؤال من بنك ${gradeMeta.shortName} (${mq.year} - ${mq.session})`,
+      title: `تدريب: ${mq.topic}`,
       subtitle: mq.topic,
       category: 'ministerial',
       grade: gradeMeta.nameAr,
@@ -79,7 +79,7 @@ export const PinterestPlatformFeed: React.FC<PinterestPlatformFeedProps> = ({
         `التوضيح القاعدي: ${mq.ruleExplanation}`
       ],
       teacherTips: [
-        `سؤال ضمن بنك الأسئلة المعروض لصف ${gradeMeta.nameAr}.`,
+        `سؤال تدريبي ضمن المحتوى المعروض لصف ${gradeMeta.nameAr}.`,
         `تحقق دائماً من مفاتيح الحل قبل الإجابة.`
       ],
       questionData: mq,
