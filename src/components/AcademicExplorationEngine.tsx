@@ -105,7 +105,7 @@ export const AcademicExplorationEngine: React.FC<AcademicExplorationEngineProps>
       stepNumber: '03',
       title: 'التحويل والصياغة الإملائية الدقيقة',
       desc: 'كتابة الفعل بالشكل الصحيح مع تصريف الأفعال الشاذة وعلامات الترقيم.',
-      tip: 'تأكد من كتابة كل حرف بدقة لضمان الدرجة الكاملة.'
+      tip: 'تأكد من كتابة كل حرف بدقة قبل تسليم الإجابة.'
     },
     {
       stepNumber: '04',
@@ -514,7 +514,7 @@ export const AcademicExplorationEngine: React.FC<AcademicExplorationEngineProps>
                 خوارزمية التفكير للحل النموذجي بالدفتر الامتحاني
               </h3>
             </div>
-            <span className="text-xs text-slate-500">4 خطوات ذهبية لضمان الدرجة الكاملة</span>
+            <span className="text-xs text-slate-500">4 خطوات لمراجعة الإجابة بدقة</span>
           </div>
 
           {/* Stepper Interactive Timeline */}
