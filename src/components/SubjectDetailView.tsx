@@ -59,7 +59,7 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
   };
 
   return (
-    <div className="space-y-8 pb-20 max-w-7xl mx-auto w-full">
+    <div className="omega-module space-y-8 pb-20 max-w-7xl mx-auto w-full">
       {/* Subject Header Banner */}
       <div
         className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${subject.theme.gradient} text-white p-6 sm:p-10 shadow-xl`}
