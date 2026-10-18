@@ -195,7 +195,7 @@ export const PinterestPinModal: React.FC<PinterestPinModalProps> = ({
               <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 space-y-2">
                 <div className="flex items-center gap-2 text-rose-800 dark:text-rose-400 font-black text-xs">
                   <AlertTriangle className="w-4 h-4" />
-                  <span>فخوخ وزارية احذر منها ⚠️</span>
+                  <span>أخطاء شائعة انتبه لها</span>
                 </div>
                 <ul className="space-y-1.5">
                   {pin.commonMistakes.map((mistake, idx) => (
