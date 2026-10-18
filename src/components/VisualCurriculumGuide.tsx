@@ -25,7 +25,7 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
   const [activeTab, setActiveTab] = useState<'units' | 'grammar' | 'literature' | 'exam'>('units');
 
   return (
-    <div className="space-y-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xs relative">
+    <div className="omega-visual-guide space-y-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xs relative">
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div className="space-y-1.5">
@@ -154,13 +154,13 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
               <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
                 <div className="flex items-center gap-2 text-indigo-400 font-bold text-sm">
                   <Zap className="w-4 h-4" />
-                  <span>قاعدة الأزمنة والتكوين (Tenses Structure)</span>
+                  <span>القواعد الواردة في هذا الصف</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  يتم التركيز في منهج {gradeMeta.shortName} على إتقان التفرقة بين المضارع البسيط والمستمر، والماضي بنوعيه، مع التطبيق الوزاري المباشر.
+                  {units.flatMap((unit) => unit.lessons).filter((lesson) => lesson.category === 'grammar').slice(0, 3).map((lesson) => lesson.titleAr).join(' · ') || 'افتح الوحدات لاستعراض القواعد المتاحة لهذا الصف.'}
                 </p>
                 <div className="p-3 rounded-xl bg-slate-900 border border-indigo-500/20 text-xs font-mono text-amber-300">
-                  Subject + Auxiliary + Verb (Base/V2/V3) + Complement
+                  راجع القاعدة والأمثلة الخاصة بالدرس المختار.
                 </div>
               </div>
 
@@ -170,10 +170,10 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
                   <span>الأخطاء الشائعة في الامتحانات الوزارية</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  تجنب الأخطاء الإملائية الشائعة في إضافة (-ed) أو (-ing) والتصريفات الشاذة للأفعال مع مراعاة التنقيط السليم للجملة.
+                  أثناء الحل، راجع تركيب القاعدة كما ورد في الدرس، وترتيب الكلمات، والتهجئة وعلامات الترقيم.
                 </p>
                 <div className="p-3 rounded-xl bg-slate-900 border border-emerald-500/20 text-xs text-emerald-300">
-                  ✓ Always double-check punctuation marks (capital letters & full stops).
+                  ✓ Check the lesson examples before submitting your answer.
                 </div>
               </div>
             </div>
@@ -198,12 +198,12 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
                     <span className="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-bold">
                       {story.author || 'المنهج الوزاري'}
                     </span>
-                    <span className="text-xs text-amber-400 font-bold">وزاري مضمون</span>
+                    <span className="text-xs text-amber-400 font-bold">للمراجعة</span>
                   </div>
                   <h4 className="text-base font-bold text-white">{story.titleAr}</h4>
                   <p className="text-xs text-slate-400 font-english">{story.title}</p>
                   <p className="text-xs text-slate-300 leading-relaxed bg-slate-900 p-3 rounded-xl border border-slate-800">
-                    {story.summaryAr || 'قصة ومقال أدبي مقرر في الامتحان الوزاري مع الأسئلة والنموذج الإجابي.'}
+                    {story.summaryAr || 'ملخص ومراجعة للنص؛ راجع الكتاب المدرسي للتأكد من التفاصيل.'}
                   </p>
                 </div>
               ))}
@@ -217,7 +217,7 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-black text-amber-300 flex items-center gap-2">
                 <Award className="w-5 h-5" />
-                <span>هيكلية وتوزيع درجات الامتحان الوزاري (100 درجة كاملة)</span>
+                <span>خارطة المحتوى المتاح لهذا الصف</span>
               </h3>
               <span className="text-xs text-slate-400">{gradeMeta.nameAr}</span>
             </div>
@@ -251,7 +251,7 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
                 <Sparkles className="w-6 h-6 text-indigo-400 shrink-0" />
                 <div>
                   <p className="text-xs font-bold text-white">هل أنت مستعد لتجربة الامتحان التجريبي الكامل؟</p>
-                  <p className="text-[11px] text-slate-300">يحتوي المحاكي الوزاري على ورقة أسئلة متكاملة بمدة 100 دقيقة تماماً كالوزاري.</p>
+                  <p className="text-[11px] text-slate-300">تدرّب على الأسئلة المتاحة ثم راجع الإجابات ونقاط التحسين.</p>
                 </div>
               </div>
               {onNavigateTab && (
@@ -259,7 +259,7 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
                   onClick={() => onNavigateTab('mock')}
                   className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition-all cursor-pointer shrink-0"
                 >
-                  بدء المحاكي الآن
+                  بدء التدريب
                 </button>
               )}
             </div>
