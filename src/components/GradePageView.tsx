@@ -49,7 +49,7 @@ export const GradePageView: React.FC<GradePageViewProps> = ({
   const progressPct = allLessons.length > 0 ? Math.round((completedCount / allLessons.length) * 100) : 0;
 
   return (
-    <div className="space-y-6 pb-20 max-w-7xl mx-auto w-full min-w-0" dir="rtl">
+    <div className="omega-grade-page space-y-6 pb-20 max-w-7xl mx-auto w-full min-w-0" dir="rtl">
       
       {/* 1. Single Unified Editorial Header */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xs">
@@ -146,7 +146,7 @@ export const GradePageView: React.FC<GradePageViewProps> = ({
       </div>
 
       {/* 2. Structured Section Tabs (Replaces 4 vertical stacked sections) */}
-      <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl w-fit">
+      <div className="omega-tabbar flex flex-wrap items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl max-w-full">
         <button
           type="button"
           onClick={() => setActiveTab('units')}
@@ -188,6 +188,7 @@ export const GradePageView: React.FC<GradePageViewProps> = ({
       {activeTab === 'units' && (
         <div className="space-y-4">
           <CurriculumUnitsSection
+            grade={validGrade}
             studentState={studentState}
             units={units}
             onSelectUnit={onSelectUnit}
