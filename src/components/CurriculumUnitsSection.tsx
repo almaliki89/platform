@@ -5,11 +5,12 @@ import {
   ArrowRight, Award, Zap, CheckCircle, Clock, BookMarked,
   Brain, GraduationCap, LayoutGrid, ListTree, Flame, Check
 } from 'lucide-react';
-import { Unit, Lesson, StudentState } from '../types';
+import { Unit, Lesson, StudentState, EducationalGrade } from '../types';
 import { CURRICULUM_UNITS } from '../data/curriculumData';
 import { getEssaysForGrade, getGradeMeta } from '../data/gradeContentResolver';
 
 interface CurriculumUnitsSectionProps {
+  grade?: EducationalGrade;
   studentState: StudentState;
   onSelectUnit: (unit: Unit) => void;
   onSelectLesson: (lesson: Lesson) => void;
@@ -157,11 +158,13 @@ const UNIT_META: Record<number, UnitThematicMeta> = {
 };
 
 export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
+  grade,
   studentState,
   onSelectUnit,
   onSelectLesson,
   units = CURRICULUM_UNITS,
 }) => {
+  const currentGrade = grade || studentState.selectedGrade || 'sixth-preparatory';
   const [filterTerm, setFilterTerm] = useState<'all' | 'term1' | 'term2' | 'in_progress' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'roadmap'>('cards');
@@ -199,8 +202,8 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
       const isInProgress = completedCount > 0 && completedCount < unit.lessons.length;
 
       // Filter by term
-      if (filterTerm === 'term1' && meta?.term !== 1) return false;
-      if (filterTerm === 'term2' && meta?.term !== 2) return false;
+      if (currentGrade === 'sixth-preparatory' && filterTerm === 'term1' && meta?.term !== 1) return false;
+      if (currentGrade === 'sixth-preparatory' && filterTerm === 'term2' && meta?.term !== 2) return false;
       if (filterTerm === 'completed' && !isCompleted) return false;
       if (filterTerm === 'in_progress' && !isInProgress) return false;
 
@@ -218,13 +221,13 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
 
       return true;
     });
-  }, [filterTerm, searchQuery, studentState.completedLessonIds, units]);
+  }, [currentGrade, filterTerm, searchQuery, studentState.completedLessonIds, units]);
 
   // Overall statistics
   const totalUnits = units.length;
   const allLessons = units.flatMap(u => u.lessons);
-  const totalCompletedLessons = studentState.completedLessonIds.length;
-  const overallPercentage = allLessons.length > 0 ? Math.round((totalCompletedLessons / allLessons.length) * 100) : 0;
+  const totalCompletedLessons = allLessons.filter((lesson) => studentState.completedLessonIds.includes(lesson.id)).length;
+  const overallPercentage = allLessons.length > 0 ? Math.min(100, Math.round((totalCompletedLessons / allLessons.length) * 100)) : 0;
 
   return (
     <section id="curriculum-units-section" className="space-y-6 pt-2">
@@ -238,10 +241,10 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
             </span>
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                الوحدات الدراسية المقررة (Curriculum Units 1 - 8)
+                الوحدات الدراسية · {getGradeMeta(currentGrade).nameAr}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                منهاج الأستاذ مصطفى تركي 2027 • مرتبة حسب الأهمية الوزارية مع خطة الإتقان
+                {totalUnits} وحدة دراسية · اختر الوحدة والدرس لمتابعة تقدمك
               </p>
             </div>
           </div>
@@ -292,9 +295,11 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
         {/* Term Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
           {[
-            { id: 'all', label: 'جميع الوحدات (8)' },
-            { id: 'term1', label: 'الفصل الأول (U1-U4)' },
-            { id: 'term2', label: 'الفصل الثاني (U5-U8)' },
+            { id: 'all', label: 'جميع الوحدات (' + totalUnits + ')' },
+            ...(currentGrade === 'sixth-preparatory' ? [
+              { id: 'term1', label: 'الفصل الأول (U1-U4)' },
+              { id: 'term2', label: 'الفصل الثاني (U5-U8)' },
+            ] : []),
             { id: 'in_progress', label: 'قيد المتابعة' },
             { id: 'completed', label: 'المكتملة' },
           ].map((tab) => {
@@ -367,7 +372,6 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
               ? Math.round((completedInUnit / unit.lessons.length) * 100) 
               : 0;
             const isUnitFullyCompleted = progressRatio === 100;
-            const currentGrade = studentState.selectedGrade || 'sixth-preparatory';
             const allEssays = getEssaysForGrade(currentGrade);
             const unitEssays = allEssays.filter(e => e.unitId === unit.number);
             const isExpanded = !!expandedUnitIds[unit.number];
@@ -639,9 +643,7 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
                         </h3>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
-                          {meta.ministerialWeight}
-                        </span>
+                        {isSixth && <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">{meta.ministerialWeight}</span>}
                         <span className="text-xs font-bold text-slate-500">
                           {completedInUnit}/{unit.lessons.length} دروس
                         </span>
@@ -654,7 +656,7 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
 
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
                       <div className="flex flex-wrap gap-1.5">
-                        {((studentState.selectedGrade || 'sixth-preparatory') === 'sixth-preparatory' ? meta.keyGrammar : unit.lessons.map(l => l.titleAr)).slice(0, 3).map((g, gi) => (
+                        {(currentGrade === 'sixth-preparatory' ? meta.keyGrammar : unit.lessons.map(l => l.titleAr)).slice(0, 3).map((g, gi) => (
                           <span key={gi} className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md">
                             {g}
                           </span>
