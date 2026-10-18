@@ -421,10 +421,6 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
                     </div>
 
                     {/* Weight Badge */}
-                    {currentGrade === 'sixth-preparatory' && <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-800 text-[11px] font-black shrink-0">
-                      <Sparkles className="w-3 h-3 text-amber-500" />
-                      <span>{meta.ministerialWeight}</span>
-                    </div>}
 
                   </div>
 
@@ -607,7 +603,7 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
           <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 flex items-center justify-between text-xs text-indigo-900 font-semibold">
             <div className="flex items-center gap-2">
               <Compass className="w-4 h-4 text-indigo-600" />
-              <span>المسار التتابعي المنهجي: الوحدات مرتبة تسلسلياً لضمان تغطية المنهاج الوزاري خطوة بخطوة.</span>
+              <span>مسار دراسي يساعدك على متابعة وحدات الصف بالتسلسل.</span>
             </div>
           </div>
 
@@ -643,7 +639,6 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
                         </h3>
                       </div>
                       <div className="flex items-center gap-2">
-                        {isSixth && <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">{meta.ministerialWeight}</span>}
                         <span className="text-xs font-bold text-slate-500">
                           {completedInUnit}/{unit.lessons.length} دروس
                         </span>
