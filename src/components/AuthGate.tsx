@@ -133,7 +133,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccessfulAuth }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 overflow-x-hidden" dir="rtl">
+    <div className="omega-auth-page min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 overflow-x-hidden" dir="rtl">
       
       {/* Background Decorative Glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none max-w-full"></div>
@@ -145,7 +145,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccessfulAuth }) => {
           
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-indigo-200 text-xs font-bold backdrop-blur-md">
             <GraduationCap className="w-4 h-4 text-amber-300" />
-            <span>بوابة التسجيل الرسمية • العام الدراسي 2027</span>
+            <span>بوابة تسجيل الطالب • العام الدراسي 2027</span>
           </div>
 
           <div className="space-y-3">
@@ -153,7 +153,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccessfulAuth }) => {
               المنصة النموذجية في <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400">اللغة الإنكليزية</span>
             </h1>
             <p className="text-base sm:text-lg text-indigo-100/90 font-medium leading-relaxed max-w-xl mx-auto lg:mx-0">
-              إشراف وإعداد <span className="text-amber-300 font-bold">الأستاذ مصطفى تركي</span>. المنظومة الذكية الشاملة لضمان الدرجة الكاملة 100/100 وزارياً.
+              إشراف وإعداد <span className="text-amber-300 font-bold">الأستاذ مصطفى تركي</span>. مساحة تعليمية تفاعلية لمراجعة المنهج والتدرّب ومتابعة التقدّم خطوة بخطوة.
             </p>
           </div>
 
@@ -164,7 +164,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccessfulAuth }) => {
                 <Trophy className="w-5 h-5" />
               </div>
               <div className="text-right">
-                <h4 className="text-xs font-black text-white">محاكي الوزاري 100د</h4>
+                <h4 className="text-xs font-black text-white">محاكي الامتحان</h4>
                 <p className="text-[11px] text-indigo-200">تصحيح ذكي فوري</p>
               </div>
             </div>
