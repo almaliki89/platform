@@ -621,3 +621,19 @@ img, video, canvas, svg { max-width: 100%; }
   background-color: #111d30;
   border-color: #34455e;
 }
+
+
+.omega-app-shell {
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(51, 92, 255, .045), transparent 34rem),
+    radial-gradient(ellipse at 94% 16%, rgba(13, 148, 136, .04), transparent 30rem),
+    var(--omega-canvas);
+  color: var(--omega-ink);
+}
+.dark .omega-app-shell {
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(51, 92, 255, .11), transparent 34rem),
+    radial-gradient(ellipse at 94% 16%, rgba(13, 148, 136, .075), transparent 30rem),
+    var(--omega-canvas);
+  color: var(--omega-ink);
+}
