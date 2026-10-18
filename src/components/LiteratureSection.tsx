@@ -122,7 +122,7 @@ export const LiteratureSection: React.FC<LiteratureSectionProps> = ({
   const currentImageCaptionAr = activeLiterature.galleryImages?.[activeImageIdx]?.captionAr || activeLiterature.imageCaptionAr;
 
   return (
-    <div className="space-y-6 pb-24 max-w-6xl mx-auto px-2 sm:px-4">
+    <div className="omega-module space-y-6 pb-24 max-w-6xl mx-auto px-2 sm:px-4">
       
       {/* Header Banner with Ministerial Focus Badge */}
       <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-amber-950 via-stone-900 to-amber-900 text-white shadow-xl space-y-4 border border-amber-600/30 relative overflow-hidden">
