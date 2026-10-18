@@ -524,3 +524,49 @@ img, video, canvas, svg { max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
 }
+
+
+/* Shared component rules used by the learning, literature, quiz and study labs. */
+.omega-module { min-width: 0; }
+.omega-module h1, .omega-module h2, .omega-module h3 { text-wrap: balance; }
+.omega-module [class*="bg-white"][class*="border"][class*="rounded-2xl"],
+.omega-module [class*="bg-white"][class*="border"][class*="rounded-3xl"] {
+  border-color: #e1e8f2;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .045);
+}
+.omega-module input:not([type="checkbox"]):not([type="radio"]),
+.omega-module textarea,
+.omega-module select {
+  min-height: 2.7rem;
+}
+.omega-module button:focus-visible,
+.omega-module a:focus-visible {
+  outline-offset: 3px;
+}
+.omega-feed-page > :first-child {
+  background-image: linear-gradient(135deg, rgba(255,255,255,.99), rgba(247,250,255,.96));
+}
+.omega-feed-page .columns-1 > * {
+  break-inside: avoid;
+}
+.omega-grade-selector button { white-space: nowrap; }
+.omega-grade-page .omega-tabbar { overflow-x: auto; }
+.omega-lesson-page .omega-lesson-topbar { gap: .75rem; }
+.omega-lesson-page .omega-lesson-topbar > * { min-width: 0; }
+.omega-visual-guide { min-width: 0; overflow: hidden; }
+.omega-auth-page {
+  background:
+    radial-gradient(ellipse at 18% 15%, rgba(59,130,246,.22), transparent 30rem),
+    radial-gradient(ellipse at 88% 85%, rgba(20,184,166,.15), transparent 32rem),
+    linear-gradient(135deg, #0b1425 0%, #172647 55%, #103b42 100%) !important;
+}
+.omega-not-found { min-height: min(70vh, 780px); }
+@media (max-width: 680px) {
+  .omega-module { overflow-wrap: anywhere; }
+  .omega-module [class*="grid-cols-"] { min-width: 0; }
+  .omega-feed-page .columns-1 { columns: 1; }
+  .omega-feed-page .columns-2 { columns: 1; }
+  .omega-feed-page [class*="min-w-[260px]"] { min-width: 0; width: 100%; }
+  .omega-lesson-page .omega-lesson-topbar { align-items: stretch; }
+  .omega-grade-page .omega-tabbar { width: 100%; }
+}
