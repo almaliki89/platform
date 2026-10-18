@@ -37,7 +37,7 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
             <span aria-hidden="true">·</span>
             <span>الفئة العمرية: {gradeMeta.ageRangeAr}</span>
             <span aria-hidden="true">·</span>
-            <span>المنهج العراقي الرسمي</span>
+            <span>محتوى {gradeMeta.nameAr}</span>
             <span aria-hidden="true">·</span>
             <span>إشراف الأستاذ مصطفى تركي</span>
           </div>
@@ -147,7 +147,7 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
                 <Lightbulb className="w-5 h-5" />
                 <span>أبرز قواعد وبطاقات الشرح البصري لـ {gradeMeta.nameAr}</span>
               </h3>
-              <span className="text-xs text-slate-400">مبسطة بالأمثلة الوزارية</span>
+              <span className="text-xs text-slate-400">مبسطة بالأمثلة الواردة في الدروس</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -167,7 +167,7 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
               <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
                 <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>الأخطاء الشائعة في الامتحانات الوزارية</span>
+                  <span>الأخطاء الشائعة أثناء الحل</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
                   أثناء الحل، راجع تركيب القاعدة كما ورد في الدرس، وترتيب الكلمات، والتهجئة وعلامات الترقيم.
@@ -196,7 +196,7 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
                 <div key={story.id} className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-bold">
-                      {story.author || 'المنهج الوزاري'}
+                      {story.author || 'محتوى الصف'}
                     </span>
                     <span className="text-xs text-amber-400 font-bold">للمراجعة</span>
                   </div>
