@@ -15,7 +15,9 @@ jobs:
   validate:
     name: TypeScript, curriculum and production build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.playwright-browsers
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -25,9 +27,13 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
       - name: TypeScript check
         run: npm run lint
       - name: Verify curriculum data
         run: npm run test
       - name: Build application
         run: npm run build
+      - name: Run UI smoke tests
+        run: npm run test:e2e
