@@ -409,9 +409,9 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
                       <span className={`px-3 py-1.5 rounded-xl font-black text-xs shadow-xs ${meta.color.badge}`}>
                         الوحدة {unit.number}
                       </span>
-                      <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
+                      {currentGrade === 'sixth-preparatory' && <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
                         الفصل {meta.term === 1 ? 'الأول' : 'الثاني'}
-                      </span>
+                      </span>}
                       {isUnitFullyCompleted && (
                         <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
                           <CheckCircle className="w-3.5 h-3.5" />
@@ -421,10 +421,10 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
                     </div>
 
                     {/* Weight Badge */}
-                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-800 text-[11px] font-black shrink-0">
+                    {currentGrade === 'sixth-preparatory' && <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-800 text-[11px] font-black shrink-0">
                       <Sparkles className="w-3 h-3 text-amber-500" />
                       <span>{meta.ministerialWeight}</span>
-                    </div>
+                    </div>}
 
                   </div>
 
