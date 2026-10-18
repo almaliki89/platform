@@ -17,6 +17,15 @@ import { VISUAL_VOCABULARY_ITEMS } from '../src/data/visualVocabData';
 import { MOCK_EXAM_PAPERS } from '../src/data/mockExamPapers';
 import { THIRD_INTERMEDIATE_MOCK_PAPER } from '../src/data/thirdMockExamPaper';
 import { SUBJECTS } from '../src/data/subjectsData';
+import {
+  ORDERED_GRADES,
+  getUnitsForGrade,
+  getStoriesForGrade,
+  getEssaysForGrade,
+  getQuestionsForGrade,
+  getMockPapersForGrade,
+  getGradeMeta,
+} from '../src/data/gradeContentResolver';
 
 let passed = 0;
 let failed = 0;
@@ -49,7 +58,56 @@ assert(THIRD_INTERMEDIATE_UNITS.length >= 6, `3rd Intermediate must have at leas
 const totalThirdLessons = THIRD_INTERMEDIATE_UNITS.reduce((sum, u) => sum + u.lessons.length, 0);
 assert(totalThirdLessons >= 15, `3rd Intermediate must have at least 15 lessons, got ${totalThirdLessons}`);
 
-// 4. Ministerial Questions Bank
+// 4. All-grade content isolation and resolver integrity
+assert(ORDERED_GRADES.length === 6, `Expected six supported grades, found: ${ORDERED_GRADES.length}`);
+
+const lessonOwnerById = new Map<string, string>();
+const questionOwnerById = new Map<string, string>();
+
+for (const grade of ORDERED_GRADES) {
+  const meta = getGradeMeta(grade);
+  const units = getUnitsForGrade(grade);
+  const stories = getStoriesForGrade(grade);
+  const essays = getEssaysForGrade(grade);
+  const questions = getQuestionsForGrade(grade);
+  const mockPapers = getMockPapersForGrade(grade);
+  const gradeName = meta.nameAr || grade;
+
+  assert(meta.id === grade, `Grade metadata id must match resolver key for ${grade}`);
+  assert(!!meta.nameAr && !!meta.shortName && !!meta.description, `Grade metadata must be complete for ${grade}`);
+  assert(units.length > 0, `${gradeName} must resolve at least one curriculum unit`);
+  assert(stories.length > 0, `${gradeName} must resolve literature or reading content`);
+  assert(essays.length > 0, `${gradeName} must resolve writing content`);
+  assert(questions.length > 0, `${gradeName} must resolve a question bank`);
+  assert(mockPapers.length > 0, `${gradeName} must resolve at least one practice paper`);
+
+  const allLessons = units.flatMap((unit) => unit.lessons);
+  assert(allLessons.length > 0, `${gradeName} must contain lessons`);
+
+  for (const unit of units) {
+    assert(Number.isFinite(unit.id) && unit.id > 0, `Unit id must be positive for ${gradeName}: ${unit.titleAr}`);
+    assert(Number.isFinite(unit.number) && unit.number > 0, `Unit number must be positive for ${gradeName}: ${unit.titleAr}`);
+    assert(!!unit.titleAr && !!unit.titleEn && !!unit.description, `Unit metadata must be complete for ${gradeName}: unit ${unit.number}`);
+    assert(unit.lessons.length > 0, `${gradeName} unit ${unit.number} must contain at least one lesson`);
+
+    for (const lesson of unit.lessons) {
+      assert(!!lesson.id && !!lesson.titleAr && !!lesson.titleEn && !!lesson.summary, `Lesson metadata must be complete for ${gradeName}: ${lesson.id}`);
+      assert(Array.isArray(lesson.detailedContent) && Array.isArray(lesson.examples) && Array.isArray(lesson.exercises), `Lesson collections must be arrays for ${gradeName}: ${lesson.id}`);
+      const previousGrade = lessonOwnerById.get(lesson.id);
+      assert(!previousGrade, `Lesson id ${lesson.id} is shared by ${previousGrade} and ${gradeName}; progress may bleed across grades`);
+      if (!previousGrade) lessonOwnerById.set(lesson.id, gradeName);
+    }
+  }
+
+  for (const question of questions) {
+    assert(!!question.id && !!question.questionText && !!question.correctAnswer, `Question must contain id, prompt and answer for ${gradeName}: ${question.id}`);
+    const previousGrade = questionOwnerById.get(question.id);
+    assert(!previousGrade, `Question id ${question.id} is shared by ${previousGrade} and ${gradeName}; saved-question state may bleed across grades`);
+    if (!previousGrade) questionOwnerById.set(question.id, gradeName);
+  }
+}
+
+// 5. Ministerial Questions Bank
 assert(MINISTERIAL_QUESTIONS.length >= 10, `Ministerial questions bank must contain questions, got ${MINISTERIAL_QUESTIONS.length}`);
 for (const q of MINISTERIAL_QUESTIONS) {
   assert(!!q.id && !!q.questionText && !!q.correctAnswer, `Question ${q.id} must have id, text, and correctAnswer`);
