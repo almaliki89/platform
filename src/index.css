@@ -570,3 +570,54 @@ img, video, canvas, svg { max-width: 100%; }
   .omega-lesson-page .omega-lesson-topbar { align-items: stretch; }
   .omega-grade-page .omega-tabbar { width: 100%; }
 }
+
+
+/* Dark theme pairs with the existing application theme toggle. */
+.dark {
+  color-scheme: dark;
+  --omega-ink: #e5edf8;
+  --omega-muted: #9aaac0;
+  --omega-line: #293a51;
+  --omega-paper: #101a2b;
+  --omega-canvas: #0b1220;
+  --omega-shadow-sm: 0 8px 24px rgba(0, 0, 0, .15);
+  --omega-shadow-md: 0 18px 48px rgba(0, 0, 0, .24);
+}
+.dark body {
+  color: var(--omega-ink);
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(51, 92, 255, .12), transparent 34rem),
+    radial-gradient(ellipse at 94% 16%, rgba(13, 148, 136, .08), transparent 30rem),
+    var(--omega-canvas);
+}
+.dark header.omega-navbar {
+  background: rgba(9, 18, 32, .9);
+  border-color: rgba(41, 58, 81, .92);
+}
+.dark .omega-stat-card {
+  background: rgba(16, 26, 43, .94);
+  border-color: #293a51;
+}
+.dark .omega-stat-label { color: #9aaac0; }
+.dark .omega-stat-value { color: #eef4fc; }
+.dark .omega-stat-foot { color: #8293aa; }
+.dark .omega-shortcut-card {
+  background: rgba(16, 26, 43, .94);
+  border-color: #293a51;
+}
+.dark .omega-shortcut-card strong { color: #e5edf8; }
+.dark .omega-shortcut-card small { color: #9aaac0; }
+.dark .omega-section-heading h2 { color: #e5edf8; }
+.dark .omega-section-heading p { color: #9aaac0; }
+.dark div[class*="bg-white"][class*="border"][class*="rounded-2xl"],
+.dark div[class*="bg-white"][class*="border"][class*="rounded-3xl"] {
+  border-color: #293a51;
+}
+.dark .omega-feed-page > :first-child {
+  background-image: linear-gradient(135deg, rgba(16,26,43,.99), rgba(12,22,37,.96));
+}
+.dark input, .dark select, .dark textarea {
+  color: #e5edf8;
+  background-color: #111d30;
+  border-color: #34455e;
+}
