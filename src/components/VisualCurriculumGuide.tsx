@@ -223,25 +223,17 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-              {(gradeMeta.stage === 'intermediate' ? [
-                { q: 'Q1', title: 'القطعة الخارجية', marks: '20 درجة' },
-                { q: 'Q2', title: 'القواعد والوظائف', marks: '25 درجة' },
-                { q: 'Q3', title: 'المفردات والتنقيط', marks: '20 درجة' },
-                { q: 'Q4', title: 'قصص المطالعة', marks: '15 درجة' },
-                { q: 'Q5', title: 'الإنشاء والتعبير', marks: '20 درجة' },
-              ] : [
-                { q: 'Q1', title: 'القطعة الخارجية والفهم', marks: '20 درجة' },
-                { q: 'Q2', title: 'القواعد (أساسيات)', marks: '30 درجة' },
-                { q: 'Q3', title: 'المفردات والتهجئة', marks: '20 درجة' },
-                { q: 'Q4', title: 'الأدب والشعر', marks: '10 درجات' },
-                { q: 'Q5', title: 'الإنشاء المنهجي', marks: '20 درجة' },
-              ]).map((item, i) => (
-                <div key={i} className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center space-y-2">
-                  <span className="inline-block px-3 py-1 rounded-full bg-indigo-600/20 text-indigo-300 text-xs font-black">
-                    {item.q}
-                  </span>
+              {[
+                { title: 'الوحدات الدراسية', value: units.length, detail: 'وحدات متاحة' },
+                { title: 'الدروس', value: units.reduce((total, unit) => total + unit.lessons.length, 0), detail: 'درس ضمن بيانات الصف' },
+                { title: 'القصص والنصوص', value: stories.length, detail: 'عنصر متاح للمراجعة' },
+                { title: 'الإنشاءات', value: essays.length, detail: 'موضوع ضمن البيانات' },
+                { title: 'التمارين', value: units.reduce((total, unit) => total + unit.lessons.reduce((sum, lesson) => sum + lesson.exercises.length, 0), 0), detail: 'تمرين ضمن الدروس' },
+              ].map((item) => (
+                <div key={item.title} className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center space-y-2">
                   <h4 className="text-sm font-bold text-white">{item.title}</h4>
-                  <p className="text-xs font-black text-amber-400">{item.marks}</p>
+                  <p className="text-2xl font-black text-amber-400">{item.value}</p>
+                  <p className="text-xs text-slate-400">{item.detail}</p>
                 </div>
               ))}
             </div>
