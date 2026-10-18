@@ -183,7 +183,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccessfulAuth }) => {
           <div className="p-4 rounded-2xl bg-indigo-900/40 border border-indigo-500/20 flex items-start gap-3">
             <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
             <p className="text-xs text-indigo-200 font-medium leading-relaxed text-right">
-              يتطلب الدخول إكمال التسجيل برقم هاتفك أو بريدك الإلكتروني لحفظ تقدمك الدراسي ودرجاتك الوزارية في سحابة Google Cloud الدائمة.
+              سجّل برقم هاتفك أو بريدك الإلكتروني لحفظ تقدمك الدراسي وربط بيانات حسابك بخدمة الحفظ السحابي المتاحة.
             </p>
           </div>
 
