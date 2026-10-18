@@ -88,7 +88,7 @@ export const IrregularVerbsLab: React.FC<IrregularVerbsLabProps> = ({
   });
 
   return (
-    <div className="space-y-6 pb-20 max-w-5xl mx-auto">
+    <div className="omega-module space-y-6 pb-20 max-w-5xl mx-auto">
       
       {/* Header Banner */}
       <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-rose-900 via-pink-900 to-slate-900 text-white shadow-lg space-y-4 border border-rose-700/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
