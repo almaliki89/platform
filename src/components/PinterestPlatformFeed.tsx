@@ -27,10 +27,10 @@ export const PinterestPlatformFeed: React.FC<PinterestPlatformFeedProps> = ({
   const [savedPinIds, setSavedPinIds] = useState<string[]>(studentState.bookmarkedQuestionIds || []);
   const [selectedPin, setSelectedPin] = useState<PinItem | null>(null);
   const [userBoards, setUserBoards] = useState<string[]>([
-    'قواعد وزارية مهمة',
-    'مفردات صعبة وحفظية',
-    'أسئلة 2026 الذهبية',
-    'أدب السادس الإعدادي'
+    'قواعد للمراجعة',
+    'المفردات الجديدة',
+    'أسئلة أريد مراجعتها',
+    'قصص ونصوص الصف المختار'
   ]);
   const [newBoardInput, setNewBoardInput] = useState('');
   const [showNewBoardModal, setShowNewBoardModal] = useState(false);
@@ -53,13 +53,11 @@ export const PinterestPlatformFeed: React.FC<PinterestPlatformFeedProps> = ({
         unitTitle: `الوحدة ${unit.number} · ${unit.titleAr}`,
         contentSummary: lesson.summary,
         detailedNotes: lesson.detailedContent,
-        teacherTips: lesson.teacherNotes || ['ركز على هذه القاعدة لأنها تتكرر في الامتحانات الوزارية.'],
-        commonMistakes: lesson.commonMistakes || ['احذر من الخلط بين الأزمان المفتاحية.'],
+        teacherTips: lesson.teacherNotes || ['راجع القاعدة ثم جرّب تطبيقها على مثال.'],
+        commonMistakes: lesson.commonMistakes || ['اقرأ السؤال جيداً وتحقق من تركيب الإجابة.'],
         examples: lesson.examples,
         lessonRef: lesson,
         accentColor: lIdx % 3 === 0 ? 'bg-indigo-700' : lIdx % 3 === 1 ? 'bg-slate-800' : 'bg-teal-700',
-        likesCount: 34 + (lIdx * 7) % 50,
-        savesCount: 12 + (lIdx * 3) % 30
       });
     });
   });
@@ -69,7 +67,7 @@ export const PinterestPlatformFeed: React.FC<PinterestPlatformFeedProps> = ({
   gradeQuestions.forEach((mq, qIdx) => {
     pinsList.push({
       id: `mq-${mq.id}`,
-      title: `سؤال امتحاني وزاري (${mq.year} - ${mq.session})`,
+      title: `تدريب: ${mq.topic}`,
       subtitle: mq.topic,
       category: 'ministerial',
       grade: gradeMeta.nameAr,
@@ -81,13 +79,11 @@ export const PinterestPlatformFeed: React.FC<PinterestPlatformFeedProps> = ({
         `التوضيح القاعدي: ${mq.ruleExplanation}`
       ],
       teacherTips: [
-        `سؤال معتمد في منهج ${gradeMeta.nameAr} لسنة ${mq.year} (${mq.session}).`,
+        `سؤال تدريبي ضمن المحتوى المعروض لصف ${gradeMeta.nameAr}.`,
         `تحقق دائماً من مفاتيح الحل قبل الإجابة.`
       ],
       questionData: mq,
       accentColor: 'bg-amber-800',
-      likesCount: 88 + (qIdx * 5) % 100,
-      savesCount: 45 + (qIdx * 4) % 60
     });
   });
 
@@ -128,7 +124,7 @@ export const PinterestPlatformFeed: React.FC<PinterestPlatformFeedProps> = ({
   };
 
   return (
-    <div className="space-y-6 pb-20 max-w-7xl mx-auto w-full">
+    <div className="omega-module omega-feed-page space-y-6 pb-20 max-w-7xl mx-auto w-full">
       
       {/* 1. Calm Editorial Header */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xs">
@@ -165,7 +161,7 @@ export const PinterestPlatformFeed: React.FC<PinterestPlatformFeedProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ابحث في القواعد، المفردات، أو الأسئلة الوزارية..."
+            placeholder="ابحث في القواعد والمفردات والأسئلة..."
             className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
@@ -177,7 +173,7 @@ export const PinterestPlatformFeed: React.FC<PinterestPlatformFeedProps> = ({
           { id: 'all', label: 'جميع الأفكار' },
           { id: 'grammar', label: 'القواعد والوظائف' },
           { id: 'vocab', label: 'المفردات وكتاب النشاط' },
-          { id: 'ministerial', label: 'الأسئلة الوزارية' },
+          { id: 'ministerial', label: 'بنك الأسئلة' },
           { id: 'saved', label: `المحفوظات (${savedPinIds.length})` },
         ].map((cat) => {
           const isActive = activeCategory === cat.id;

@@ -166,7 +166,7 @@ export const SmartReviewSection: React.FC<SmartReviewSectionProps> = ({
   const accuracyRate = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 100;
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="omega-module space-y-6 pb-16">
       
       {/* 1. Header Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 border border-indigo-500/30 p-6 md:p-8 text-white shadow-2xl">

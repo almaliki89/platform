@@ -126,10 +126,10 @@ export const LessonViewer: React.FC<LessonViewerProps> = ({
   };
 
   return (
-    <div className="space-y-6 pb-20 max-w-4xl mx-auto">
+    <div className="omega-lesson-page space-y-6 pb-20 max-w-4xl mx-auto">
       
       {/* Top Breadcrumb & Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="omega-lesson-topbar flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
         <button
           id="back-to-dashboard-btn"
           onClick={onBackToDashboard}

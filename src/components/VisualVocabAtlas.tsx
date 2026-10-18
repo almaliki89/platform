@@ -114,7 +114,7 @@ export const VisualVocabAtlas: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-8 pb-16 max-w-7xl mx-auto">
+    <div className="omega-module space-y-8 pb-16 max-w-7xl mx-auto">
       
       {/* 1. Header Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 border border-slate-800 text-white p-6 sm:p-9 shadow-2xl">

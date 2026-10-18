@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   GraduationCap, BookOpen, Award, CheckCircle2, 
@@ -37,6 +37,10 @@ export const GradePageView: React.FC<GradePageViewProps> = ({
     ? (gradeId as EducationalGrade)
     : (studentState.selectedGrade || 'sixth-preparatory');
 
+  useEffect(() => {
+    if (studentState.selectedGrade !== validGrade) onSelectGrade(validGrade);
+  }, [validGrade, studentState.selectedGrade, onSelectGrade]);
+
   const gradeMeta = getGradeMeta(validGrade);
   const units = getUnitsForGrade(validGrade);
   const stories = getStoriesForGrade(validGrade);
@@ -49,7 +53,7 @@ export const GradePageView: React.FC<GradePageViewProps> = ({
   const progressPct = allLessons.length > 0 ? Math.round((completedCount / allLessons.length) * 100) : 0;
 
   return (
-    <div className="space-y-6 pb-20 max-w-7xl mx-auto w-full min-w-0" dir="rtl">
+    <div className="omega-grade-page space-y-6 pb-20 max-w-7xl mx-auto w-full min-w-0" dir="rtl">
       
       {/* 1. Single Unified Editorial Header */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xs">
@@ -59,7 +63,7 @@ export const GradePageView: React.FC<GradePageViewProps> = ({
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                المنهج العراقي المعتمد
+                منهج اللغة الإنكليزية العراقي
               </span>
               <span className="text-slate-300 dark:text-slate-700" aria-hidden="true">·</span>
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
@@ -81,7 +85,7 @@ export const GradePageView: React.FC<GradePageViewProps> = ({
               <span aria-hidden="true">·</span>
               <span>الفئة العمرية: <strong className="text-slate-700 dark:text-slate-300">{gradeMeta.ageRangeAr}</strong></span>
               <span aria-hidden="true">·</span>
-              <span>المصدر المعتمد: <strong className="text-emerald-700 dark:text-emerald-400">{gradeMeta.curriculumBook}</strong></span>
+              <span>الكتاب المرجعي: <strong className="text-emerald-700 dark:text-emerald-400">{gradeMeta.curriculumBook}</strong></span>
               <span aria-hidden="true">·</span>
               <span>الساعات الأسبوعية: <strong className="text-slate-700 dark:text-slate-300">{gradeMeta.weeklyHours}</strong></span>
               <span aria-hidden="true">·</span>
@@ -146,7 +150,7 @@ export const GradePageView: React.FC<GradePageViewProps> = ({
       </div>
 
       {/* 2. Structured Section Tabs (Replaces 4 vertical stacked sections) */}
-      <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl w-fit">
+      <div className="omega-tabbar flex flex-wrap items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl max-w-full">
         <button
           type="button"
           onClick={() => setActiveTab('units')}
@@ -188,6 +192,7 @@ export const GradePageView: React.FC<GradePageViewProps> = ({
       {activeTab === 'units' && (
         <div className="space-y-4">
           <CurriculumUnitsSection
+            grade={validGrade}
             studentState={studentState}
             units={units}
             onSelectUnit={onSelectUnit}

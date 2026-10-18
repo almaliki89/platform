@@ -25,7 +25,7 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
   const [activeTab, setActiveTab] = useState<'units' | 'grammar' | 'literature' | 'exam'>('units');
 
   return (
-    <div className="space-y-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xs relative">
+    <div className="omega-visual-guide space-y-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xs relative">
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div className="space-y-1.5">
@@ -37,7 +37,7 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
             <span aria-hidden="true">·</span>
             <span>الفئة العمرية: {gradeMeta.ageRangeAr}</span>
             <span aria-hidden="true">·</span>
-            <span>المنهج العراقي الرسمي</span>
+            <span>محتوى {gradeMeta.nameAr}</span>
             <span aria-hidden="true">·</span>
             <span>إشراف الأستاذ مصطفى تركي</span>
           </div>
@@ -147,33 +147,33 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
                 <Lightbulb className="w-5 h-5" />
                 <span>أبرز قواعد وبطاقات الشرح البصري لـ {gradeMeta.nameAr}</span>
               </h3>
-              <span className="text-xs text-slate-400">مبسطة بالأمثلة الوزارية</span>
+              <span className="text-xs text-slate-400">مبسطة بالأمثلة الواردة في الدروس</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
                 <div className="flex items-center gap-2 text-indigo-400 font-bold text-sm">
                   <Zap className="w-4 h-4" />
-                  <span>قاعدة الأزمنة والتكوين (Tenses Structure)</span>
+                  <span>القواعد الواردة في هذا الصف</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  يتم التركيز في منهج {gradeMeta.shortName} على إتقان التفرقة بين المضارع البسيط والمستمر، والماضي بنوعيه، مع التطبيق الوزاري المباشر.
+                  {units.flatMap((unit) => unit.lessons).filter((lesson) => lesson.category === 'grammar').slice(0, 3).map((lesson) => lesson.titleAr).join(' · ') || 'افتح الوحدات لاستعراض القواعد المتاحة لهذا الصف.'}
                 </p>
                 <div className="p-3 rounded-xl bg-slate-900 border border-indigo-500/20 text-xs font-mono text-amber-300">
-                  Subject + Auxiliary + Verb (Base/V2/V3) + Complement
+                  راجع القاعدة والأمثلة الخاصة بالدرس المختار.
                 </div>
               </div>
 
               <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
                 <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>الأخطاء الشائعة في الامتحانات الوزارية</span>
+                  <span>الأخطاء الشائعة أثناء الحل</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  تجنب الأخطاء الإملائية الشائعة في إضافة (-ed) أو (-ing) والتصريفات الشاذة للأفعال مع مراعاة التنقيط السليم للجملة.
+                  أثناء الحل، راجع تركيب القاعدة كما ورد في الدرس، وترتيب الكلمات، والتهجئة وعلامات الترقيم.
                 </p>
                 <div className="p-3 rounded-xl bg-slate-900 border border-emerald-500/20 text-xs text-emerald-300">
-                  ✓ Always double-check punctuation marks (capital letters & full stops).
+                  ✓ Check the lesson examples before submitting your answer.
                 </div>
               </div>
             </div>
@@ -196,14 +196,14 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
                 <div key={story.id} className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-bold">
-                      {story.author || 'المنهج الوزاري'}
+                      {story.author || 'محتوى الصف'}
                     </span>
-                    <span className="text-xs text-amber-400 font-bold">وزاري مضمون</span>
+                    <span className="text-xs text-amber-400 font-bold">للمراجعة</span>
                   </div>
                   <h4 className="text-base font-bold text-white">{story.titleAr}</h4>
                   <p className="text-xs text-slate-400 font-english">{story.title}</p>
                   <p className="text-xs text-slate-300 leading-relaxed bg-slate-900 p-3 rounded-xl border border-slate-800">
-                    {story.summaryAr || 'قصة ومقال أدبي مقرر في الامتحان الوزاري مع الأسئلة والنموذج الإجابي.'}
+                    {story.summaryAr || 'ملخص ومراجعة للنص؛ راجع الكتاب المدرسي للتأكد من التفاصيل.'}
                   </p>
                 </div>
               ))}
@@ -217,31 +217,23 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-black text-amber-300 flex items-center gap-2">
                 <Award className="w-5 h-5" />
-                <span>هيكلية وتوزيع درجات الامتحان الوزاري (100 درجة كاملة)</span>
+                <span>خارطة المحتوى المتاح لهذا الصف</span>
               </h3>
               <span className="text-xs text-slate-400">{gradeMeta.nameAr}</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-              {(gradeMeta.stage === 'intermediate' ? [
-                { q: 'Q1', title: 'القطعة الخارجية', marks: '20 درجة' },
-                { q: 'Q2', title: 'القواعد والوظائف', marks: '25 درجة' },
-                { q: 'Q3', title: 'المفردات والتنقيط', marks: '20 درجة' },
-                { q: 'Q4', title: 'قصص المطالعة', marks: '15 درجة' },
-                { q: 'Q5', title: 'الإنشاء والتعبير', marks: '20 درجة' },
-              ] : [
-                { q: 'Q1', title: 'القطعة الخارجية والفهم', marks: '20 درجة' },
-                { q: 'Q2', title: 'القواعد (أساسيات)', marks: '30 درجة' },
-                { q: 'Q3', title: 'المفردات والتهجئة', marks: '20 درجة' },
-                { q: 'Q4', title: 'الأدب والشعر', marks: '10 درجات' },
-                { q: 'Q5', title: 'الإنشاء المنهجي', marks: '20 درجة' },
-              ]).map((item, i) => (
-                <div key={i} className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center space-y-2">
-                  <span className="inline-block px-3 py-1 rounded-full bg-indigo-600/20 text-indigo-300 text-xs font-black">
-                    {item.q}
-                  </span>
+              {[
+                { title: 'الوحدات الدراسية', value: units.length, detail: 'وحدات متاحة' },
+                { title: 'الدروس', value: units.reduce((total, unit) => total + unit.lessons.length, 0), detail: 'درس ضمن بيانات الصف' },
+                { title: 'القصص والنصوص', value: stories.length, detail: 'عنصر متاح للمراجعة' },
+                { title: 'الإنشاءات', value: essays.length, detail: 'موضوع ضمن البيانات' },
+                { title: 'التمارين', value: units.reduce((total, unit) => total + unit.lessons.reduce((sum, lesson) => sum + lesson.exercises.length, 0), 0), detail: 'تمرين ضمن الدروس' },
+              ].map((item) => (
+                <div key={item.title} className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center space-y-2">
                   <h4 className="text-sm font-bold text-white">{item.title}</h4>
-                  <p className="text-xs font-black text-amber-400">{item.marks}</p>
+                  <p className="text-2xl font-black text-amber-400">{item.value}</p>
+                  <p className="text-xs text-slate-400">{item.detail}</p>
                 </div>
               ))}
             </div>
@@ -251,7 +243,7 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
                 <Sparkles className="w-6 h-6 text-indigo-400 shrink-0" />
                 <div>
                   <p className="text-xs font-bold text-white">هل أنت مستعد لتجربة الامتحان التجريبي الكامل؟</p>
-                  <p className="text-[11px] text-slate-300">يحتوي المحاكي الوزاري على ورقة أسئلة متكاملة بمدة 100 دقيقة تماماً كالوزاري.</p>
+                  <p className="text-[11px] text-slate-300">تدرّب على الأسئلة المتاحة ثم راجع الإجابات ونقاط التحسين.</p>
                 </div>
               </div>
               {onNavigateTab && (
@@ -259,7 +251,7 @@ export const VisualCurriculumGuide: React.FC<VisualCurriculumGuideProps> = ({
                   onClick={() => onNavigateTab('mock')}
                   className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition-all cursor-pointer shrink-0"
                 >
-                  بدء المحاكي الآن
+                  بدء التدريب
                 </button>
               )}
             </div>

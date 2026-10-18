@@ -139,7 +139,7 @@ export const ExamEngine: React.FC<ExamEngineProps> = ({
   };
 
   return (
-    <div className="space-y-6 pb-20 max-w-5xl mx-auto">
+    <div className="omega-module space-y-6 pb-20 max-w-5xl mx-auto">
       
       {/* Header & Mode Switcher */}
       <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-xs flex flex-col gap-6">

@@ -5,11 +5,12 @@ import {
   ArrowRight, Award, Zap, CheckCircle, Clock, BookMarked,
   Brain, GraduationCap, LayoutGrid, ListTree, Flame, Check
 } from 'lucide-react';
-import { Unit, Lesson, StudentState } from '../types';
+import { Unit, Lesson, StudentState, EducationalGrade } from '../types';
 import { CURRICULUM_UNITS } from '../data/curriculumData';
 import { getEssaysForGrade, getGradeMeta } from '../data/gradeContentResolver';
 
 interface CurriculumUnitsSectionProps {
+  grade?: EducationalGrade;
   studentState: StudentState;
   onSelectUnit: (unit: Unit) => void;
   onSelectLesson: (lesson: Lesson) => void;
@@ -157,11 +158,13 @@ const UNIT_META: Record<number, UnitThematicMeta> = {
 };
 
 export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
+  grade,
   studentState,
   onSelectUnit,
   onSelectLesson,
   units = CURRICULUM_UNITS,
 }) => {
+  const currentGrade = grade || studentState.selectedGrade || 'sixth-preparatory';
   const [filterTerm, setFilterTerm] = useState<'all' | 'term1' | 'term2' | 'in_progress' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'roadmap'>('cards');
@@ -199,8 +202,8 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
       const isInProgress = completedCount > 0 && completedCount < unit.lessons.length;
 
       // Filter by term
-      if (filterTerm === 'term1' && meta?.term !== 1) return false;
-      if (filterTerm === 'term2' && meta?.term !== 2) return false;
+      if (currentGrade === 'sixth-preparatory' && filterTerm === 'term1' && meta?.term !== 1) return false;
+      if (currentGrade === 'sixth-preparatory' && filterTerm === 'term2' && meta?.term !== 2) return false;
       if (filterTerm === 'completed' && !isCompleted) return false;
       if (filterTerm === 'in_progress' && !isInProgress) return false;
 
@@ -209,8 +212,16 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
         const query = searchQuery.toLowerCase().trim();
         const matchesTitle = unit.titleAr.toLowerCase().includes(query) || unit.titleEn.toLowerCase().includes(query);
         const matchesDesc = unit.description.toLowerCase().includes(query);
-        const matchesGrammar = meta?.keyGrammar.some(g => g.toLowerCase().includes(query));
-        const matchesReading = meta?.readingPassages.some(r => r.toLowerCase().includes(query));
+        const gradeSearchTerms = currentGrade === 'sixth-preparatory'
+          ? [...meta.keyGrammar, ...meta.readingPassages]
+          : unit.lessons.flatMap((lesson) => [lesson.titleAr, lesson.titleEn, lesson.summary]);
+        const matchesGrammar = gradeSearchTerms.some((term) => term.toLowerCase().includes(query));
+        const matchesReading = currentGrade === 'sixth-preparatory'
+          ? meta.readingPassages.some((reading) => reading.toLowerCase().includes(query))
+          : unit.lessons.some((lesson) =>
+              lesson.category === 'reading' &&
+              [lesson.titleAr, lesson.titleEn, lesson.summary].some((text) => text.toLowerCase().includes(query))
+            );
         const matchesLessons = unit.lessons.some(l => l.titleAr.toLowerCase().includes(query) || l.titleEn.toLowerCase().includes(query));
 
         return matchesTitle || matchesDesc || matchesGrammar || matchesReading || matchesLessons;
@@ -218,16 +229,16 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
 
       return true;
     });
-  }, [filterTerm, searchQuery, studentState.completedLessonIds, units]);
+  }, [currentGrade, filterTerm, searchQuery, studentState.completedLessonIds, units]);
 
   // Overall statistics
   const totalUnits = units.length;
   const allLessons = units.flatMap(u => u.lessons);
-  const totalCompletedLessons = studentState.completedLessonIds.length;
-  const overallPercentage = allLessons.length > 0 ? Math.round((totalCompletedLessons / allLessons.length) * 100) : 0;
+  const totalCompletedLessons = allLessons.filter((lesson) => studentState.completedLessonIds.includes(lesson.id)).length;
+  const overallPercentage = allLessons.length > 0 ? Math.min(100, Math.round((totalCompletedLessons / allLessons.length) * 100)) : 0;
 
   return (
-    <section id="curriculum-units-section" className="space-y-6 pt-2">
+    <section id="curriculum-units-section" className="omega-module space-y-6 pt-2">
       
       {/* 1. Header & Controls Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/90 shadow-xs">
@@ -238,10 +249,10 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
             </span>
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                الوحدات الدراسية المقررة (Curriculum Units 1 - 8)
+                الوحدات الدراسية · {getGradeMeta(currentGrade).nameAr}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                منهاج الأستاذ مصطفى تركي 2027 • مرتبة حسب الأهمية الوزارية مع خطة الإتقان
+                {totalUnits} وحدة دراسية · اختر الوحدة والدرس لمتابعة تقدمك
               </p>
             </div>
           </div>
@@ -292,9 +303,11 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
         {/* Term Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
           {[
-            { id: 'all', label: 'جميع الوحدات (8)' },
-            { id: 'term1', label: 'الفصل الأول (U1-U4)' },
-            { id: 'term2', label: 'الفصل الثاني (U5-U8)' },
+            { id: 'all', label: 'جميع الوحدات (' + totalUnits + ')' },
+            ...(currentGrade === 'sixth-preparatory' ? [
+              { id: 'term1', label: 'الفصل الأول (U1-U4)' },
+              { id: 'term2', label: 'الفصل الثاني (U5-U8)' },
+            ] : []),
             { id: 'in_progress', label: 'قيد المتابعة' },
             { id: 'completed', label: 'المكتملة' },
           ].map((tab) => {
@@ -367,7 +380,6 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
               ? Math.round((completedInUnit / unit.lessons.length) * 100) 
               : 0;
             const isUnitFullyCompleted = progressRatio === 100;
-            const currentGrade = studentState.selectedGrade || 'sixth-preparatory';
             const allEssays = getEssaysForGrade(currentGrade);
             const unitEssays = allEssays.filter(e => e.unitId === unit.number);
             const isExpanded = !!expandedUnitIds[unit.number];
@@ -405,9 +417,9 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
                       <span className={`px-3 py-1.5 rounded-xl font-black text-xs shadow-xs ${meta.color.badge}`}>
                         الوحدة {unit.number}
                       </span>
-                      <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
+                      {currentGrade === 'sixth-preparatory' && <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
                         الفصل {meta.term === 1 ? 'الأول' : 'الثاني'}
-                      </span>
+                      </span>}
                       {isUnitFullyCompleted && (
                         <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
                           <CheckCircle className="w-3.5 h-3.5" />
@@ -417,10 +429,6 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
                     </div>
 
                     {/* Weight Badge */}
-                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-800 text-[11px] font-black shrink-0">
-                      <Sparkles className="w-3 h-3 text-amber-500" />
-                      <span>{meta.ministerialWeight}</span>
-                    </div>
 
                   </div>
 
@@ -603,7 +611,7 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
           <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 flex items-center justify-between text-xs text-indigo-900 font-semibold">
             <div className="flex items-center gap-2">
               <Compass className="w-4 h-4 text-indigo-600" />
-              <span>المسار التتابعي المنهجي: الوحدات مرتبة تسلسلياً لضمان تغطية المنهاج الوزاري خطوة بخطوة.</span>
+              <span>مسار دراسي يساعدك على متابعة وحدات الصف بالتسلسل.</span>
             </div>
           </div>
 
@@ -639,9 +647,6 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
                         </h3>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
-                          {meta.ministerialWeight}
-                        </span>
                         <span className="text-xs font-bold text-slate-500">
                           {completedInUnit}/{unit.lessons.length} دروس
                         </span>
@@ -654,7 +659,7 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
 
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
                       <div className="flex flex-wrap gap-1.5">
-                        {((studentState.selectedGrade || 'sixth-preparatory') === 'sixth-preparatory' ? meta.keyGrammar : unit.lessons.map(l => l.titleAr)).slice(0, 3).map((g, gi) => (
+                        {(currentGrade === 'sixth-preparatory' ? meta.keyGrammar : unit.lessons.map(l => l.titleAr)).slice(0, 3).map((g, gi) => (
                           <span key={gi} className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md">
                             {g}
                           </span>

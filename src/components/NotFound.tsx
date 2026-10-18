@@ -4,7 +4,7 @@ import { Home, Compass, AlertCircle } from 'lucide-react';
 
 export const NotFound: React.FC = () => {
   return (
-    <div className="min-h-[60vh] flex items-center justify-center p-4 text-center" dir="rtl">
+    <div className="omega-not-found min-h-[60vh] flex items-center justify-center p-4 text-center" dir="rtl">
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 sm:p-12 max-w-lg w-full shadow-lg space-y-6">
         <div className="w-16 h-16 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto shadow-sm">
           <AlertCircle className="w-8 h-8" />

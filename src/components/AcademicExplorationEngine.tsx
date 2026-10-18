@@ -73,81 +73,17 @@ export const AcademicExplorationEngine: React.FC<AcademicExplorationEngineProps>
 
   const mindNodes = generateMindNodes();
 
-  // Generate comparison / contrast data
-  const getContrastMatrix = () => {
-    const title = lesson.titleEn.toLowerCase();
-    
-    if (title.includes('while') || title.includes('as') || title.includes('past')) {
-      return {
-        leftTitle: 'أدوات الربط (While / As)',
-        leftRule: 'يأتي بعدها دائماً ماضٍ مستمر (Past Continuous: was/were + v-ing)',
-        leftExample: 'While he was swimming, a shark attacked him.',
-        rightTitle: 'أدوات الربط (When / And)',
-        rightRule: 'يأتي بعدها دائماً ماضٍ بسيط (Past Simple: V2)',
-        rightExample: 'We were having breakfast when a bird flew into the kitchen.',
-        trap: 'لا تأتي أداة الربط (And) في بداية الجملة إطلاقاً في الامتحان الوزاري!'
-      };
-    }
-
-    if (title.includes('-ed') || title.includes('-ing') || title.includes('adjective')) {
-      return {
-        leftTitle: 'الصفات المنتهية بـ (-ed)',
-        leftRule: 'تصف شعور وإحساس الشخص العاقل (Person’s feeling / emotion)',
-        leftExample: 'She was very frightened when she saw the spider.',
-        rightTitle: 'الصفات المنتهية بـ (-ing)',
-        rightRule: 'تصف الشيء أو الشخص المسبب للشعور (The cause / giver of feeling)',
-        rightExample: 'It was the most exciting movie I have ever watched.',
-        trap: 'إذا جاء بعد القوس اسم موصوف مباشرة مثل (book / movie / person / day)، اختر دائماً صفة (-ing) دون تردد!'
-      };
-    }
-
-    if (title.includes('used to')) {
-      return {
-        leftTitle: 'صيغة الإثبات (Used to + inf)',
-        leftRule: 'تستخدم لعادة كانت موجودة في الماضي وتوقفت الآن.',
-        leftExample: 'He used to smoke, but he gave it up last year.',
-        rightTitle: 'صيغة النفي (Didn’t use to + inf)',
-        rightRule: 'تستخدم لعادة لم تكن موجودة، وانتبه لحذف حرف (d) بعد didn’t!',
-        rightExample: 'She didn’t use to wear glasses, but now she does.',
-        trap: 'في النفي والاستفهام نكتب use to بدون حرف d!'
-      };
-    }
-
-    if (title.includes('must') || title.includes('have to') || title.includes('need to')) {
-      return {
-        leftTitle: 'الإلزام والضرورة (Must / Have to / Need to)',
-        leftRule: 'يأتي بعدها فعل مجرد للتعبير عن الإلزام القانوني أو الأمني.',
-        leftExample: 'You must put on your seat belt when in a car.',
-        rightTitle: 'المنع والتحذير القطعي (Mustn’t)',
-        rightRule: 'تعني أن الفعل ممنوع قانونياً أو يسبب خطراً كارثياً (Smoking in hospital).',
-        rightExample: 'You mustn’t smoke in the police station or hospital.',
-        trap: 'كلمة (needn’t) لا تأخذ حرف (to) إطلاقاً! نقول You needn’t go.'
-      };
-    }
-
-    if (title.includes('if') || title.includes('conditional')) {
-      return {
-        leftTitle: 'الشرطية الثانية (Second Conditional)',
-        leftRule: 'جملة فعل الشرط (If) ماضٍ بسيط ➔ وجواب الشرط (would + inf)',
-        leftExample: 'If I had a lot of money, I would buy a sports car.',
-        rightTitle: 'الشرطية الثالثة (Third Conditional)',
-        rightRule: 'جملة فعل الشرط ماضٍ تام (had + p.p) ➔ وجواب الشرط (would have + p.p)',
-        rightExample: 'If I had known about your problem, I would have helped you.',
-        trap: 'إذا وجدْت (would + have + p.p) فالطرف الآخر حتماً ماضٍ تام (had + p.p).'
-      };
-    }
-
-    // Default Universal Contrast
-    return {
-      leftTitle: 'الصياغة القياسية المعتمدة',
-      leftRule: 'تطبيق القاعدة المباشرة وفق جدول الأزمنة والأدوات المعطاة في الدرس.',
-      leftExample: lesson.examples[0]?.en || 'Apply standard grammatical formulas consistently.',
-      rightTitle: 'الاستثناءات والتحويل الوزاري',
-      rightRule: 'مراعاة مطابقة الفاعل، علامات الترقيم، وحذف الدلائل عند السؤال.',
-      rightExample: lesson.examples[1]?.en || 'Mind irregular verbs and pronoun transformations.',
-      trap: 'راجع إملاء الكلمات المحولة لتجنب خصم نصف الدرجة في الدفتر الامتحاني.'
-    };
-  };
+  // Verified pairwise comparison metadata is not available in the lesson schema.
+  // Use lesson-sourced explanations and examples instead of guessing from title keywords.
+  const getContrastMatrix = () => ({
+    leftTitle: 'ملخص الدرس',
+    leftRule: lesson.summary || 'راجع شرح الدرس قبل تطبيق القاعدة.',
+    leftExample: lesson.examples[0]?.en || 'Review the lesson examples.',
+    rightTitle: 'تطبيق من محتوى الدرس',
+    rightRule: lesson.detailedContent[0] || 'ارجع إلى تفاصيل الدرس للتحقق من القاعدة.',
+    rightExample: lesson.examples[1]?.en || lesson.examples[0]?.en || 'Apply the rule using the lesson content.',
+    trap: lesson.commonMistakes?.[0] || 'تحقّق من صياغة الإجابة بالرجوع إلى شرح الدرس، ولا تفترض وجود استثناء غير مذكور.'
+  });
 
   const contrast = getContrastMatrix();
 
@@ -169,7 +105,7 @@ export const AcademicExplorationEngine: React.FC<AcademicExplorationEngineProps>
       stepNumber: '03',
       title: 'التحويل والصياغة الإملائية الدقيقة',
       desc: 'كتابة الفعل بالشكل الصحيح مع تصريف الأفعال الشاذة وعلامات الترقيم.',
-      tip: 'تأكد من كتابة كل حرف بدقة لضمان الدرجة الكاملة.'
+      tip: 'تأكد من كتابة كل حرف بدقة قبل تسليم الإجابة.'
     },
     {
       stepNumber: '04',
@@ -180,7 +116,7 @@ export const AcademicExplorationEngine: React.FC<AcademicExplorationEngineProps>
   ];
 
   const filteredDetailedContent = highYieldOnly
-    ? lesson.detailedContent.filter((_, idx) => idx % 2 === 0 || idx === 0)
+    ? (lesson.teacherNotes.length > 0 ? lesson.teacherNotes : lesson.detailedContent)
     : lesson.detailedContent;
 
   return (
@@ -578,7 +514,7 @@ export const AcademicExplorationEngine: React.FC<AcademicExplorationEngineProps>
                 خوارزمية التفكير للحل النموذجي بالدفتر الامتحاني
               </h3>
             </div>
-            <span className="text-xs text-slate-500">4 خطوات ذهبية لضمان الدرجة الكاملة</span>
+            <span className="text-xs text-slate-500">4 خطوات لمراجعة الإجابة بدقة</span>
           </div>
 
           {/* Stepper Interactive Timeline */}

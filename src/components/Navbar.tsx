@@ -123,7 +123,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <header className="omega-navbar sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Bar Contract: Zone 1 (Brand) - Zone 2 (Nav) - Zone 3 (Actions) */}
         <div className="flex items-center justify-between gap-6 h-16">
@@ -231,7 +231,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                           key={g}
                           type="button"
                           onClick={() => {
-                            onSelectGrade(g);
+                            if (location.pathname.startsWith('/grade/')) {
+                              navigate(`/grade/${g}`);
+                            } else {
+                              onSelectGrade(g);
+                              if (location.pathname.startsWith('/lesson/')) {
+                                navigate(`/grade/${g}`);
+                              }
+                            }
                             setIsGradeMenuOpen(false);
                           }}
                           className={`w-full text-right px-2.5 py-2 rounded-lg text-xs transition-colors flex items-center justify-between cursor-pointer ${

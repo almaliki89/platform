@@ -21,8 +21,6 @@ export interface PinItem {
   questionData?: MinisterialExamQuestion;
   lessonRef?: Lesson;
   accentColor: string;
-  likesCount: number;
-  savesCount: number;
 }
 
 interface PinterestPinModalProps {
@@ -42,18 +40,15 @@ export const PinterestPinModal: React.FC<PinterestPinModalProps> = ({
 }) => {
   const [saved, setSaved] = useState(isSaved);
   const [liked, setLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(pin.likesCount);
-  const [selectedBoard, setSelectedBoard] = useState('قواعد وزارية مهمة');
+  const [selectedBoard, setSelectedBoard] = useState('قواعد للمراجعة');
   const [showBoardDropdown, setShowBoardDropdown] = useState(false);
 
   const handleLike = () => {
     if (!liked) {
       setLiked(true);
-      setLikesCount(c => c + 1);
       triggerCelebration();
     } else {
       setLiked(false);
-      setLikesCount(c => c - 1);
     }
   };
 
@@ -64,7 +59,7 @@ export const PinterestPinModal: React.FC<PinterestPinModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto animate-fade-in">
+    <div className="omega-modal fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto animate-fade-in">
       <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Top Header Bar */}
@@ -99,7 +94,7 @@ export const PinterestPinModal: React.FC<PinterestPinModalProps> = ({
               }`}
             >
               <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
-              <span>{likesCount}</span>
+              <span>{liked ? 'تم الإعجاب' : 'إعجاب'}</span>
             </button>
 
             <div className="relative">
@@ -200,7 +195,7 @@ export const PinterestPinModal: React.FC<PinterestPinModalProps> = ({
               <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 space-y-2">
                 <div className="flex items-center gap-2 text-rose-800 dark:text-rose-400 font-black text-xs">
                   <AlertTriangle className="w-4 h-4" />
-                  <span>فخوخ وزارية احذر منها ⚠️</span>
+                  <span>أخطاء شائعة انتبه لها</span>
                 </div>
                 <ul className="space-y-1.5">
                   {pin.commonMistakes.map((mistake, idx) => (
