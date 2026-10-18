@@ -212,8 +212,16 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
         const query = searchQuery.toLowerCase().trim();
         const matchesTitle = unit.titleAr.toLowerCase().includes(query) || unit.titleEn.toLowerCase().includes(query);
         const matchesDesc = unit.description.toLowerCase().includes(query);
-        const matchesGrammar = meta?.keyGrammar.some(g => g.toLowerCase().includes(query));
-        const matchesReading = meta?.readingPassages.some(r => r.toLowerCase().includes(query));
+        const gradeSearchTerms = currentGrade === 'sixth-preparatory'
+          ? [...meta.keyGrammar, ...meta.readingPassages]
+          : unit.lessons.flatMap((lesson) => [lesson.titleAr, lesson.titleEn, lesson.summary]);
+        const matchesGrammar = gradeSearchTerms.some((term) => term.toLowerCase().includes(query));
+        const matchesReading = currentGrade === 'sixth-preparatory'
+          ? meta.readingPassages.some((reading) => reading.toLowerCase().includes(query))
+          : unit.lessons.some((lesson) =>
+              lesson.category === 'reading' &&
+              [lesson.titleAr, lesson.titleEn, lesson.summary].some((text) => text.toLowerCase().includes(query))
+            );
         const matchesLessons = unit.lessons.some(l => l.titleAr.toLowerCase().includes(query) || l.titleEn.toLowerCase().includes(query));
 
         return matchesTitle || matchesDesc || matchesGrammar || matchesReading || matchesLessons;
