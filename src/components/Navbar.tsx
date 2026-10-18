@@ -231,7 +231,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                           key={g}
                           type="button"
                           onClick={() => {
-                            onSelectGrade(g);
+                            if (location.pathname.startsWith('/grade/')) {
+                              navigate(`/grade/${g}`);
+                            } else {
+                              onSelectGrade(g);
+                              if (location.pathname.startsWith('/lesson/')) {
+                                navigate(`/grade/${g}`);
+                              }
+                            }
                             setIsGradeMenuOpen(false);
                           }}
                           className={`w-full text-right px-2.5 py-2 rounded-lg text-xs transition-colors flex items-center justify-between cursor-pointer ${
