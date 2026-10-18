@@ -230,7 +230,7 @@ export const CurriculumUnitsSection: React.FC<CurriculumUnitsSectionProps> = ({
   const overallPercentage = allLessons.length > 0 ? Math.min(100, Math.round((totalCompletedLessons / allLessons.length) * 100)) : 0;
 
   return (
-    <section id="curriculum-units-section" className="space-y-6 pt-2">
+    <section id="curriculum-units-section" className="omega-module space-y-6 pt-2">
       
       {/* 1. Header & Controls Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/90 shadow-xs">
