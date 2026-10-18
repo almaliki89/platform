@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   GraduationCap, BookOpen, Award, CheckCircle2, 
@@ -37,6 +37,10 @@ export const GradePageView: React.FC<GradePageViewProps> = ({
     ? (gradeId as EducationalGrade)
     : (studentState.selectedGrade || 'sixth-preparatory');
 
+  useEffect(() => {
+    if (studentState.selectedGrade !== validGrade) onSelectGrade(validGrade);
+  }, [validGrade, studentState.selectedGrade, onSelectGrade]);
+
   const gradeMeta = getGradeMeta(validGrade);
   const units = getUnitsForGrade(validGrade);
   const stories = getStoriesForGrade(validGrade);
@@ -59,7 +63,7 @@ export const GradePageView: React.FC<GradePageViewProps> = ({
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                المنهج العراقي المعتمد
+                منهج اللغة الإنكليزية العراقي
               </span>
               <span className="text-slate-300 dark:text-slate-700" aria-hidden="true">·</span>
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
