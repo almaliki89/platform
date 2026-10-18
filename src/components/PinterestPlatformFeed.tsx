@@ -124,7 +124,7 @@ export const PinterestPlatformFeed: React.FC<PinterestPlatformFeedProps> = ({
   };
 
   return (
-    <div className="space-y-6 pb-20 max-w-7xl mx-auto w-full">
+    <div className="omega-module omega-feed-page space-y-6 pb-20 max-w-7xl mx-auto w-full">
       
       {/* 1. Calm Editorial Header */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xs">
