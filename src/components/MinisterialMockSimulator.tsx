@@ -303,7 +303,7 @@ export const MinisterialMockSimulator: React.FC<MinisterialMockSimulatorProps> =
   };
 
   return (
-    <div className="space-y-6 pb-20 max-w-5xl mx-auto">
+    <div className="omega-module space-y-6 pb-20 max-w-5xl mx-auto">
       
       {/* 1. INTRO / START SCREEN */}
       {examStatus === 'intro' && (
